@@ -85,3 +85,18 @@ func (mch *MchV3) LoadWCertFromPemBlock(certPEMBlock, keyPEMBlock []byte) error 
 
 	return nil
 }
+
+// AppID returns appid
+func (mch *MchV3) AppID() string {
+	return mch.appid
+}
+
+// MchID returns mchid
+func (mch *MchV3) MchID() string {
+	return mch.mchid
+}
+
+// ApiKey returns apikey
+func (mch *MchV3) ApiKey() string {
+	return mch.apikey
+}
