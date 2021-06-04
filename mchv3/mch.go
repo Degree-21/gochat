@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"io"
+	"os"
 
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -36,7 +37,19 @@ func New(appid, mchid, apikey string) *MchV3 {
 
 // LoadMCertFromPemFile 加载商户证书
 func (mch *MchV3) LoadMCertFromPemFile(certFile, keyFile string) error {
-	cert, err := wx.NewRSACertFromPemFile(certFile, keyFile)
+	certPEMBlock, err := os.ReadFile(certFile)
+
+	if err != nil {
+		return err
+	}
+
+	keyPEMBlock, err := os.ReadFile(keyFile)
+
+	if err != nil {
+		return err
+	}
+
+	cert, err := wx.NewRSACert(certPEMBlock, keyPEMBlock)
 
 	if err != nil {
 		return err
@@ -49,7 +62,7 @@ func (mch *MchV3) LoadMCertFromPemFile(certFile, keyFile string) error {
 
 // LoadMCertFromPemBlock 加载商户证书
 func (mch *MchV3) LoadMCertFromPemBlock(certPEMBlock, keyPEMBlock []byte) error {
-	cert, err := wx.NewRSACertFromPemBlock(certPEMBlock, keyPEMBlock)
+	cert, err := wx.NewRSACert(certPEMBlock, keyPEMBlock)
 
 	if err != nil {
 		return err
@@ -62,7 +75,19 @@ func (mch *MchV3) LoadMCertFromPemBlock(certPEMBlock, keyPEMBlock []byte) error 
 
 // LoadWCertFromPemFile 加载平台证书
 func (mch *MchV3) LoadWCertFromPemFile(certFile, keyFile string) error {
-	cert, err := wx.NewRSACertFromPemFile(certFile, keyFile)
+	certPEMBlock, err := os.ReadFile(certFile)
+
+	if err != nil {
+		return err
+	}
+
+	keyPEMBlock, err := os.ReadFile(keyFile)
+
+	if err != nil {
+		return err
+	}
+
+	cert, err := wx.NewRSACert(certPEMBlock, keyPEMBlock)
 
 	if err != nil {
 		return err
@@ -75,7 +100,7 @@ func (mch *MchV3) LoadWCertFromPemFile(certFile, keyFile string) error {
 
 // LoadWCertFromPemBlock 加载平台证书
 func (mch *MchV3) LoadWCertFromPemBlock(certPEMBlock, keyPEMBlock []byte) error {
-	cert, err := wx.NewRSACertFromPemBlock(certPEMBlock, keyPEMBlock)
+	cert, err := wx.NewRSACert(certPEMBlock, keyPEMBlock)
 
 	if err != nil {
 		return err

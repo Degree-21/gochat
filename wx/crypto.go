@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -227,8 +228,8 @@ func NewGCMCrypto(key, nonce []byte) AESCrypto {
 	}
 }
 
-// RSAEncrypt rsa encrypt with public key
-func RSAEncrypt(plainText, publicKey []byte) ([]byte, error) {
+// RSAEncryptOEAP rsa encrypt with PKCS #1 OEAP
+func RSAEncryptOEAP(plainText, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 
 	if block == nil {
@@ -247,11 +248,11 @@ func RSAEncrypt(plainText, publicKey []byte) ([]byte, error) {
 		return nil, errors.New("gochat: invalid rsa public key")
 	}
 
-	return rsa.EncryptPKCS1v15(rand.Reader, key, plainText)
+	return rsa.EncryptOAEP(sha1.New(), rand.Reader, key, plainText, nil)
 }
 
-// RSADecrypt rsa decrypt with private key
-func RSADecrypt(cipherText, privateKey []byte) ([]byte, error) {
+// RSADecryptOEAP rsa decrypt with PKCS #1 OEAP
+func RSADecryptOEAP(cipherText, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 
 	if block == nil {
@@ -280,7 +281,7 @@ func RSADecrypt(cipherText, privateKey []byte) ([]byte, error) {
 		return nil, errors.New("gochat: invalid rsa private key")
 	}
 
-	return rsa.DecryptPKCS1v15(rand.Reader, rsaKey, cipherText)
+	return rsa.DecryptOAEP(sha1.New(), rand.Reader, rsaKey, cipherText, nil)
 }
 
 func ZeroPadding(cipherText []byte, blockSize int) []byte {
