@@ -23,6 +23,16 @@ const (
 	PKCS7 PaddingMode = "PKCS#7"
 )
 
+// PemBlockType pem block type which taken from the preamble
+type PemBlockType string
+
+const (
+	// RSAPKCS1 private key in PKCS#1
+	RSAPKCS1 PemBlockType = "RSA PRIVATE KEY"
+	// RSAPKCS8 private key in PKCS#8
+	RSAPKCS8 PemBlockType = "PRIVATE KEY"
+)
+
 // AESCrypto is the interface for aes crypto
 type AESCrypto interface {
 	// Encrypt encrypts the plain text
@@ -46,7 +56,7 @@ func (c *cbccrypto) Encrypt(plainText []byte) ([]byte, error) {
 	}
 
 	if len(c.iv) != block.BlockSize() {
-		return nil, errors.New("yiigo: IV length must equal block size")
+		return nil, errors.New("gochat: IV length must equal block size")
 	}
 
 	switch c.mode {
@@ -74,7 +84,7 @@ func (c *cbccrypto) Decrypt(cipherText []byte) ([]byte, error) {
 	}
 
 	if len(c.iv) != block.BlockSize() {
-		return nil, errors.New("yiigo: IV length must equal block size")
+		return nil, errors.New("gochat: IV length must equal block size")
 	}
 
 	plainText := make([]byte, len(cipherText))
@@ -164,8 +174,61 @@ func NewECBCrypto(key []byte, mode PaddingMode) AESCrypto {
 	}
 }
 
-// RSAEncrypt rsa encryption with public key
-func RSAEncrypt(data, publicKey []byte) ([]byte, error) {
+type gcmcrypto struct {
+	key   []byte
+	nonce []byte
+}
+
+func (c *gcmcrypto) Encrypt(plainText []byte) ([]byte, error) {
+	block, err := aes.NewCipher(c.key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(c.nonce) != aesgcm.NonceSize() {
+		return nil, errors.New("gochat: Nonce length must equal gcm standard nonce size")
+	}
+
+	return aesgcm.Seal(nil, c.nonce, plainText, nil), nil
+}
+
+func (c *gcmcrypto) Decrypt(cipherText []byte) ([]byte, error) {
+	block, err := aes.NewCipher(c.key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	aesgcm, err := cipher.NewGCM(block)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(c.nonce) != aesgcm.NonceSize() {
+		return nil, errors.New("gochat: Nonce length must equal gcm standard nonce size")
+	}
+
+	return aesgcm.Open(nil, c.nonce, cipherText, nil)
+}
+
+// NewGCMCrypto returns a new aes-gcm crypto
+func NewGCMCrypto(key, nonce []byte) AESCrypto {
+	return &gcmcrypto{
+		key:   key,
+		nonce: nonce,
+	}
+}
+
+// RSAEncrypt rsa encrypt with public key
+func RSAEncrypt(plainText, publicKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
 
 	if block == nil {
@@ -184,10 +247,10 @@ func RSAEncrypt(data, publicKey []byte) ([]byte, error) {
 		return nil, errors.New("gochat: invalid rsa public key")
 	}
 
-	return rsa.EncryptPKCS1v15(rand.Reader, key, data)
+	return rsa.EncryptPKCS1v15(rand.Reader, key, plainText)
 }
 
-// RSADecrypt rsa decryption with private key
+// RSADecrypt rsa decrypt with private key
 func RSADecrypt(cipherText, privateKey []byte) ([]byte, error) {
 	block, _ := pem.Decode(privateKey)
 
@@ -195,13 +258,29 @@ func RSADecrypt(cipherText, privateKey []byte) ([]byte, error) {
 		return nil, errors.New("gochat: invalid rsa private key")
 	}
 
-	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	var (
+		key interface{}
+		err error
+	)
+
+	switch PemBlockType(block.Type) {
+	case RSAPKCS1:
+		key, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+	case RSAPKCS8:
+		key, err = x509.ParsePKCS8PrivateKey(block.Bytes)
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	return rsa.DecryptPKCS1v15(rand.Reader, key, cipherText)
+	rsaKey, ok := key.(*rsa.PrivateKey)
+
+	if !ok {
+		return nil, errors.New("gochat: invalid rsa private key")
+	}
+
+	return rsa.DecryptPKCS1v15(rand.Reader, rsaKey, cipherText)
 }
 
 func ZeroPadding(cipherText []byte, blockSize int) []byte {
