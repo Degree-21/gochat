@@ -71,6 +71,7 @@ func (r *rsacert) ExpiredAt() time.Time {
 	return r.cert.NotAfter
 }
 
+// NewRSACert returns a new rsa cert
 func NewRSACert(certPEMBlock []byte) (RSACert, error) {
 	// x509 cert
 	certDERBlock, _ := pem.Decode(certPEMBlock)
@@ -118,6 +119,7 @@ func (r *rsakey) SignWithSha256(data []byte) ([]byte, error) {
 	return signature, nil
 }
 
+// NewRSAKey returns a new rsa key
 func NewRSAKey(keyPEMBlock []byte) (RSAKey, error) {
 	keyDERBlock, _ := pem.Decode(keyPEMBlock)
 
