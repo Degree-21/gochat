@@ -12,7 +12,7 @@ import (
 func TestLoadCertFromPemBlock(t *testing.T) {
 	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d")
 
-	assert.Nil(t, mch.LoadCertFromPemBlock(certPemBlock, keyPemBlock))
+	assert.Nil(t, mch.LoadCertificate(WithCertPEMBlock(certPemBlock, keyPemBlock)))
 }
 
 func TestAccount(t *testing.T) {

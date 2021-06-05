@@ -21,47 +21,95 @@ type RSACert interface {
 	// EncryptOEAP OEAP加密
 	EncryptOEAP(plainText []byte) ([]byte, error)
 
+	// VerifyWithSha256 签名验证
+	VerifyWithSha256(data, signature []byte) error
+
+	// IsValid 证书是否有效
+	IsValid() bool
+
+	// ExpiredAt 证书过期时间
+	ExpiredAt() time.Time
+}
+
+type rsacert struct {
+	cert *x509.Certificate
+}
+
+func (r *rsacert) SerialNumber() string {
+	return fmt.Sprintf("%X", r.cert.SerialNumber)
+}
+
+func (r *rsacert) EncryptOEAP(plainText []byte) ([]byte, error) {
+	publicKey, ok := r.cert.PublicKey.(*rsa.PublicKey)
+
+	if !ok {
+		return nil, errors.New("gochat: invalid rsa public key")
+	}
+
+	return rsa.EncryptOAEP(sha1.New(), rand.Reader, publicKey, plainText, nil)
+}
+
+func (r *rsacert) VerifyWithSha256(data, signature []byte) error {
+	publicKey, ok := r.cert.PublicKey.(*rsa.PublicKey)
+
+	if !ok {
+		return errors.New("gochat: invalid rsa public key")
+	}
+
+	hashed := sha256.Sum256(data)
+
+	return rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], signature)
+}
+
+func (r *rsacert) IsValid() bool {
+	now := time.Now()
+
+	return now.After(r.cert.NotBefore) && now.Before(r.cert.NotAfter)
+}
+
+func (r *rsacert) ExpiredAt() time.Time {
+	return r.cert.NotAfter
+}
+
+func NewRSACert(certPEMBlock []byte) (RSACert, error) {
+	// x509 cert
+	certDERBlock, _ := pem.Decode(certPEMBlock)
+
+	if certDERBlock == nil {
+		return nil, errors.New("gochat: invalid rsa public key")
+	}
+
+	cert, err := x509.ParseCertificate(certDERBlock.Bytes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &rsacert{cert: cert}, nil
+}
+
+// RSAKey RSA密钥
+type RSAKey interface {
 	// DecryptOEAP OEAP解密
 	DecryptOEAP(cipherText []byte) ([]byte, error)
 
 	// SignWithSha256 签名
 	SignWithSha256(data []byte) ([]byte, error)
-
-	// VerifyWithSha256 签名验证
-	VerifyWithSha256(data, signature []byte) error
-
-	// IsInvalid 证书是否有效
-	IsInvalid() bool
-
-	// IsExpired 证书是否过期
-	IsExpired() bool
 }
 
-type rsacert struct {
-	serialNumber string
-	publicKey    *rsa.PublicKey
-	privateKey   *rsa.PrivateKey
-	notBefore    time.Time
-	notAfter     time.Time
+type rsakey struct {
+	key *rsa.PrivateKey
 }
 
-func (cert *rsacert) SerialNumber() string {
-	return cert.serialNumber
+func (r *rsakey) DecryptOEAP(cipherText []byte) ([]byte, error) {
+	return rsa.DecryptOAEP(sha1.New(), rand.Reader, r.key, cipherText, nil)
 }
 
-func (cert *rsacert) EncryptOEAP(plainText []byte) ([]byte, error) {
-	return rsa.EncryptOAEP(sha1.New(), rand.Reader, cert.publicKey, plainText, nil)
-}
-
-func (cert *rsacert) DecryptOEAP(cipherText []byte) ([]byte, error) {
-	return rsa.DecryptOAEP(sha1.New(), rand.Reader, cert.privateKey, cipherText, nil)
-}
-
-func (cert *rsacert) SignWithSha256(data []byte) ([]byte, error) {
+func (r *rsakey) SignWithSha256(data []byte) ([]byte, error) {
 	h := sha256.New()
 	h.Write(data)
 
-	signature, err := rsa.SignPKCS1v15(rand.Reader, cert.privateKey, crypto.SHA256, h.Sum(nil))
+	signature, err := rsa.SignPKCS1v15(rand.Reader, r.key, crypto.SHA256, h.Sum(nil))
 
 	if err != nil {
 		return nil, err
@@ -70,50 +118,17 @@ func (cert *rsacert) SignWithSha256(data []byte) ([]byte, error) {
 	return signature, nil
 }
 
-func (cert *rsacert) VerifyWithSha256(data, signature []byte) error {
-	hashed := sha256.Sum256(data)
-
-	return rsa.VerifyPKCS1v15(cert.publicKey, crypto.SHA256, hashed[:], signature)
-}
-
-func (cert *rsacert) IsInvalid() bool {
-	now := time.Now()
-
-	return now.After(cert.notBefore) && now.Before(cert.notAfter)
-}
-
-func (cert *rsacert) IsExpired() bool {
-	return time.Now().After(cert.notAfter)
-}
-
-func NewRSACert(certPEMBlock, keyPEMBlock []byte) (RSACert, error) {
-	// x509 cert
-	certDERBlock, _ := pem.Decode(certPEMBlock)
-
-	if certDERBlock == nil {
-		return nil, errors.New("gochat: invalid rsa public key")
-	}
-
-	x509Cert, err := x509.ParseCertificate(certDERBlock.Bytes)
-
-	if err != nil {
-		return nil, err
-	}
-
-	publicKey, ok := x509Cert.PublicKey.(*rsa.PublicKey)
-
-	if !ok {
-		return nil, errors.New("gochat: invalid rsa public key")
-	}
-
+func NewRSAKey(keyPEMBlock []byte) (RSAKey, error) {
 	keyDERBlock, _ := pem.Decode(keyPEMBlock)
 
-	if certDERBlock == nil {
+	if keyDERBlock == nil {
 		return nil, errors.New("gochat: invalid rsa private key")
 	}
 
-	// private key
-	var key interface{}
+	var (
+		key interface{}
+		err error
+	)
 
 	switch PemBlockType(keyDERBlock.Type) {
 	case RSAPKCS1:
@@ -132,11 +147,5 @@ func NewRSACert(certPEMBlock, keyPEMBlock []byte) (RSACert, error) {
 		return nil, errors.New("gochat: invalid rsa private key")
 	}
 
-	return &rsacert{
-		serialNumber: fmt.Sprintf("%X", x509Cert.SerialNumber),
-		publicKey:    publicKey,
-		privateKey:   privateKey,
-		notBefore:    x509Cert.NotBefore,
-		notAfter:     x509Cert.NotAfter,
-	}, nil
+	return &rsakey{key: privateKey}, nil
 }

@@ -53,54 +53,22 @@ func New(appid, mchid, apikey string) *Mch {
 	}
 }
 
-// LoadCertFromP12File load cert from p12(pfx) file
-func (mch *Mch) LoadCertFromP12File(path string) error {
-	p12, err := ioutil.ReadFile(path)
+// LoadCertificate 加载证书
+func (mch *Mch) LoadCertificate(options ...CertOption) error {
+	certs := make([]tls.Certificate, 0, len(options))
 
-	if err != nil {
-		return err
-	}
+	for _, f := range options {
+		cert, err := f(mch)
 
-	cert, err := mch.pkcs12ToPem(p12)
+		if err != nil {
+			return err
+		}
 
-	if err != nil {
-		return err
-	}
-
-	mch.tlsClient = wx.NewHTTPClient(&tls.Config{
-		Certificates:       []tls.Certificate{cert},
-		InsecureSkipVerify: true,
-	})
-
-	return nil
-}
-
-// LoadCertFromPemFile load cert from PEM file
-func (mch *Mch) LoadCertFromPemFile(certFile, keyFile string) error {
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-
-	if err != nil {
-		return err
+		certs = append(certs, cert)
 	}
 
 	mch.tlsClient = wx.NewHTTPClient(&tls.Config{
-		Certificates:       []tls.Certificate{cert},
-		InsecureSkipVerify: true,
-	})
-
-	return nil
-}
-
-// LoadCertFromPemBlock load cert from a pair of PEM encoded data
-func (mch *Mch) LoadCertFromPemBlock(certPEMBlock, keyPEMBlock []byte) error {
-	cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
-
-	if err != nil {
-		return err
-	}
-
-	mch.tlsClient = wx.NewHTTPClient(&tls.Config{
-		Certificates:       []tls.Certificate{cert},
+		Certificates:       certs,
 		InsecureSkipVerify: true,
 	})
 
@@ -468,4 +436,34 @@ func (mch *Mch) buildSignStr(m wx.WXML) string {
 	kvs = append(kvs, fmt.Sprintf("key=%s", mch.apikey))
 
 	return strings.Join(kvs, "&")
+}
+
+// CertOption 证书选项
+type CertOption func(mch *Mch) (tls.Certificate, error)
+
+// WithCertP12File 通过p12(pfx)证书文件加载证书
+func WithCertP12File(path string) CertOption {
+	return func(mch *Mch) (tls.Certificate, error) {
+		p12, err := ioutil.ReadFile(path)
+
+		if err != nil {
+			return tls.Certificate{}, err
+		}
+
+		return mch.pkcs12ToPem(p12)
+	}
+}
+
+// WithCertPEMBlock 通过pem证书文本内容加载证书
+func WithCertPEMBlock(certPEMBlock, keyPEMBlock []byte) CertOption {
+	return func(mch *Mch) (tls.Certificate, error) {
+		return tls.X509KeyPair(certPEMBlock, keyPEMBlock)
+	}
+}
+
+// WithCertPEMFile 通过pem证书文件加载证书
+func WithCertPEMFile(certFile, keyFile string) CertOption {
+	return func(mch *Mch) (tls.Certificate, error) {
+		return tls.LoadX509KeyPair(certFile, keyFile)
+	}
 }
