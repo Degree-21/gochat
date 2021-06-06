@@ -16,7 +16,7 @@ type MchV3 struct {
 	mchid  string
 	apikey string
 	mcert  wx.RSACert
-	wcert  map[string]wx.RSACert
+	wcert  sync.Map
 	prvkey wx.RSAKey
 	nonce  func(size int) string
 	client wx.HTTPClient
@@ -113,10 +113,7 @@ func WithWechatCertBlock(certPEMBlock []byte) CertOption {
 			return err
 		}
 
-		mch.mutex.Lock()
-		defer mch.mutex.Unlock()
-
-		mch.wcert[cert.SerialNumber()] = cert
+		mch.wcert.Store(cert.SerialNumber(), cert)
 
 		return nil
 	}
@@ -137,10 +134,7 @@ func WithWechatCertFile(certPEMFile string) CertOption {
 			return err
 		}
 
-		mch.mutex.Lock()
-		defer mch.mutex.Unlock()
-
-		mch.wcert[cert.SerialNumber()] = cert
+		mch.wcert.Store(cert.SerialNumber(), cert)
 
 		return nil
 	}
