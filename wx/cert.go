@@ -34,11 +34,12 @@ type RSACert interface {
 }
 
 type rsacert struct {
+	sn   string
 	cert *x509.Certificate
 }
 
 func (r *rsacert) SerialNumber() string {
-	return fmt.Sprintf("%X", r.cert.SerialNumber)
+	return r.sn
 }
 
 func (r *rsacert) EncryptOEAP(plainText []byte) ([]byte, error) {
@@ -88,7 +89,10 @@ func NewRSACert(certBlock []byte) (RSACert, error) {
 		return nil, err
 	}
 
-	return &rsacert{cert: cert}, nil
+	return &rsacert{
+		sn:   fmt.Sprintf("%X", cert.SerialNumber),
+		cert: cert,
+	}, nil
 }
 
 // NewRSACertFromFile returns a new rsa key from the given file
