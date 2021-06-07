@@ -15,6 +15,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -444,10 +445,18 @@ type CertOption func(mch *Mch) (tls.Certificate, error)
 // WithCertP12File 通过p12(pfx)证书文件加载证书
 func WithCertP12File(path string) CertOption {
 	return func(mch *Mch) (tls.Certificate, error) {
-		p12, err := ioutil.ReadFile(path)
+		fail := func(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
+
+		certPath, err := filepath.Abs(filepath.Clean(path))
 
 		if err != nil {
-			return tls.Certificate{}, err
+			return fail(err)
+		}
+
+		p12, err := ioutil.ReadFile(certPath)
+
+		if err != nil {
+			return fail(err)
 		}
 
 		return mch.pkcs12ToPem(p12)
@@ -464,6 +473,20 @@ func WithCertPEMBlock(certPEMBlock, keyPEMBlock []byte) CertOption {
 // WithCertPEMFile 通过pem证书文件加载证书
 func WithCertPEMFile(certFile, keyFile string) CertOption {
 	return func(mch *Mch) (tls.Certificate, error) {
-		return tls.LoadX509KeyPair(certFile, keyFile)
+		fail := func(err error) (tls.Certificate, error) { return tls.Certificate{}, err }
+
+		certPath, err := filepath.Abs(filepath.Clean(certFile))
+
+		if err != nil {
+			return fail(err)
+		}
+
+		keyPath, err := filepath.Abs(filepath.Clean(keyFile))
+
+		if err != nil {
+			return fail(err)
+		}
+
+		return tls.LoadX509KeyPair(certPath, keyPath)
 	}
 }

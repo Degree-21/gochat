@@ -10,6 +10,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -72,21 +74,38 @@ func (r *rsacert) ExpiredAt() time.Time {
 }
 
 // NewRSACert returns a new rsa cert
-func NewRSACert(certPEMBlock []byte) (RSACert, error) {
+func NewRSACert(certBlock []byte) (RSACert, error) {
 	// x509 cert
-	certDERBlock, _ := pem.Decode(certPEMBlock)
+	derBlock, _ := pem.Decode(certBlock)
 
-	if certDERBlock == nil {
+	if derBlock == nil {
 		return nil, errors.New("gochat: invalid rsa public key")
 	}
 
-	cert, err := x509.ParseCertificate(certDERBlock.Bytes)
+	cert, err := x509.ParseCertificate(derBlock.Bytes)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return &rsacert{cert: cert}, nil
+}
+
+// NewRSACertFromFile returns a new rsa key from the given file
+func NewRSACertFromFile(certFile string) (RSACert, error) {
+	certPath, err := filepath.Abs(filepath.Clean(certFile))
+
+	if err != nil {
+		return nil, err
+	}
+
+	certBlock, err := os.ReadFile(certPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return NewRSACert(certBlock)
 }
 
 // RSAKey RSA密钥
@@ -120,10 +139,10 @@ func (r *rsakey) SignWithSha256(data []byte) ([]byte, error) {
 }
 
 // NewRSAKey returns a new rsa key
-func NewRSAKey(keyPEMBlock []byte) (RSAKey, error) {
-	keyDERBlock, _ := pem.Decode(keyPEMBlock)
+func NewRSAKey(keyBlock []byte) (RSAKey, error) {
+	derBlock, _ := pem.Decode(keyBlock)
 
-	if keyDERBlock == nil {
+	if derBlock == nil {
 		return nil, errors.New("gochat: invalid rsa private key")
 	}
 
@@ -132,11 +151,11 @@ func NewRSAKey(keyPEMBlock []byte) (RSAKey, error) {
 		err error
 	)
 
-	switch PemBlockType(keyDERBlock.Type) {
+	switch PemBlockType(derBlock.Type) {
 	case RSAPKCS1:
-		key, err = x509.ParsePKCS1PrivateKey(keyDERBlock.Bytes)
+		key, err = x509.ParsePKCS1PrivateKey(derBlock.Bytes)
 	case RSAPKCS8:
-		key, err = x509.ParsePKCS8PrivateKey(keyDERBlock.Bytes)
+		key, err = x509.ParsePKCS8PrivateKey(derBlock.Bytes)
 	}
 
 	if err != nil {
@@ -150,4 +169,21 @@ func NewRSAKey(keyPEMBlock []byte) (RSAKey, error) {
 	}
 
 	return &rsakey{key: privateKey}, nil
+}
+
+// NewRSAKeyFromFile returns a new rsa key from the given file
+func NewRSAKeyFromFile(keyFile string) (RSAKey, error) {
+	keyPath, err := filepath.Abs(filepath.Clean(keyFile))
+
+	if err != nil {
+		return nil, err
+	}
+
+	keyBlock, err := os.ReadFile(keyPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return NewRSAKey(keyBlock)
 }

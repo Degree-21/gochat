@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"io"
-	"os"
 	"sync"
 
 	"github.com/shenghui0779/gochat/wx"
@@ -20,7 +19,6 @@ type MchV3 struct {
 	prvkey wx.RSAKey
 	nonce  func(size int) string
 	client wx.HTTPClient
-	mutex  sync.RWMutex
 }
 
 // New returns new wechat pay v3
@@ -69,9 +67,9 @@ func (mch *MchV3) ApiKey() string {
 type CertOption func(mch *MchV3) error
 
 // WithMchCertBlock 通过商户证书文本内容加载证书
-func WithMchCertBlock(certPEMBlock []byte) CertOption {
+func WithMchCertBlock(certBlock []byte) CertOption {
 	return func(mch *MchV3) error {
-		cert, err := wx.NewRSACert(certPEMBlock)
+		cert, err := wx.NewRSACert(certBlock)
 
 		if err != nil {
 			return err
@@ -84,15 +82,9 @@ func WithMchCertBlock(certPEMBlock []byte) CertOption {
 }
 
 // WithMchCertFile 通过商户证书文件加载证书
-func WithMchCertFile(certPEMFile string) CertOption {
+func WithMchCertFile(certFile string) CertOption {
 	return func(mch *MchV3) error {
-		certPEMBlock, err := os.ReadFile(certPEMFile)
-
-		if err != nil {
-			return err
-		}
-
-		cert, err := wx.NewRSACert(certPEMBlock)
+		cert, err := wx.NewRSACertFromFile(certFile)
 
 		if err != nil {
 			return err
@@ -105,9 +97,9 @@ func WithMchCertFile(certPEMFile string) CertOption {
 }
 
 // WithWechatCertBlock 通过平台证书文本内容加载证书
-func WithWechatCertBlock(certPEMBlock []byte) CertOption {
+func WithWechatCertBlock(certBlock []byte) CertOption {
 	return func(mch *MchV3) error {
-		cert, err := wx.NewRSACert(certPEMBlock)
+		cert, err := wx.NewRSACert(certBlock)
 
 		if err != nil {
 			return err
@@ -120,15 +112,9 @@ func WithWechatCertBlock(certPEMBlock []byte) CertOption {
 }
 
 // WithWechatCertFile 通过平台证书文件加载证书
-func WithWechatCertFile(certPEMFile string) CertOption {
+func WithWechatCertFile(certFile string) CertOption {
 	return func(mch *MchV3) error {
-		certPEMBlock, err := os.ReadFile(certPEMFile)
-
-		if err != nil {
-			return err
-		}
-
-		cert, err := wx.NewRSACert(certPEMBlock)
+		cert, err := wx.NewRSACertFromFile(certFile)
 
 		if err != nil {
 			return err
@@ -141,9 +127,9 @@ func WithWechatCertFile(certPEMFile string) CertOption {
 }
 
 // WithPrivateKeyBlock 通过商户API私钥文本内容加载私钥
-func WithPrivateKeyBlock(keyPEMBlock []byte) CertOption {
+func WithPrivateKeyBlock(keyBlock []byte) CertOption {
 	return func(mch *MchV3) error {
-		key, err := wx.NewRSAKey(keyPEMBlock)
+		key, err := wx.NewRSAKey(keyBlock)
 
 		if err != nil {
 			return err
@@ -156,15 +142,9 @@ func WithPrivateKeyBlock(keyPEMBlock []byte) CertOption {
 }
 
 // WithPrivateKeyFile 通过商户API私钥文件加载私钥
-func WithPrivateKeyFile(keyPEMFile string) CertOption {
+func WithPrivateKeyFile(keyFile string) CertOption {
 	return func(mch *MchV3) error {
-		keyPEMBlock, err := os.ReadFile(keyPEMFile)
-
-		if err != nil {
-			return err
-		}
-
-		key, err := wx.NewRSAKey(keyPEMBlock)
+		key, err := wx.NewRSAKeyFromFile(keyFile)
 
 		if err != nil {
 			return err
