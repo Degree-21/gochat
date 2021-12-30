@@ -105,6 +105,20 @@ func (o *Oplatform) SafeBindComponent(preAuthCode string, redirectUri string, au
 	return safeBindComponentUrl, nil
 }
 
+// 获取 移动端授权链接的方法
+// https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Authorization_Process_Technical_Description.html
+func (o *Oplatform) SafeBindComponentLoginPage(preAuthCode string, redirectUri string, authType int, bizAppid string, categoryIdList string) (string, error) {
+	if len(o.componentVerifyTicket) < 1 {
+		return "", errors.New("component_verify_ticket is error")
+	}
+
+	//https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=xxxx&pre_auth_code=xxxxx&redirect_uri=xxxx&auth_type=xxx&category_id_list=99|31
+	safeBindComponentUrl := fmt.Sprintf("%s/cgi-bin/componentloginpage?component_appid=%s&pre_auth_code=%s&redirect_uri=%s&auth_type=%d&biz_appid=%s&category_id_list=%s",
+		urls.BaseUrl, o.appid, preAuthCode, redirectUri, authType, bizAppid, categoryIdList)
+	return safeBindComponentUrl, nil
+}
+
+
 // Do exec action
 func (o *Oplatform) Do(ctx context.Context, action wx.Action, options ...yiigo.HTTPOption) error {
 	var (
