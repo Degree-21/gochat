@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shenghui0779/gochat/urls"
-	"github.com/shenghui0779/gochat/wx"
+	"github.com/Degree-21/gochat/urls"
+	"github.com/Degree-21/gochat/wx"
 )
 
 // Mch 微信支付

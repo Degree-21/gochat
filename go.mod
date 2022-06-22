@@ -1,4 +1,4 @@
-module github.com/shenghui0779/gochat
+module github.com/Degree-21/gochat
 
 go 1.17
 

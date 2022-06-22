@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/Degree-21/gochat/mock"
+	"github.com/Degree-21/gochat/wx"
 	"github.com/golang/mock/gomock"
-	"github.com/shenghui0779/gochat/mock"
-	"github.com/shenghui0779/gochat/wx"
 	"github.com/stretchr/testify/assert"
 )
 

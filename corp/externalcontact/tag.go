@@ -3,8 +3,8 @@ package externalcontact
 import (
 	"encoding/json"
 
-	"github.com/shenghui0779/gochat/urls"
-	"github.com/shenghui0779/gochat/wx"
+	"github.com/Degree-21/gochat/urls"
+	"github.com/Degree-21/gochat/wx"
 )
 
 type ParamsCorpTagList struct {

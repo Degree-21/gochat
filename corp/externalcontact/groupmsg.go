@@ -3,9 +3,9 @@ package externalcontact
 import (
 	"encoding/json"
 
-	"github.com/shenghui0779/gochat/event"
-	"github.com/shenghui0779/gochat/urls"
-	"github.com/shenghui0779/gochat/wx"
+	"github.com/Degree-21/gochat/event"
+	"github.com/Degree-21/gochat/urls"
+	"github.com/Degree-21/gochat/wx"
 )
 
 // ChatType 群发任务的类型

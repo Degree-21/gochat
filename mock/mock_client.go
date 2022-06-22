@@ -10,8 +10,8 @@ import (
 	http "net/http"
 	reflect "reflect"
 
+	wx "github.com/Degree-21/gochat/wx"
 	gomock "github.com/golang/mock/gomock"
-	wx "github.com/shenghui0779/gochat/wx"
 )
 
 // MockUploadForm is a mock of UploadForm interface.

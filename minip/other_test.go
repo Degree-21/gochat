@@ -10,8 +10,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/shenghui0779/gochat/mock"
-	"github.com/shenghui0779/gochat/wx"
+	"github.com/Degree-21/gochat/mock"
+	"github.com/Degree-21/gochat/wx"
 )
 
 func TestInvokeService(t *testing.T) {
