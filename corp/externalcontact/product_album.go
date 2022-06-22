@@ -27,10 +27,11 @@ type ResultProductAlbumAdd struct {
 	ProductID string `json:"product_id"`
 }
 
+// AddProductAlbum 创建商品图册
 func AddProductAlbum(params *ParamsProductAlbumAdd, result *ResultProductAlbumAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactProductAlbumAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -46,10 +47,11 @@ type ParamsProductAlbumUpdate struct {
 	Attachments []*ProductAlbumAttachment `json:"attachments,omitempty"`
 }
 
+// UpdateProductAlbum 编辑商品图册
 func UpdateProductAlbum(params *ParamsProductAlbumUpdate) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactProductAlbumUpdate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -71,10 +73,15 @@ type ResultProductAlbumGet struct {
 	Product *ProductAlbum `json:"product"`
 }
 
-func GetProductAlbum(params *ParamsProductAlbumGet, result *ResultProductAlbumGet) wx.Action {
+// GetProductAlbum 获取商品图册
+func GetProductAlbum(productID string, result *ResultProductAlbumGet) wx.Action {
+	params := &ParamsProductAlbumGet{
+		ProductID: productID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactProductAlbumGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -92,10 +99,16 @@ type ResultProductAlbumList struct {
 	ProductList []*ProductAlbum `json:"product_list"`
 }
 
-func ListProductAlbum(params *ParamsProductAlbumList, result *ResultProductAlbumList) wx.Action {
+// ListProductAlbum 获取商品图册列表
+func ListProductAlbum(cursor string, limit int, result *ResultProductAlbumList) wx.Action {
+	params := &ParamsProductAlbumList{
+		Limit:  limit,
+		Cursor: cursor,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactProductAlbumList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -107,10 +120,15 @@ type ParamsProductAlbumDelete struct {
 	ProductID string `json:"product_id"`
 }
 
-func DeleteProductAlbum(params *ParamsProductAlbumDelete) wx.Action {
+// DeleteProductAlbum 删除商品图册
+func DeleteProductAlbum(productID string) wx.Action {
+	params := &ParamsProductAlbumDelete{
+		ProductID: productID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactProductAlbumDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

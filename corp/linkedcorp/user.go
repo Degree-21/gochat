@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/shenghui0779/yiigo"
-
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -27,8 +25,8 @@ type ExtAttr struct {
 }
 
 type Attr struct {
-	Type        int        `json:"type"`
 	Name        string     `json:"name"`
+	Type        int        `json:"type"`
 	Text        *AttrText  `json:"text,omitempty"`
 	Web         *AttrWeb   `json:"web,omitempty"`
 	Miniprogram *AttrMinip `json:"miniprogram,omitempty"`
@@ -46,24 +44,26 @@ type AttrWeb struct {
 type AttrMinip struct {
 	Title    string `json:"title"`
 	AppID    string `json:"appid"`
-	Pagepath string `json:"pagepath"`
+	PagePath string `json:"pagepath"`
 }
 
 type ParamsUserGet struct {
-	CorpID string `json:"corp_id"`
-	UserID string `json:"user_id"`
+	UserID string `json:"userid"`
 }
 
 type ResultUserGet struct {
 	UserInfo *UserInfo `json:"user_info"`
 }
 
-func GetUser(params *ParamsUserGet, result *ResultUserGet) wx.Action {
+// GetUser 获取互联企业成员详细信息
+func GetUser(corpID, userID string, result *ResultUserGet) wx.Action {
+	params := &ParamsUserGet{
+		UserID: fmt.Sprintf("%s/%s", corpID, userID),
+	}
+
 	return wx.NewPostAction(urls.CorpLinkedcorpUserGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(yiigo.X{
-				"userid": fmt.Sprintf("%s/%s", params.CorpID, params.UserID),
-			})
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -71,35 +71,32 @@ func GetUser(params *ParamsUserGet, result *ResultUserGet) wx.Action {
 	)
 }
 
-type ParamsUserSimpleList struct {
-	LinkedID     string `json:"linked_id"`
+type ParamsSimpleUserList struct {
 	DepartmentID string `json:"department_id"`
 	FetchChild   bool   `json:"fetch_child"`
 }
 
-type UserSimpleListData struct {
-	UserID    string   `json:"userid"`
-	Name      string   `json:"name"`
-	Deparment []string `json:"deparment"`
-	CorpID    string   `json:"corpid"`
+type SimpleUser struct {
+	UserID     string   `json:"userid"`
+	Name       string   `json:"name"`
+	Department []string `json:"department"`
+	CorpID     string   `json:"corpid"`
 }
 
-type ResultUserSimpleList struct {
-	UserList []*UserSimpleListData `json:"userlist"`
+type ResultSimpleUserList struct {
+	UserList []*SimpleUser `json:"userlist"`
 }
 
-func ListUserSimple(params *ParamsUserSimpleList, result *ResultUserSimpleList) wx.Action {
-	body := yiigo.X{
-		"department_id": fmt.Sprintf("%s/%s", params.LinkedID, params.DepartmentID),
-	}
-
-	if params.FetchChild {
-		body["fetch_child"] = 1
+// ListSimpleUser 获取互联企业部门成员
+func ListSimpleUser(linkedID, departmentID string, fetchChild bool, result *ResultSimpleUserList) wx.Action {
+	params := &ParamsSimpleUserList{
+		DepartmentID: fmt.Sprintf("%s/%s", linkedID, departmentID),
+		FetchChild:   fetchChild,
 	}
 
 	return wx.NewPostAction(urls.CorpLinkedcorpUserSimpleList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(body)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -108,7 +105,6 @@ func ListUserSimple(params *ParamsUserSimpleList, result *ResultUserSimpleList) 
 }
 
 type ParamsUserList struct {
-	LinkedID     string `json:"linked_id"`
 	DepartmentID string `json:"department_id"`
 	FetchChild   bool   `json:"fetch_child"`
 }
@@ -117,18 +113,16 @@ type ResultUserList struct {
 	UserList []*UserInfo `json:"userlist"`
 }
 
-func ListUser(params *ParamsUserList, result *ResultUserList) wx.Action {
-	body := yiigo.X{
-		"department_id": fmt.Sprintf("%s/%s", params.LinkedID, params.DepartmentID),
-	}
-
-	if params.FetchChild {
-		body["fetch_child"] = 1
+// ListUser 获取互联企业部门成员详情
+func ListUser(linkedID, departmentID string, fetchChild bool, result *ResultUserList) wx.Action {
+	params := &ParamsUserList{
+		DepartmentID: fmt.Sprintf("%s/%s", linkedID, departmentID),
+		FetchChild:   fetchChild,
 	}
 
 	return wx.NewPostAction(urls.CorpLinkedcorpUserList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(body)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

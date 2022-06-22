@@ -3,62 +3,64 @@ package externalcontact
 import (
 	"encoding/json"
 
+	"github.com/shenghui0779/gochat/event"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
 
+// ChatType 群发任务的类型
 type ChatType string
 
 const (
-	ChatSingle ChatType = "single"
-	ChatGroup  ChatType = "group"
+	ChatSingle ChatType = "single" // 发送给客户
+	ChatGroup  ChatType = "group"  // 发送给客户群
 )
 
-type MsgText struct {
+type GroupText struct {
 	Content string `json:"content,omitempty"`
 }
 
-type MsgImage struct {
+type GroupImage struct {
 	MediaID string `json:"media_id,omitempty"`
 	PicURL  string `json:"pic_url,omitempty"`
 }
 
-type MsgLink struct {
+type GroupLink struct {
 	Title  string `json:"title"`
 	PicURL string `json:"picurl,omitempty"`
 	Desc   string `json:"desc,omitempty"`
 	URL    string `json:"url"`
 }
 
-type MsgMinip struct {
+type GroupMinip struct {
 	Title      string `json:"title"`
 	PicMediaID string `json:"pic_media_id"`
 	AppID      string `json:"appid"`
 	Page       string `json:"page"`
 }
 
-type MsgVideo struct {
+type GroupVideo struct {
 	MediaID string `json:"media_id"`
 }
 
-type MsgFile struct {
+type GroupFile struct {
 	MediaID string `json:"media_id"`
 }
 
 type MsgAttachment struct {
-	MsgType MediaType `json:"msg_type"`
-	Image   *MsgImage `json:"image,omitempty"`
-	Link    *MsgLink  `json:"link,omitempty"`
-	Minip   *MsgMinip `json:"miniprogram,omitempty"`
-	Video   *MsgVideo `json:"video,omitempty"`
-	File    *MsgFile  `json:"file,omitempty"`
+	MsgType event.MsgType `json:"msgtype"`
+	Image   *GroupImage   `json:"image,omitempty"`
+	Link    *GroupLink    `json:"link,omitempty"`
+	Minip   *GroupMinip   `json:"miniprogram,omitempty"`
+	Video   *GroupVideo   `json:"video,omitempty"`
+	File    *GroupFile    `json:"file,omitempty"`
 }
 
 type ParamsMsgTemplateAdd struct {
 	ChatType       ChatType         `json:"chat_type,omitempty"`
 	ExternalUserID []string         `json:"external_userid,omitempty"`
 	Sender         string           `json:"sender,omitempty"`
-	Text           *MsgText         `json:"text,omitempty"`
+	Text           *GroupText       `json:"text,omitempty"`
 	Attachments    []*MsgAttachment `json:"attachments,omitempty"`
 }
 
@@ -67,10 +69,11 @@ type ResultMsgTemplateAdd struct {
 	MsgID    string   `json:"msgid"`
 }
 
+// AddMsgTemplate 创建企业群发
 func AddMsgTemplate(params *ParamsMsgTemplateAdd, result *ResultMsgTemplateAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactAddMsgTemplate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -79,11 +82,11 @@ func AddMsgTemplate(params *ParamsMsgTemplateAdd, result *ResultMsgTemplateAdd) 
 }
 
 type GroupMsg struct {
-	MsgID       string           `json:"msg_id"`
+	MsgID       string           `json:"msgid"`
 	Creator     string           `json:"creator"`
-	CreateTime  int64            `json:"create_time"`
+	CreateTime  string           `json:"create_time"`
 	CreateType  int              `json:"create_type"`
-	Text        *MsgText         `json:"text,omitempty"`
+	Text        *GroupText       `json:"text,omitempty"`
 	Attachments []*MsgAttachment `json:"attachments,omitempty"`
 }
 
@@ -102,10 +105,11 @@ type ResultGroupMsgList struct {
 	GroupMsgList []*GroupMsg `json:"group_msg_list"`
 }
 
+// ListGroupMsg 获取群发记录列表
 func ListGroupMsg(params *ParamsGroupMsgList, result *ResultGroupMsgList) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGetGroupMsgList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -113,27 +117,28 @@ func ListGroupMsg(params *ParamsGroupMsgList, result *ResultGroupMsgList) wx.Act
 	)
 }
 
-type ParamsGroupMsgTaskGet struct {
-	MsgID  string `json:"msg_id"`
+type ParamsGroupMsgTask struct {
+	MsgID  string `json:"msgid"`
 	Limit  int    `json:"limit,omitempty"`
 	Cursor string `json:"cursor,omitempty"`
 }
 
-type GroupMsgTaskListData struct {
+type ResultGroupMsgTask struct {
+	NextCursor string          `json:"next_cursor"`
+	TaskList   []*GroupMsgTask `json:"task_list"`
+}
+
+type GroupMsgTask struct {
 	UserID   string `json:"userid"`
 	Status   int    `json:"status"`
 	SendTime int64  `json:"send_time"`
 }
 
-type ResultGroupMsgTaskGet struct {
-	NextCursor string                  `json:"next_cursor"`
-	TaskList   []*GroupMsgTaskListData `json:"task_list"`
-}
-
-func GetGroupMsgTask(params *ParamsGroupMsgTaskGet, result *ResultGroupMsgTaskGet) wx.Action {
+// GetGroupMsgTask 获取群发成员发送任务列表
+func GetGroupMsgTask(params *ParamsGroupMsgTask, result *ResultGroupMsgTask) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGetGroupMsgTask,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -141,11 +146,16 @@ func GetGroupMsgTask(params *ParamsGroupMsgTaskGet, result *ResultGroupMsgTaskGe
 	)
 }
 
-type ParamsGroupMsgSendResultGet struct {
+type ParamsGroupMsgSendResult struct {
 	MsgID  string `json:"msgid"`
 	UserID string `json:"userid"`
 	Limit  int    `json:"limit,omitempty"`
 	Cursor string `json:"cursor,omitempty"`
+}
+
+type ResultGroupMsgSendResult struct {
+	NextCursor string                `json:"next_cursor"`
+	SendList   []*GroupMsgSendResult `json:"send_list"`
 }
 
 type GroupMsgSendResult struct {
@@ -156,15 +166,11 @@ type GroupMsgSendResult struct {
 	SendTime       int64  `json:"send_time"`
 }
 
-type ResultGroupMsgSendResultGet struct {
-	NextCursor string                `json:"next_cursor"`
-	SendList   []*GroupMsgSendResult `json:"send_list"`
-}
-
-func GetGroupMsgSendResult(params *ParamsGroupMsgSendResultGet, result *ResultGroupMsgSendResultGet) wx.Action {
+// GetGroupMsgSendResult 获取企业群发成员执行结果
+func GetGroupMsgSendResult(params *ParamsGroupMsgSendResult, result *ResultGroupMsgSendResult) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGetGroupMsgSendResult,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -174,37 +180,39 @@ func GetGroupMsgSendResult(params *ParamsGroupMsgSendResultGet, result *ResultGr
 
 type ParamsWelcomeMsgSend struct {
 	WelcomeCode string           `json:"welcome_code"`
-	Text        *MsgText         `json:"text,omitempty"`
+	Text        *GroupText       `json:"text,omitempty"`
 	Attachments []*MsgAttachment `json:"attachments,omitempty"`
 }
 
+// SendWelcomeMsg 发送新客户欢迎语
 func SendWelcomeMsg(params *ParamsWelcomeMsgSend) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactSendWelcomeMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
 type ParamsGroupWelcomeTemplateAdd struct {
-	Text    *MsgText  `json:"text,omitempty"`
-	Image   *MsgImage `json:"image,omitempty"`
-	Link    *MsgLink  `json:"link,omitempty"`
-	Minip   *MsgMinip `json:"miniprogram,omitempty"`
-	File    *MsgFile  `json:"file,omitempty"`
-	Video   *MsgVideo `json:"video,omitempty"`
-	AgentID int64     `json:"agent_id,omitempty"`
-	Notify  int       `json:"notify,omitempty"`
+	Text    *GroupText  `json:"text,omitempty"`
+	Image   *GroupImage `json:"image,omitempty"`
+	Link    *GroupLink  `json:"link,omitempty"`
+	Minip   *GroupMinip `json:"miniprogram,omitempty"`
+	File    *GroupFile  `json:"file,omitempty"`
+	Video   *GroupVideo `json:"video,omitempty"`
+	AgentID int64       `json:"agentid,omitempty"`
+	Notify  int         `json:"notify,omitempty"`
 }
 
 type ResultGroupWelcomeTemplateAdd struct {
 	TemplateID string `json:"template_id"`
 }
 
+// AddGroupWelcomeTemplate 添加入群欢迎语素材
 func AddGroupWelcomeTemplate(params *ParamsGroupWelcomeTemplateAdd, result *ResultGroupWelcomeTemplateAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGroupWelcomeTemplateAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -213,20 +221,21 @@ func AddGroupWelcomeTemplate(params *ParamsGroupWelcomeTemplateAdd, result *Resu
 }
 
 type ParamsGroupWelcomeTemplateEdit struct {
-	TemplateID string    `json:"template_id"`
-	Text       *MsgText  `json:"text,omitempty"`
-	Image      *MsgImage `json:"image,omitempty"`
-	Link       *MsgLink  `json:"link,omitempty"`
-	Minip      *MsgMinip `json:"miniprogram,omitempty"`
-	File       *MsgFile  `json:"file,omitempty"`
-	Video      *MsgVideo `json:"video,omitempty"`
-	AgentID    int64     `json:"agent_id,omitempty"`
+	TemplateID string      `json:"template_id"`
+	Text       *GroupText  `json:"text,omitempty"`
+	Image      *GroupImage `json:"image,omitempty"`
+	Link       *GroupLink  `json:"link,omitempty"`
+	Minip      *GroupMinip `json:"miniprogram,omitempty"`
+	File       *GroupFile  `json:"file,omitempty"`
+	Video      *GroupVideo `json:"video,omitempty"`
+	AgentID    int64       `json:"agentid,omitempty"`
 }
 
+// EditGroupWelcomeTemplate 编辑入群欢迎语素材
 func EditGroupWelcomeTemplate(params *ParamsGroupWelcomeTemplateEdit) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGroupWelcomeTemplateEdit,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -236,18 +245,23 @@ type ParamsGroupWelcomeTemplateGet struct {
 }
 
 type ResultGroupWelcomeTemplateGet struct {
-	Text  *MsgText  `json:"text"`
-	Image *MsgImage `json:"image"`
-	Link  *MsgLink  `json:"link"`
-	Minip *MsgMinip `json:"miniprogram"`
-	File  *MsgFile  `json:"file"`
-	Video *MsgVideo `json:"video"`
+	Text  *GroupText  `json:"text"`
+	Image *GroupImage `json:"image"`
+	Link  *GroupLink  `json:"link"`
+	Minip *GroupMinip `json:"miniprogram"`
+	File  *GroupFile  `json:"file"`
+	Video *GroupVideo `json:"video"`
 }
 
-func GetGroupWelcomeTemplate(params *ParamsGroupWelcomeTemplateGet, result *ResultGroupWelcomeTemplateGet) wx.Action {
+// GetGroupWelcomeTemplate 获取入群欢迎语素材
+func GetGroupWelcomeTemplate(templateID string, result *ResultGroupWelcomeTemplateGet) wx.Action {
+	params := &ParamsGroupWelcomeTemplateGet{
+		TemplateID: templateID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactGroupWelcomeTemplateGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -260,10 +274,16 @@ type ParamsGroupWelcomeTemplateDelete struct {
 	AgentID    int64  `json:"agentid,omitempty"`
 }
 
-func DeleteGroupWelcomeTemplate(params *ParamsGroupWelcomeTemplateDelete) wx.Action {
+// DeleteGroupWelcomeTemplate 删除入群欢迎语素材
+func DeleteGroupWelcomeTemplate(templateID string, agentID int64) wx.Action {
+	params := &ParamsGroupWelcomeTemplateDelete{
+		TemplateID: templateID,
+		AgentID:    agentID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactGroupWelcomeTemplateDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

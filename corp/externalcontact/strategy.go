@@ -8,8 +8,8 @@ import (
 )
 
 type ParamsCustomerStrategyList struct {
-	Cursor string `json:"cursor"`
-	Limit  int    `json:"limit"`
+	Cursor string `json:"cursor,omitempty"`
+	Limit  int    `json:"limit,omitempty"`
 }
 
 type ResultCustomerStrategyList struct {
@@ -21,10 +21,16 @@ type CustomerStrategyListData struct {
 	StrategyID int64 `json:"strategy_id"`
 }
 
-func ListCustomerStrategy(params *ParamsCustomerStrategyList, result *ResultCustomerStrategyList) wx.Action {
+// ListCustomerStrategy 获取客户联系规则组列表
+func ListCustomerStrategy(cursor string, limit int, result *ResultCustomerStrategyList) wx.Action {
+	params := &ParamsCustomerStrategyList{
+		Cursor: cursor,
+		Limit:  limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactCustomerStrategyList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -73,10 +79,15 @@ type ResultCustomerStrategyGet struct {
 	Strategy *CustomerStrategy `json:"strategy"`
 }
 
-func GetCustomerStrategy(params *ParamsCustomerStrategyGet, result *ResultCustomerStrategyGet) wx.Action {
+// GetCustomerStrategy 获取客户联系规则组详情
+func GetCustomerStrategy(strategyID int64, result *ResultCustomerStrategyGet) wx.Action {
+	params := &ParamsCustomerStrategyGet{
+		StrategyID: strategyID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactCustomerStrategyGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -90,20 +101,27 @@ type CustomerStrategyRange struct {
 	PartyID int64  `json:"partyid,omitempty"`
 }
 
-type ParamsCustomerStrategyRangeGet struct {
+type ParamsCustomerStrategyRange struct {
 	StrategyID int64  `json:"strategy_id"`
 	Cursor     string `json:"cursor,omitempty"`
 	Limit      int    `json:"limit,omitempty"`
 }
 
-type ResultCustomerStrategyRangeGet struct {
+type ResultCustomerStrategyRange struct {
 	Range []*CustomerStrategyRange `json:"range"`
 }
 
-func GetCustomerStrategyRange(params *ParamsCustomerStrategyRangeGet, result *ResultCustomerStrategyRangeGet) wx.Action {
+// GetCustomerStrategyRange 获取客户联系规则组管理范围
+func GetCustomerStrategyRange(strategyID int64, cursor string, limit int, result *ResultCustomerStrategyRange) wx.Action {
+	params := &ParamsCustomerStrategyRange{
+		StrategyID: strategyID,
+		Cursor:     cursor,
+		Limit:      limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactCustomerStrategyGetRange,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -123,10 +141,11 @@ type ResultCustomerStrategyCreate struct {
 	StrategyID int64 `json:"strategy_id"`
 }
 
+// CreateCustomerStrategy 创建新的客户联系规则组
 func CreateCustomerStrategy(params *ParamsCustomerStrategyCreate, result *ResultCustomerStrategyCreate) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactCustomerStrategyCreate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -143,10 +162,11 @@ type ParamsCustomerStrategyEdit struct {
 	RangeDel     []*CustomerStrategyRange   `json:"range_del,omitempty"`
 }
 
+// EditCustomerStrategy 编辑客户联系规则组及其管理范围
 func EditCustomerStrategy(params *ParamsCustomerStrategyEdit) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactCustomerStrategyEdit,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -155,10 +175,15 @@ type ParamsCustomerStrategyDelete struct {
 	StrategyID int64 `json:"strategy_id"`
 }
 
-func DeleteCustomerStrategy(params *ParamsCustomerStrategyDelete) wx.Action {
+// DeleteCustomerStrategy 删除客户联系规则组
+func DeleteCustomerStrategy(strategyID int64) wx.Action {
+	params := &ParamsCustomerStrategyDelete{
+		StrategyID: strategyID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactCustomerStrategyDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -177,10 +202,16 @@ type ResultMomentStrategyList struct {
 	NextCursor string                    `json:"next_cursor"`
 }
 
-func ListMomentStrategy(params *ParamsMomentStrategyList, result *ResultMomentStrategyList) wx.Action {
+// ListMomentStrategy 获取客户朋友圈规则组列表
+func ListMomentStrategy(cursor string, limit int, result *ResultMomentStrategyList) wx.Action {
+	params := &ParamsMomentStrategyList{
+		Cursor: cursor,
+		Limit:  limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactMomentStrategyList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -202,8 +233,8 @@ type MomentStrategy struct {
 }
 
 type MomentStrategyPrivilege struct {
-	ViewMomentList           bool `json:"view_moment_list"`
 	SendMoment               bool `json:"send_moment"`
+	ViewMomentList           bool `json:"view_moment_list"`
 	ManageMomentCoverAndSign bool `json:"manage_moment_cover_and_sign"`
 }
 
@@ -211,10 +242,15 @@ type ResultMomentStrategyGet struct {
 	Strategy *MomentStrategy `json:"strategy"`
 }
 
-func GetMomentStrategy(params *ParamsMomentStrategyGet, result *ResultMomentStrategyGet) wx.Action {
+// GetMomentStrategy 获取客户朋友圈规则组详情
+func GetMomentStrategy(strategyID int64, result *ResultMomentStrategyGet) wx.Action {
+	params := &ParamsMomentStrategyGet{
+		StrategyID: strategyID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactMomentStrategyGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -228,20 +264,27 @@ type MomentStrategyRange struct {
 	PartyID int64  `json:"partyid,omitempty"`
 }
 
-type ParamsMomentStrategyRangeGet struct {
+type ParamsMomentStrategyRange struct {
 	StrategyID int64  `json:"strategy_id"`
 	Cursor     string `json:"cursor,omitempty"`
 	Limit      int    `json:"limit,omitempty"`
 }
 
-type ResultMomentStrategyRangeGet struct {
+type ResultMomentStrategyRange struct {
 	Range []*MomentStrategyRange `json:"range"`
 }
 
-func GetMomentStrategyRange(params *ParamsMomentStrategyRangeGet, result *ResultMomentStrategyRangeGet) wx.Action {
+// GetMomentStrategyRange 获取客户朋友圈规则组管理范围
+func GetMomentStrategyRange(strategyID int64, cursor string, limit int, result *ResultMomentStrategyRange) wx.Action {
+	params := &ParamsMomentStrategyRange{
+		StrategyID: strategyID,
+		Cursor:     cursor,
+		Limit:      limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactMomentStrategyGetRange,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -261,10 +304,11 @@ type ResultMomentStrategyCreate struct {
 	StrategyID int64 `json:"strategy_id"`
 }
 
+// CreateMomentStrategy 创建新的客户朋友圈规则组
 func CreateMomentStrategy(params *ParamsMomentStrategyCreate, result *ResultMomentStrategyCreate) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactMomentStrategyCreate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -281,10 +325,11 @@ type ParamsMomentStrategyEdit struct {
 	RangeDel     []*MomentStrategyRange   `json:"range_del,omitempty"`
 }
 
+// EditMomentStrategy 编辑客户朋友圈规则组及其管理范围
 func EditMomentStrategy(params *ParamsMomentStrategyEdit) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactMomentStrategyEdit,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -293,10 +338,15 @@ type ParamsMomentStrategyDelete struct {
 	StrategyID int64 `json:"strategy_id"`
 }
 
-func DeleteMomentStrategy(params *ParamsMomentStrategyDelete) wx.Action {
+// DeleteMomentStrategy 删除客户朋友圈规则组
+func DeleteMomentStrategy(strategyID int64) wx.Action {
+	params := &ParamsMomentStrategyDelete{
+		StrategyID: strategyID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactMomentStrategyDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

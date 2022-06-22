@@ -8,10 +8,106 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/shenghui0779/gochat/mock"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/stretchr/testify/assert"
 )
+
+func TestSetIndustry(t *testing.T) {
+	body := []byte(`{"industry_id1":"1","industry_id2":"4"}`)
+	resp := &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(bytes.NewReader([]byte(`{"errcode":0,"errmsg":"ok"}`))),
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	client := mock.NewMockHTTPClient(ctrl)
+
+	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.weixin.qq.com/cgi-bin/template/api_set_industry?access_token=ACCESS_TOKEN", body).Return(resp, nil)
+
+	oa := New("APPID", "APPSECRET")
+	oa.SetClient(wx.WithHTTPClient(client))
+
+	err := oa.Do(context.TODO(), "ACCESS_TOKEN", SetIndustry("1", "4"))
+
+	assert.Nil(t, err)
+}
+
+func TestGetIndustry(t *testing.T) {
+	resp := &http.Response{
+		StatusCode: http.StatusOK,
+		Body: io.NopCloser(bytes.NewReader([]byte(`{
+    "primary_industry": {
+        "first_class": "运输与仓储",
+        "second_class": "快递"
+    },
+    "secondary_industry": {
+        "first_class": "IT科技",
+        "second_class": "互联网|电子商务"
+    }
+}`))),
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	client := mock.NewMockHTTPClient(ctrl)
+
+	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodGet, "https://api.weixin.qq.com/cgi-bin/template/get_industry?access_token=ACCESS_TOKEN", nil).Return(resp, nil)
+
+	oa := New("APPID", "APPSECRET")
+	oa.SetClient(wx.WithHTTPClient(client))
+
+	result := new(ResultIndustryGet)
+
+	err := oa.Do(context.TODO(), "ACCESS_TOKEN", GetIndustry(result))
+
+	assert.Nil(t, err)
+	assert.Equal(t, &ResultIndustryGet{
+		PrimaryIndustry: &IndustryInfo{
+			FirstClass:  "运输与仓储",
+			SecondClass: "快递",
+		},
+		SecondaryIndustry: &IndustryInfo{
+			FirstClass:  "IT科技",
+			SecondClass: "互联网|电子商务",
+		},
+	}, result)
+}
+
+func TestAddTemplate(t *testing.T) {
+	body := []byte(`{"template_id_short":"TM00015"}`)
+	resp := &http.Response{
+		StatusCode: http.StatusOK,
+		Body: io.NopCloser(bytes.NewReader([]byte(`{
+    "errcode": 0,
+    "errmsg": "ok",
+    "template_id": "Doclyl5uP7Aciu-qZ7mJNPtWkbkYnWBWVja26EGbNyk"
+}`))),
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	client := mock.NewMockHTTPClient(ctrl)
+
+	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.weixin.qq.com/cgi-bin/template/api_add_template?access_token=ACCESS_TOKEN", body).Return(resp, nil)
+
+	oa := New("APPID", "APPSECRET")
+	oa.SetClient(wx.WithHTTPClient(client))
+
+	result := new(ResultTemplAdd)
+
+	err := oa.Do(context.TODO(), "ACCESS_TOKEN", AddTemplate("TM00015", result))
+
+	assert.Nil(t, err)
+	assert.Equal(t, &ResultTemplAdd{
+		TemplateID: "Doclyl5uP7Aciu-qZ7mJNPtWkbkYnWBWVja26EGbNyk",
+	}, result)
+}
 
 func TestGetAllPrivateTemplate(t *testing.T) {
 	resp := &http.Response{
@@ -98,13 +194,13 @@ func TestSendTemplateMsg(t *testing.T) {
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
 
-	params := &ParamsTemplateMsg{
+	params := &TemplateMsg{
 		ToUser:     "OPENID",
 		TemplateID: "ngqIpbwh8bUfcSsECmogfXcV14J0tQlEpBO27izEYtY",
 		URL:        "http://weixin.qq.com/download",
 		Minip: &MsgMinip{
 			AppID:    "xiaochengxuappid12345",
-			Pagepath: "index?foo=bar",
+			PagePath: "index?foo=bar",
 		},
 		Data: MsgTemplData{
 			"first": {
@@ -127,7 +223,7 @@ func TestSendTemplateMsg(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestSendSubscribeTemplateMsg(t *testing.T) {
+func TestSubscribeTemplate(t *testing.T) {
 	body := []byte(`{"touser":"OPENID","scene":"SCENE","title":"TITLE","template_id":"TEMPLATE_ID","url":"URL","miniprogram":{"appid":"xiaochengxuappid12345","pagepath":"index?foo=bar"},"data":{"content":{"value":"VALUE","color":"COLOR"}}}`)
 
 	resp := &http.Response{
@@ -145,7 +241,7 @@ func TestSendSubscribeTemplateMsg(t *testing.T) {
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
 
-	params := &ParamsTemplateMsgSubscribe{
+	params := &ParamsTemplateSubscribe{
 		ToUser:     "OPENID",
 		Scene:      "SCENE",
 		Title:      "TITLE",
@@ -153,7 +249,7 @@ func TestSendSubscribeTemplateMsg(t *testing.T) {
 		URL:        "URL",
 		Minip: &MsgMinip{
 			AppID:    "xiaochengxuappid12345",
-			Pagepath: "index?foo=bar",
+			PagePath: "index?foo=bar",
 		},
 		Data: MsgTemplData{
 			"content": {
@@ -163,7 +259,7 @@ func TestSendSubscribeTemplateMsg(t *testing.T) {
 		},
 	}
 
-	err := oa.Do(context.TODO(), "ACCESS_TOKEN", SendSubscribeTemplateMsg(params))
+	err := oa.Do(context.TODO(), "ACCESS_TOKEN", SubscribeTemplate(params))
 
 	assert.Nil(t, err)
 }

@@ -2,9 +2,7 @@ package mch
 
 import (
 	"context"
-	"crypto/hmac"
 	"crypto/md5"
-	"crypto/sha256"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/hex"
@@ -17,15 +15,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shenghui0779/yiigo"
-
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
 
 // Mch 微信支付
 type Mch struct {
-	appid  string
 	mchid  string
 	apikey string
 	nonce  func() string
@@ -35,9 +30,8 @@ type Mch struct {
 
 // New returns new wechat pay
 // [证书参考](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=4_3)
-func New(appid, mchid, apikey string, certs ...tls.Certificate) *Mch {
+func New(mchid, apikey string, certs ...tls.Certificate) *Mch {
 	return &Mch{
-		appid:  appid,
 		mchid:  mchid,
 		apikey: apikey,
 		nonce: func() string {
@@ -58,11 +52,6 @@ func (mch *Mch) SetTLSClient(options ...wx.ClientOption) {
 	mch.tlscli.Set(options...)
 }
 
-// AppID returns appid
-func (mch *Mch) AppID() string {
-	return mch.appid
-}
-
 // MchID returns mchid
 func (mch *Mch) MchID() string {
 	return mch.mchid
@@ -74,19 +63,15 @@ func (mch *Mch) ApiKey() string {
 }
 
 // Do exec action
-func (mch *Mch) Do(ctx context.Context, action wx.Action, options ...yiigo.HTTPOption) (wx.WXML, error) {
-	m, err := action.WXML(mch.appid, mch.mchid, mch.nonce())
+func (mch *Mch) Do(ctx context.Context, action wx.Action, options ...wx.HTTPOption) (wx.WXML, error) {
+	m, err := action.WXML(mch.mchid, mch.nonce())
 
 	if err != nil {
 		return nil, err
 	}
 
 	// 签名
-	if v, ok := m["sign_type"]; ok && v == SignHMacSHA256 {
-		m["sign"] = mch.SignWithHMacSHA256(m, true)
-	} else {
-		m["sign"] = mch.SignWithMD5(m, true)
-	}
+	m["sign"] = mch.Sign(SignType(m["sign_type"]), m, true)
 
 	if len(action.Method()) == 0 {
 		if len(action.URL()) == 0 {
@@ -140,9 +125,9 @@ func (mch *Mch) Do(ctx context.Context, action wx.Action, options ...yiigo.HTTPO
 }
 
 // APPAPI 用于APP拉起支付
-func (mch *Mch) APPAPI(prepayID string) wx.WXML {
+func (mch *Mch) APPAPI(appid, prepayID string) wx.WXML {
 	m := wx.WXML{
-		"appid":     mch.appid,
+		"appid":     appid,
 		"partnerid": mch.mchid,
 		"prepayid":  prepayID,
 		"package":   "Sign=WXPay",
@@ -150,55 +135,54 @@ func (mch *Mch) APPAPI(prepayID string) wx.WXML {
 		"timestamp": strconv.FormatInt(time.Now().Unix(), 10),
 	}
 
-	m["sign"] = mch.SignWithMD5(m, true)
+	m["sign"] = mch.Sign(SignMD5, m, true)
 
 	return m
 }
 
 // JSAPI 用于JS拉起支付
-func (mch *Mch) JSAPI(prepayID string) wx.WXML {
+func (mch *Mch) JSAPI(appid, prepayID string) wx.WXML {
 	m := wx.WXML{
-		"appId":     mch.appid,
+		"appId":     appid,
 		"nonceStr":  mch.nonce(),
 		"package":   fmt.Sprintf("prepay_id=%s", prepayID),
-		"signType":  SignMD5,
+		"signType":  string(SignMD5),
 		"timeStamp": strconv.FormatInt(time.Now().Unix(), 10),
 	}
 
-	m["paySign"] = mch.SignWithMD5(m, true)
+	m["paySign"] = mch.Sign(SignMD5, m, true)
 
 	return m
 }
 
 // MinipRedpackJSAPI 小程序领取红包
-func (mch *Mch) MinipRedpackJSAPI(pkg string) wx.WXML {
+func (mch *Mch) MinipRedpackJSAPI(appid, pkg string) wx.WXML {
 	m := wx.WXML{
-		"appId":     mch.appid,
 		"nonceStr":  mch.nonce(),
 		"package":   url.QueryEscape(pkg),
 		"timeStamp": strconv.FormatInt(time.Now().Unix(), 10),
+		"signType":  string(SignMD5),
 	}
 
-	m["paySign"] = mch.SignWithMD5(m, false)
+	signStr := fmt.Sprintf("appId=%s&nonceStr=%s&package=%s&timeStamp=%s&key=%s", appid, m["nonceStr"], m["package"], m["timeStamp"], mch.apikey)
 
-	delete(m, "appId")
-	m["signType"] = SignMD5
+	m["paySign"] = wx.MD5(signStr)
 
 	return m
 }
 
 // DownloadBill 下载交易账单
 // 账单日期格式：20140603
-func (mch *Mch) DownloadBill(ctx context.Context, billDate, billType string) ([]byte, error) {
+func (mch *Mch) DownloadBill(ctx context.Context, appid, billDate, billType string) ([]byte, error) {
 	m := wx.WXML{
-		"appid":     mch.appid,
+		"appid":     appid,
 		"mch_id":    mch.mchid,
 		"bill_date": billDate,
 		"bill_type": billType,
 		"nonce_str": mch.nonce(),
 	}
 
-	m["sign"] = mch.SignWithMD5(m, true)
+	m["sign"] = mch.Sign(SignMD5, m, true)
 
 	body, err := wx.FormatMap2XML(m)
 
@@ -206,7 +190,7 @@ func (mch *Mch) DownloadBill(ctx context.Context, billDate, billType string) ([]
 		return nil, err
 	}
 
-	resp, err := mch.client.Do(ctx, http.MethodPost, urls.MchDownloadBill, body, yiigo.WithHTTPClose())
+	resp, err := mch.client.Do(ctx, http.MethodPost, urls.MchDownloadBill, body, wx.WithHTTPClose())
 
 	if err != nil {
 		return nil, err
@@ -228,16 +212,16 @@ func (mch *Mch) DownloadBill(ctx context.Context, billDate, billType string) ([]
 
 // DownloadFundFlow 下载资金账单
 // 账单日期格式：20140603
-func (mch *Mch) DownloadFundFlow(ctx context.Context, billDate, accountType string) ([]byte, error) {
+func (mch *Mch) DownloadFundFlow(ctx context.Context, appid string, billDate, accountType string) ([]byte, error) {
 	m := wx.WXML{
-		"appid":        mch.appid,
+		"appid":        appid,
 		"mch_id":       mch.mchid,
 		"bill_date":    billDate,
 		"account_type": accountType,
 		"nonce_str":    mch.nonce(),
 	}
 
-	m["sign"] = mch.SignWithHMacSHA256(m, true)
+	m["sign"] = mch.Sign(SignHMacSHA256, m, true)
 
 	body, err := wx.FormatMap2XML(m)
 
@@ -245,7 +229,7 @@ func (mch *Mch) DownloadFundFlow(ctx context.Context, billDate, accountType stri
 		return nil, err
 	}
 
-	resp, err := mch.tlscli.Do(ctx, http.MethodPost, urls.MchDownloadFundFlow, body, yiigo.WithHTTPClose())
+	resp, err := mch.tlscli.Do(ctx, http.MethodPost, urls.MchDownloadFundFlow, body, wx.WithHTTPClose())
 
 	if err != nil {
 		return nil, err
@@ -268,9 +252,9 @@ func (mch *Mch) DownloadFundFlow(ctx context.Context, billDate, accountType stri
 // BatchQueryComment 拉取订单评价数据
 // 时间格式：yyyyMMddHHmmss
 // 默认一次且最多拉取200条
-func (mch *Mch) BatchQueryComment(ctx context.Context, beginTime, endTime string, offset int, limit ...int) ([]byte, error) {
+func (mch *Mch) BatchQueryComment(ctx context.Context, appid, beginTime, endTime string, offset int, limit ...int) ([]byte, error) {
 	m := wx.WXML{
-		"appid":      mch.appid,
+		"appid":      appid,
 		"mch_id":     mch.mchid,
 		"begin_time": beginTime,
 		"end_time":   endTime,
@@ -282,7 +266,7 @@ func (mch *Mch) BatchQueryComment(ctx context.Context, beginTime, endTime string
 		m["limit"] = strconv.Itoa(limit[0])
 	}
 
-	m["sign"] = mch.SignWithHMacSHA256(m, true)
+	m["sign"] = mch.Sign(SignHMacSHA256, m, true)
 
 	body, err := wx.FormatMap2XML(m)
 
@@ -290,7 +274,7 @@ func (mch *Mch) BatchQueryComment(ctx context.Context, beginTime, endTime string
 		return nil, err
 	}
 
-	resp, err := mch.tlscli.Do(ctx, http.MethodPost, urls.MchBatchQueryComment, body, yiigo.WithHTTPClose())
+	resp, err := mch.tlscli.Do(ctx, http.MethodPost, urls.MchBatchQueryComment, body, wx.WithHTTPClose())
 
 	if err != nil {
 		return nil, err
@@ -310,26 +294,16 @@ func (mch *Mch) BatchQueryComment(ctx context.Context, beginTime, endTime string
 	return resp, nil
 }
 
-// SignWithMD5 生成MD5签名
-func (mch *Mch) SignWithMD5(m wx.WXML, toUpper bool) string {
-	h := md5.New()
-	h.Write([]byte(mch.buildSignStr(m)))
+// Sign 生成签名
+func (mch *Mch) Sign(t SignType, m wx.WXML, toUpper bool) string {
+	str := mch.buildSignStr(m)
+	sign := ""
 
-	sign := hex.EncodeToString(h.Sum(nil))
-
-	if toUpper {
-		sign = strings.ToUpper(sign)
+	if t == SignHMacSHA256 {
+		sign = wx.HMacSHA256(str, mch.apikey)
+	} else {
+		sign = wx.MD5(str)
 	}
-
-	return sign
-}
-
-// SignWithHMacSHA256 生成HMAC-SHA256签名
-func (mch *Mch) SignWithHMacSHA256(m wx.WXML, toUpper bool) string {
-	h := hmac.New(sha256.New, []byte(mch.apikey))
-	h.Write([]byte(mch.buildSignStr(m)))
-
-	sign := hex.EncodeToString(h.Sum(nil))
 
 	if toUpper {
 		sign = strings.ToUpper(sign)
@@ -341,22 +315,14 @@ func (mch *Mch) SignWithHMacSHA256(m wx.WXML, toUpper bool) string {
 // VerifyWXMLResult 微信请求/回调通知签名验证
 func (mch *Mch) VerifyWXMLResult(m wx.WXML) error {
 	if wxsign, ok := m["sign"]; ok {
-		signature := ""
+		t := SignMD5
 
-		if v, ok := m["sign_type"]; ok && v == SignHMacSHA256 {
-			signature = mch.SignWithHMacSHA256(m, true)
-		} else {
-			signature = mch.SignWithMD5(m, true)
+		if v, ok := m["sign_type"]; ok {
+			t = SignType(v)
 		}
 
-		if wxsign != signature {
+		if signature := mch.Sign(t, m, true); wxsign != signature {
 			return fmt.Errorf("signature verified failed, want: %s, got: %s", signature, wxsign)
-		}
-	}
-
-	if appid, ok := m["appid"]; ok {
-		if appid != mch.appid {
-			return fmt.Errorf("appid mismatch, want: %s, got: %s", mch.appid, m["appid"])
 		}
 	}
 
@@ -380,7 +346,7 @@ func (mch *Mch) DecryptWithAES256ECB(encrypt string) (wx.WXML, error) {
 	h := md5.New()
 	h.Write([]byte(mch.apikey))
 
-	ecb := yiigo.NewECBCrypto([]byte(hex.EncodeToString(h.Sum(nil))), yiigo.PKCS7)
+	ecb := wx.NewECBCrypto([]byte(hex.EncodeToString(h.Sum(nil))), wx.PKCS7)
 
 	plainText, err := ecb.Decrypt(cipherText)
 

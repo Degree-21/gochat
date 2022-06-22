@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/shenghui0779/gochat/mock"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/shenghui0779/yiigo"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUploadMedia(t *testing.T) {
@@ -31,18 +31,14 @@ func TestUploadMedia(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=image", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=image", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	mp := New("APPID", "APPSECRET")
 	mp.SetClient(wx.WithHTTPClient(client))
 
-	params := &ParamsMediaUpload{
-		MediaType: MediaImage,
-		Path:      "../mock/test.jpg",
-	}
 	result := new(ResultMediaUpload)
 
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", UploadMedia(params, result))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", UploadTempMedia(MediaImage, "../mock/test.jpg", result))
 
 	assert.Nil(t, err)
 	assert.Equal(t, &ResultMediaUpload{
@@ -69,19 +65,14 @@ func TestUploadMediaByURL(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=image", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=image", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	mp := New("APPID", "APPSECRET")
 	mp.SetClient(wx.WithHTTPClient(client))
 
-	params := &ParamsMediaUploadByURL{
-		MediaType: MediaImage,
-		Filename:  "test.png",
-		URL:       "https://golang.google.cn/doc/gopher/pkg.png",
-	}
 	result := new(ResultMediaUpload)
 
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", UploadMediaByURL(params, result))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", UploadTempMediaByURL(MediaImage, "test.png", "https://golang.google.cn/doc/gopher/pkg.png", result))
 
 	assert.Nil(t, err)
 	assert.Equal(t, &ResultMediaUpload{
@@ -109,7 +100,7 @@ func TestGetMedia(t *testing.T) {
 
 	result := new(Media)
 
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", GetMedia("MEDIA_ID", result))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", GetTempMedia("MEDIA_ID", result))
 
 	assert.Nil(t, err)
 	assert.Equal(t, "BUFFER", string(result.Buffer))

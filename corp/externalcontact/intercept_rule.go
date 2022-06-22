@@ -12,12 +12,12 @@ type ExtraRule struct {
 }
 
 type RuleApplicableRange struct {
-	UserList      []string `json:"user_list,omitempty"`
-	DeparmentList []int64  `json:"deparment_list,omitempty"`
+	UserList       []string `json:"user_list,omitempty"`
+	DepartmentList []int64  `json:"department_list,omitempty"`
 }
 
 type InterceptRule struct {
-	RuleID          int64                `json:"rule_id"`
+	RuleID          string               `json:"rule_id"`
 	RuleName        string               `json:"rule_name"`
 	WordList        []string             `json:"word_list"`
 	ExtraRule       *ExtraRule           `json:"extra_rule"`
@@ -34,13 +34,14 @@ type ParamsInterceptRuleAdd struct {
 }
 
 type ResultInterceptRuleAdd struct {
-	RuleID int64 `json:"rule_id"`
+	RuleID string `json:"rule_id"`
 }
 
+// AddInterceptRule 新建敏感词规则
 func AddInterceptRule(params *ParamsInterceptRuleAdd, result *ResultInterceptRuleAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactInterceptRuleAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -49,7 +50,7 @@ func AddInterceptRule(params *ParamsInterceptRuleAdd, result *ResultInterceptRul
 }
 
 type ParamsInterceptRuleUpdate struct {
-	RuleID                int64                `json:"rule_id"`
+	RuleID                string               `json:"rule_id"`
 	RuleName              string               `json:"rule_name,omitempty"`
 	WordList              []string             `json:"word_list,omitempty"`
 	ExtraRule             *ExtraRule           `json:"extra_rule,omitempty"`
@@ -58,16 +59,17 @@ type ParamsInterceptRuleUpdate struct {
 	RemoveApplicableRange *RuleApplicableRange `json:"remove_applicable_range,omitempty"`
 }
 
+// UpdateInterceptRule 修改敏感词规则
 func UpdateInterceptRule(params *ParamsInterceptRuleUpdate) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactInterceptRuleUpdate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
 type RuleListData struct {
-	RuleID     int64  `json:"rule_id"`
+	RuleID     string `json:"rule_id"`
 	RuleName   string `json:"rule_name"`
 	CreateTime int64  `json:"create_time"`
 }
@@ -76,6 +78,7 @@ type ResultInterceptRuleList struct {
 	RuleList []*RuleListData `json:"rule_list"`
 }
 
+// ListInterceptRule 获取敏感词规则列表
 func ListInterceptRule(result *ResultInterceptRuleList) wx.Action {
 	return wx.NewGetAction(urls.CorpExternalContactInterceptRuleList,
 		wx.WithDecode(func(resp []byte) error {
@@ -85,17 +88,22 @@ func ListInterceptRule(result *ResultInterceptRuleList) wx.Action {
 }
 
 type ParamsInterceptRuleGet struct {
-	RuleID int64 `json:"rule_id"`
+	RuleID string `json:"rule_id"`
 }
 
 type ResultInterceptRuleGet struct {
 	Rule *InterceptRule `json:"rule"`
 }
 
-func GetInterceptRule(params *ParamsInterceptRuleGet, result *ResultInterceptRuleGet) wx.Action {
+// GetInterceptRule 获取敏感词规则详情
+func GetInterceptRule(ruleID string, result *ResultInterceptRuleGet) wx.Action {
+	params := &ParamsInterceptRuleGet{
+		RuleID: ruleID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactInterceptRuleGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -104,13 +112,18 @@ func GetInterceptRule(params *ParamsInterceptRuleGet, result *ResultInterceptRul
 }
 
 type ParamsInterceptRuleDelete struct {
-	RuleID int64 `json:"rule_id"`
+	RuleID string `json:"rule_id"`
 }
 
-func DeleteInterceptRule(params *ParamsInterceptRuleDelete) wx.Action {
+// DeleteInterceptRule 删除敏感词规则
+func DeleteInterceptRule(ruleID string) wx.Action {
+	params := &ParamsInterceptRuleDelete{
+		RuleID: ruleID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactInterceptRuleDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

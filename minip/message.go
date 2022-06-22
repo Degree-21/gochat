@@ -1,8 +1,7 @@
 package minip
 
 import (
-	"encoding/json"
-
+	"github.com/shenghui0779/gochat/event"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -24,16 +23,6 @@ const (
 	MinipFormal    MinipState = "formal"    // 正式版
 )
 
-// KFMsgType 客服消息类型
-type KFMsgType string
-
-const (
-	KFMsgText  KFMsgType = "text"            // 文本消息
-	KFMsgImage KFMsgType = "image"           // 图片消息
-	KFMsgLink  KFMsgType = "link"            // 图文链接消息
-	KFMsgMinip KFMsgType = "miniprogrampage" // 小程序卡片消息
-)
-
 // TypingCmd 输入状态命令
 type TypingCmd string
 
@@ -46,7 +35,7 @@ const (
 // MsgMinip 跳转小程序
 type MsgMinip struct {
 	AppID    string `json:"appid"`    // 所需跳转到的小程序appid（该小程序appid必须与发模板消息的公众号是绑定关联关系，暂不支持小游戏）
-	Pagepath string `json:"pagepath"` // 所需跳转到小程序的具体页面路径，支持带参数,（示例index?foo=bar），要求该小程序已发布，暂不支持小游戏
+	PagePath string `json:"pagepath"` // 所需跳转到小程序的具体页面路径，支持带参数,（示例index?foo=bar），要求该小程序已发布，暂不支持小游戏
 }
 
 // TemplateMsg 统一服务消息数据
@@ -58,23 +47,28 @@ type TemplateMsg struct {
 	Data       MsgTemplData `json:"data"`        // 模板内容，格式形如：{"key1": {"value": any}, "key2": {"value": any}}
 }
 
-// ParamsUniformMsg 统一服务消息参数
-type ParamsUniformMsg struct {
+// UniformMsg 统一服务消息参数
+type UniformMsg struct {
 	ToUser        string       `json:"touser"` // 用户openid，可以是小程序的openid，也可以是mp_template_msg.appid对应的公众号的openid
 	MPTemplateMsg *TemplateMsg `json:"mp_template_msg"`
 }
 
-// Uniform 发送统一服务消息
-func SendUniformMsg(params *ParamsUniformMsg) wx.Action {
+// SendUniformMsg 统一服务消息 - 发送统一服务消息
+func SendUniformMsg(touser string, msg *TemplateMsg) wx.Action {
+	params := &UniformMsg{
+		ToUser:        touser,
+		MPTemplateMsg: msg,
+	}
+
 	return wx.NewPostAction(urls.MinipUniformMsgSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
-// ParamsSubscribeMsg 订阅消息参数
-type ParamsSubscribeMsg struct {
+// SubscribeMsg 订阅消息参数
+type SubscribeMsg struct {
 	ToUser     string       `json:"touser"`                      // 接收者（用户）的 openid
 	TemplateID string       `json:"template_id"`                 // 所需下发的订阅模板ID
 	Page       string       `json:"page,omitempty"`              // 点击模板卡片后的跳转页面，仅限本小程序内的页面。支持带参数,（示例index?foo=bar）。该字段不填则模板无跳转
@@ -83,11 +77,11 @@ type ParamsSubscribeMsg struct {
 	Data       MsgTemplData `json:"data"`                        // 模板内容，格式形如：{"key1": {"value": any}, "key2": {"value": any}}
 }
 
-// SendSubscribeMsg 发送订阅消息
-func SendSubscribeMsg(params *ParamsSubscribeMsg) wx.Action {
+// SendSubscribeMsg 订阅消息 - 发送订阅消息
+func SendSubscribeMsg(msg *SubscribeMsg) wx.Action {
 	return wx.NewPostAction(urls.MinipSubscribeMsgSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(msg)
 		}),
 	)
 }
@@ -107,124 +101,104 @@ type KFLink struct {
 	Title       string `json:"title"`       // 消息标题
 	Description string `json:"description"` // 图文链接消息
 	URL         string `json:"url"`         // 图文链接消息被点击后跳转的链接
-	ThumbURL    string `json:"thumb_url"`   // 图文链接消息的图片链接，支持 JPG、PNG 格式，较好的效果为大图 640 yiigo.X 320，小图 80 yiigo.X 80
+	ThumbURL    string `json:"thumb_url"`   // 图文链接消息的图片链接，支持 JPG、PNG 格式，较好的效果为大图 640 wx.M 320，小图 80 wx.M 80
 }
 
 // KFMinipPage 客服小程序卡片
 type KFMinipPage struct {
 	Title        string `json:"title"`          // 消息标题
-	Pagepath     string `json:"pagepath"`       // 小程序的页面路径，跟app.json对齐，支持参数，比如pages/index/index?foo=bar
+	PagePath     string `json:"pagepath"`       // 小程序的页面路径，跟app.json对齐，支持参数，比如pages/index/index?foo=bar
 	ThumbMediaID string `json:"thumb_media_id"` // 小程序消息卡片的封面， image 类型的 media_id，通过 新增素材接口 上传图片文件获得，建议大小为 520*416
 }
 
-type ParamsKFMsg struct {
-	ToUser    string       `json:"touser"`
-	MsgType   KFMsgType    `json:"msgtype"`
-	Text      *KFText      `json:"text,omitempty"`
-	Image     *KFMedia     `json:"image,omitempty"`
-	Link      *KFLink      `json:"link,omitempty"`
-	MinipPage *KFMinipPage `json:"miniprogrampage,omitempty"`
+type KFMsg struct {
+	ToUser    string        `json:"touser"`
+	MsgType   event.MsgType `json:"msgtype"`
+	Text      *KFText       `json:"text,omitempty"`
+	Image     *KFMedia      `json:"image,omitempty"`
+	Link      *KFLink       `json:"link,omitempty"`
+	MinipPage *KFMinipPage  `json:"miniprogrampage,omitempty"`
 }
 
-// SendKFTextMsg 发送客服文本消息（支持插入跳小程序的文字链）
-func SendKFTextMsg(openid string, text *KFText) wx.Action {
-	params := &ParamsKFMsg{
+// SendKFTextMsg 客服消息 - 发送客服文本消息（支持插入跳小程序的文字链）
+func SendKFTextMsg(openid, content string) wx.Action {
+	msg := &KFMsg{
 		ToUser:  openid,
-		MsgType: KFMsgText,
-		Text:    text,
+		MsgType: event.MsgText,
+		Text: &KFText{
+			Content: content,
+		},
 	}
 
 	return wx.NewPostAction(urls.MinipKFMsgSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(msg)
 		}),
 	)
 }
 
-// SendKFTextMessage 发送客服文本消息（支持插入跳小程序的文字链）
-func SendKFTextMessage(openid string, text string) wx.Action {
-	return SendKFTextMsg(openid, &KFText{
-		Content: text,
-	})
-}
-
-// SendKFImageMsg 发送客服图片消息（媒体ID，通过素材接口上传获得）
-func SendKFImageMsg(openid string, imgage *KFMedia) wx.Action {
-	params := &ParamsKFMsg{
+// SendKFImageMsg 客服消息 - 发送客服图片消息（媒体ID，通过素材接口上传获得）
+func SendKFImageMsg(openid, mediaID string) wx.Action {
+	msg := &KFMsg{
 		ToUser:  openid,
-		MsgType: KFMsgImage,
-		Image:   imgage,
+		MsgType: event.MsgImage,
+		Image: &KFMedia{
+			MediaID: mediaID,
+		},
 	}
 
 	return wx.NewPostAction(urls.MinipKFMsgSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(msg)
 		}),
 	)
 }
 
-// SendKFImageMessage 发送客服图片消息（媒体ID，通过素材接口上传获得）
-func SendKFImageMessage(openid string, mediaId string) wx.Action {
-	return SendKFImageMsg(openid, &KFMedia{
-		MediaID: mediaId,
-	})
-}
-
-// SendKFLinkMsg 发送客服图文链接消息
+// SendKFLinkMsg 客服消息 - 发送客服图文链接消息
 func SendKFLinkMsg(openid string, link *KFLink) wx.Action {
-	params := &ParamsKFMsg{
+	msg := &KFMsg{
 		ToUser:  openid,
-		MsgType: KFMsgLink,
+		MsgType: event.MsgLink,
 		Link:    link,
 	}
 
 	return wx.NewPostAction(urls.MinipKFMsgSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(msg)
 		}),
 	)
 }
 
-// SendKFLinkMessage 发送客服图文链接消息
-func SendKFLinkMessage(openid string, link *KFLink) wx.Action {
-	return SendKFLinkMsg(openid, link)
-}
-
-// SendKFMinipMsg 发送客服小程序卡片消息
+// SendKFMinipMsg 客服消息 - 发送客服小程序卡片消息
 func SendKFMinipMsg(openid string, minipPage *KFMinipPage) wx.Action {
-	params := &ParamsKFMsg{
+	msg := &KFMsg{
 		ToUser:    openid,
-		MsgType:   KFMsgMinip,
+		MsgType:   event.MsgMinipPage,
 		MinipPage: minipPage,
 	}
 
 	return wx.NewPostAction(urls.MinipKFMsgSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(msg)
 		}),
 	)
 }
 
-// SendKFMinipMessage 发送客服小程序卡片消息
-func SendKFMinipMessage(openid string, minipPage *KFMinipPage) wx.Action {
-	return SendKFMinipMsg(openid, minipPage)
-}
-
-type ParamsKFTyping struct {
+type KFTyping struct {
 	ToUser  string    `json:"touser"`
 	Command TypingCmd `json:"command"`
 }
 
-// SendKFTyping 下发当前输入状态（仅支持客服消息）
+// SendKFTyping 客服消息 - 下发当前输入状态（仅支持客服消息）
 func SendKFTyping(openid string, cmd TypingCmd) wx.Action {
-	params := &ParamsKFTyping{
+	typing := &KFTyping{
 		ToUser:  openid,
 		Command: cmd,
 	}
 
 	return wx.NewPostAction(urls.MinipKFTypingSend,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(typing)
 		}),
 	)
 }

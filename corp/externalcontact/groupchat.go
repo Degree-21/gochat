@@ -19,8 +19,8 @@ type ParamsGroupChatList struct {
 }
 
 type GroupChatListData struct {
-	ChatID string
-	Status int
+	ChatID string `json:"chat_id"`
+	Status int    `json:"status"`
 }
 
 type ResultGroupChatList struct {
@@ -28,10 +28,11 @@ type ResultGroupChatList struct {
 	NextCursor    string               `json:"next_cursor"`
 }
 
+// ListGroupChat 获取客户群列表
 func ListGroupChat(params *ParamsGroupChatList, result *ResultGroupChatList) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGroupChatList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -77,10 +78,16 @@ type ResultGroupChatGet struct {
 	GroupChat *GroupChat `json:"group_chat"`
 }
 
-func GetGroupChat(params *ParamsGroupChatGet, result *ResultGroupChatGet) wx.Action {
+// GetGroupChat 获取客户群详情
+func GetGroupChat(chatID string, needName int, result *ResultGroupChatGet) wx.Action {
+	params := &ParamsGroupChatGet{
+		ChatID:   chatID,
+		NeedName: needName,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactGroupChatGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -96,10 +103,15 @@ type ResultOpenGIDToChatID struct {
 	ChatID string `json:"chat_id"`
 }
 
-func OpenGIDToChatID(params *ParamsOpenGIDToChatID, result *ResultOpenGIDToChatID) wx.Action {
+// OpenGIDToChatID 客户群opengid转换
+func OpenGIDToChatID(opengid string, result *ResultOpenGIDToChatID) wx.Action {
+	params := &ParamsOpenGIDToChatID{
+		OpenGID: opengid,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactOpenGIDToChatID,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

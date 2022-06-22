@@ -3,6 +3,7 @@ package externalcontact
 import (
 	"encoding/json"
 
+	"github.com/shenghui0779/gochat/event"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -33,8 +34,8 @@ type MomentLocation struct {
 }
 
 type MomentSenderList struct {
-	UserList      []string `json:"user_list,omitempty"`
-	DeparmentList []int64  `json:"deparment_list,omitempty"`
+	UserList       []string `json:"user_list,omitempty"`
+	DepartmentList []int64  `json:"department_list,omitempty"`
 }
 
 type MomentExternalContactList struct {
@@ -47,10 +48,10 @@ type MomentVisibleRange struct {
 }
 
 type MomentAttachment struct {
-	MsgType MediaType    `json:"msg_type"`
-	Image   *MomentImage `json:"image,omitempty"`
-	Video   *MomentVideo `json:"video,omitempty"`
-	Link    *MomentLink  `json:"link,omitempty"`
+	MsgType event.MsgType `json:"msgtype"`
+	Image   *MomentImage  `json:"image,omitempty"`
+	Video   *MomentVideo  `json:"video,omitempty"`
+	Link    *MomentLink   `json:"link,omitempty"`
 }
 
 type ParamsMomentTaskAdd struct {
@@ -63,24 +64,16 @@ type ResultMomentTaskAdd struct {
 	JobID string `json:"jobid"`
 }
 
+// AddMomentTask 创建客户朋友圈的发表任务
 func AddMomentTask(params *ParamsMomentTaskAdd, result *ResultMomentTaskAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactAddMomentTask,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
 		}),
 	)
-}
-
-type MomentInvalidSenderList struct {
-	UserList      []string `json:"user_list"`
-	DeparmentList []int64  `json:"deparment_list"`
-}
-
-type MomentInvalidExternalContactList struct {
-	TagList []string `json:"tag_list"`
 }
 
 type MomentTaskResult struct {
@@ -91,13 +84,23 @@ type MomentTaskResult struct {
 	InvalidExternalContactList *MomentInvalidExternalContactList `json:"invalid_external_contact_list"`
 }
 
-type ResultMomentTaskResultGet struct {
+type MomentInvalidSenderList struct {
+	UserList       []string `json:"user_list"`
+	DepartmentList []int64  `json:"department_list"`
+}
+
+type MomentInvalidExternalContactList struct {
+	TagList []string `json:"tag_list"`
+}
+
+type ResultMomentTaskResult struct {
 	Status int               `json:"status"`
 	Type   string            `json:"type"`
 	Result *MomentTaskResult `json:"result"`
 }
 
-func GetMomentTaskResult(jobID string, result *ResultMomentTaskResultGet) wx.Action {
+// GetMomentTaskResult 获取客户朋友圈的任务创建结果
+func GetMomentTaskResult(jobID string, result *ResultMomentTaskResult) wx.Action {
 	return wx.NewGetAction(urls.CorpExternalContactGetMomentTaskResult,
 		wx.WithQuery("jobid", jobID),
 		wx.WithDecode(func(resp []byte) error {
@@ -118,7 +121,7 @@ type ParamsMomentList struct {
 type MomentListData struct {
 	MomentID    string          `json:"moment_id"`
 	Creator     string          `json:"creator"`
-	CreateTime  int64           `json:"create_time"`
+	CreateTime  string          `json:"create_time"`
 	CreateType  int             `json:"create_type"`
 	VisibleType int             `json:"visible_type"`
 	Text        *MomentText     `json:"text"`
@@ -133,10 +136,11 @@ type ResultMomentList struct {
 	MomentList []*MomentListData `json:"moment_list"`
 }
 
+// ListMoment 获取企业全部的发表列表
 func ListMoment(params *ParamsMomentList, result *ResultMomentList) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGetMomentList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -150,20 +154,27 @@ type ParamsMomentTaskGet struct {
 	Limit    int    `json:"limit,omitempty"`
 }
 
-type MomentTaskListData struct {
+type MomentTask struct {
 	UserID        string `json:"userid"`
 	PublishStatus int    `json:"publish_status"`
 }
 
 type ResultMomentTaskGet struct {
-	NextCursor string                `json:"next_cursor"`
-	TaskList   []*MomentTaskListData `json:"task_list"`
+	NextCursor string        `json:"next_cursor"`
+	TaskList   []*MomentTask `json:"task_list"`
 }
 
-func GetMomentTask(params *ParamsMomentTaskGet, result *ResultMomentTaskGet) wx.Action {
+// GetMomentTask 获取客户朋友圈企业发表的列表
+func GetMomentTask(momentID, cursor string, limit int, result *ResultMomentTaskGet) wx.Action {
+	params := &ParamsMomentTaskGet{
+		MomentID: momentID,
+		Cursor:   cursor,
+		Limit:    limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactGetMomentTask,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -173,25 +184,33 @@ func GetMomentTask(params *ParamsMomentTaskGet, result *ResultMomentTaskGet) wx.
 
 type ParamsMomentCustomerList struct {
 	MomentID string `json:"moment_id"`
-	UserID   string `json:"user_id"`
+	UserID   string `json:"userid"`
 	Cursor   string `json:"cursor,omitempty"`
 	Limit    int    `json:"limit,omitempty"`
 }
 
-type MomentCustomerListData struct {
+type MomentCustomer struct {
 	UserID         string `json:"userid"`
 	ExternalUserID string `json:"external_userid"`
 }
 
 type ResultMomentCustomerList struct {
-	NextCursor   string                    `json:"next_cursor"`
-	CustomerList []*MomentCustomerListData `json:"customer_list"`
+	NextCursor   string            `json:"next_cursor"`
+	CustomerList []*MomentCustomer `json:"customer_list"`
 }
 
-func ListMomentCustomer(params *ParamsMomentCustomerList, result *ResultMomentCustomerList) wx.Action {
+// ListMomentCustomer 获取客户朋友圈发表时选择的可见范围
+func ListMomentCustomer(momentID, userID, cursor string, limit int, result *ResultMomentCustomerList) wx.Action {
+	params := &ParamsMomentCustomerList{
+		MomentID: momentID,
+		UserID:   userID,
+		Cursor:   cursor,
+		Limit:    limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactGetMomentCustomerList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -199,26 +218,30 @@ func ListMomentCustomer(params *ParamsMomentCustomerList, result *ResultMomentCu
 	)
 }
 
-type ParamsMomentSendResultGet struct {
+type ParamsMomentSendResult struct {
 	MomentID string `json:"moment_id"`
-	UserID   string `json:"user_id"`
+	UserID   string `json:"userid"`
 	Cursor   string `json:"cursor,omitempty"`
 	Limit    int    `json:"limit,omitempty"`
 }
 
-type MomentSendCustomer struct {
-	ExternalUserID string `json:"external_userid"`
+type ResultMomentSendResult struct {
+	NextCursor   string            `json:"next_cursor"`
+	CustomerList []*MomentCustomer `json:"customer_list"`
 }
 
-type ResultMomentSendResultGet struct {
-	NextCursor   string                `json:"next_cursor"`
-	CustomerList []*MomentSendCustomer `json:"customer_list"`
-}
+// GetMomentSendResult 获取客户朋友圈发表后的可见客户列表
+func GetMomentSendResult(momentID, userID, cursor string, limit int, result *ResultMomentSendResult) wx.Action {
+	params := &ParamsMomentSendResult{
+		MomentID: momentID,
+		UserID:   userID,
+		Cursor:   cursor,
+		Limit:    limit,
+	}
 
-func GetMomentSendResult(params *ParamsMomentSendResultGet, result *ResultMomentSendResultGet) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGetMomentSentResult,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -226,9 +249,9 @@ func GetMomentSendResult(params *ParamsMomentSendResultGet, result *ResultMoment
 	)
 }
 
-type ParamsMomentCommentsGet struct {
+type ParamsMomentComments struct {
 	MomentID string `json:"moment_id"`
-	UserID   string `json:"user_id"`
+	UserID   string `json:"userid"`
 	Cursor   string `json:"cursor,omitempty"`
 	Limit    int    `json:"limit,omitempty"`
 }
@@ -245,15 +268,23 @@ type MomentLikeData struct {
 	CreateTime     int64  `json:"create_time"`
 }
 
-type ResultMomentCommentsGet struct {
+type ResultMomentComments struct {
 	CommentList []*MomentCommentData `json:"comment_list"`
 	LikeList    []*MomentLikeData    `json:"like_list"`
 }
 
-func GetMomentComments(params *ParamsMomentCommentsGet, result *ResultMomentCommentsGet) wx.Action {
+// GetMomentComments 获取客户朋友圈的互动数据
+func GetMomentComments(momentID, userID, cursor string, limit int, result *ResultMomentComments) wx.Action {
+	params := &ParamsMomentComments{
+		MomentID: momentID,
+		UserID:   userID,
+		Cursor:   cursor,
+		Limit:    limit,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactGetMomentComments,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

@@ -16,48 +16,20 @@ const (
 	MenuMinip MenuType = "miniprogram"
 )
 
-type ClickMenu struct {
-	ID      string `json:"id"`
-	Content string `json:"content"`
-}
-
-type ViewMenu struct {
-	URL     string `json:"url"`
-	Content string `json:"content"`
-}
-
-type MinipMenu struct {
-	AppID    string `json:"appid"`
-	PagePath string `json:"pagepath"`
-	Content  string `json:"content"`
-}
-
 type Text struct {
 	Content string `json:"content"`
 	MenuID  string `json:"menu_id,omitempty"`
 }
 
-type Image struct {
-	MediaID string `json:"media_id"`
-}
-
-type Voice struct {
-	MediaID string `json:"media_id"`
-}
-
-type Video struct {
-	MediaID string `json:"media_id"`
-}
-
-type File struct {
+type Media struct {
 	MediaID string `json:"media_id"`
 }
 
 type Location struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
 	Name      string  `json:"name"`
 	Address   string  `json:"address"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 }
 
 type Link struct {
@@ -92,10 +64,29 @@ type MenuItem struct {
 	Minip *MinipMenu `json:"miniprogram,omitempty"`
 }
 
+type ClickMenu struct {
+	ID      string `json:"id"`
+	Content string `json:"content"`
+}
+
+type ViewMenu struct {
+	URL     string `json:"url"`
+	Content string `json:"content"`
+}
+
+type MinipMenu struct {
+	AppID    string `json:"appid"`
+	PagePath string `json:"pagepath"`
+	Content  string `json:"content"`
+}
+
 type Event struct {
 	EventType         event.EventType `json:"event_type"`
 	OpenKFID          string          `json:"open_kfid,omitempty"`
 	ExternalUserID    string          `json:"external_userid,omitempty"`
+	Scene             string          `json:"scene,omitempty"`
+	SceneParam        string          `json:"scene_param,omitempty"`
+	WelcomeCode       string          `json:"welcome_code,omitempty"`
 	FailMsgID         string          `json:"fail_msgid,omitempty"`
 	FailType          int             `json:"fail_type,omitempty"`
 	ServicerUserID    string          `json:"servicer_userid,omitempty"`
@@ -103,12 +94,14 @@ type Event struct {
 	ChangeType        int             `json:"change_type,omitempty"`
 	OldServicerUserID string          `json:"old_servicer_userid,omitempty"`
 	NewServicerUserID string          `json:"new_servicer_userid,omitempty"`
+	MsgCode           string          `json:"msg_code,omitempty"`
 }
 
 type ParamsMsgSync struct {
-	Cursor string `json:"cursor"`
-	Token  string `json:"token"`
-	Limit  int    `json:"limit"`
+	Cursor      string `json:"cursor,omitempty"`
+	Token       string `json:"token,omitempty"`
+	Limit       int    `json:"limit,omitempty"`
+	VoiceFormat int    `json:"voice_format,omitempty"`
 }
 
 type ResultMsgSync struct {
@@ -124,24 +117,25 @@ type MsgListData struct {
 	SendTime       int64         `json:"send_time"`
 	Origin         int           `json:"origin"`
 	ServicerUserID string        `json:"servicer_userid"`
-	MsgType        event.MsgType `json:"msg_type"`
+	MsgType        event.MsgType `json:"msgtype"`
 	Text           *Text         `json:"text"`
-	Image          *Image        `json:"image"`
-	Voice          *Voice        `json:"voice"`
-	Video          *Video        `json:"video"`
-	File           *File         `json:"file"`
+	Image          *Media        `json:"image"`
+	Voice          *Media        `json:"voice"`
+	Video          *Media        `json:"video"`
+	File           *Media        `json:"file"`
 	Location       *Location     `json:"location"`
 	Link           *Link         `json:"link"`
-	BussinessCard  *BusinessCard `json:"bussiness_card"`
+	BusinessCard   *BusinessCard `json:"business_card"`
 	Minip          *Minip        `json:"miniprogram"`
 	Menu           *Menu         `json:"msgmenu"`
 	Event          *Event        `json:"event"`
 }
 
+// SyncMsg 读取消息
 func SyncMsg(params *ParamsMsgSync, result *ResultMsgSync) wx.Action {
 	return wx.NewPostAction(urls.CorpKFSyncMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -152,13 +146,12 @@ func SyncMsg(params *ParamsMsgSync, result *ResultMsgSync) wx.Action {
 type ParamsMsgSend struct {
 	ToUser   string        `json:"touser"`
 	OpenKFID string        `json:"open_kfid"`
-	MsgID    string        `json:"msgid,omitempty"`
 	MsgType  event.MsgType `json:"msgtype"`
 	Text     *Text         `json:"text,omitempty"`
-	Image    *Image        `json:"image,omitempty"`
-	Voice    *Voice        `json:"voice,omitempty"`
-	Video    *Video        `json:"video,omitempty"`
-	File     *File         `json:"file,omitempty"`
+	Image    *Media        `json:"image,omitempty"`
+	Voice    *Media        `json:"voice,omitempty"`
+	Video    *Media        `json:"video,omitempty"`
+	File     *Media        `json:"file,omitempty"`
 	Link     *Link         `json:"link,omitempty"`
 	Minip    *Minip        `json:"miniprogram,omitempty"`
 	Menu     *Menu         `json:"msgmenu,omitempty"`
@@ -169,18 +162,20 @@ type ResultMsgSend struct {
 	MsgID string `json:"msgid"`
 }
 
-func SendTextMsg(toUser, openKFID, msgID string, text *Text, result *ResultMsgSend) wx.Action {
+// SendTextMsg 发送文本消息
+func SendTextMsg(toUser, openKFID, content string, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
 		MsgType:  event.MsgText,
-		Text:     text,
+		Text: &Text{
+			Content: content,
+		},
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -188,18 +183,20 @@ func SendTextMsg(toUser, openKFID, msgID string, text *Text, result *ResultMsgSe
 	)
 }
 
-func SendImageMsg(toUser, openKFID, msgID string, image *Image, result *ResultMsgSend) wx.Action {
+// SendImageMsg 发送图片消息
+func SendImageMsg(toUser, openKFID, mediaID string, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
 		MsgType:  event.MsgImage,
-		Image:    image,
+		Image: &Media{
+			MediaID: mediaID,
+		},
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -207,18 +204,20 @@ func SendImageMsg(toUser, openKFID, msgID string, image *Image, result *ResultMs
 	)
 }
 
-func SendVoiceMsg(toUser, openKFID, msgID string, voice *Voice, result *ResultMsgSend) wx.Action {
+// SendVoiceMsg 发送语音消息
+func SendVoiceMsg(toUser, openKFID, mediaID string, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
-		MsgType:  event.MsgText,
-		Voice:    voice,
+		MsgType:  event.MsgVoice,
+		Voice: &Media{
+			MediaID: mediaID,
+		},
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -226,18 +225,20 @@ func SendVoiceMsg(toUser, openKFID, msgID string, voice *Voice, result *ResultMs
 	)
 }
 
-func SendVideoMsg(toUser, openKFID, msgID string, video *Video, result *ResultMsgSend) wx.Action {
+// SendVideoMsg 发送视频消息
+func SendVideoMsg(toUser, openKFID, mediaID string, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
-		MsgType:  event.MsgText,
-		Video:    video,
+		MsgType:  event.MsgVideo,
+		Video: &Media{
+			MediaID: mediaID,
+		},
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -245,18 +246,20 @@ func SendVideoMsg(toUser, openKFID, msgID string, video *Video, result *ResultMs
 	)
 }
 
-func SendFileMsg(toUser, openKFID, msgID string, file *File, result *ResultMsgSend) wx.Action {
+// SendFileMsg 发送文件消息
+func SendFileMsg(toUser, openKFID, mediaID string, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
-		MsgType:  event.MsgText,
-		File:     file,
+		MsgType:  event.MsgFile,
+		File: &Media{
+			MediaID: mediaID,
+		},
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -264,18 +267,18 @@ func SendFileMsg(toUser, openKFID, msgID string, file *File, result *ResultMsgSe
 	)
 }
 
-func SendLinkMsg(toUser, openKFID, msgID string, link *Link, result *ResultMsgSend) wx.Action {
+// SendLinkMsg 发送图文链接消息
+func SendLinkMsg(toUser, openKFID string, link *Link, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
-		MsgType:  event.MsgText,
+		MsgType:  event.MsgLink,
 		Link:     link,
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -283,18 +286,18 @@ func SendLinkMsg(toUser, openKFID, msgID string, link *Link, result *ResultMsgSe
 	)
 }
 
-func SendMinipMsg(toUser, openKFID, msgID string, minip *Minip, result *ResultMsgSend) wx.Action {
+// SendMinipMsg 发送小程序消息
+func SendMinipMsg(toUser, openKFID string, minip *Minip, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
-		MsgType:  event.MsgText,
+		MsgType:  event.MsgMinip,
 		Minip:    minip,
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -302,18 +305,18 @@ func SendMinipMsg(toUser, openKFID, msgID string, minip *Minip, result *ResultMs
 	)
 }
 
-func SendMenuMsg(toUser, openKFID, msgID string, menu *Menu, result *ResultMsgSend) wx.Action {
+// SendMenuMsg 发送菜单消息
+func SendMenuMsg(toUser, openKFID string, menu *Menu, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
 		MsgType:  event.MsgMsgMenu,
 		Menu:     menu,
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -321,18 +324,63 @@ func SendMenuMsg(toUser, openKFID, msgID string, menu *Menu, result *ResultMsgSe
 	)
 }
 
-func SendLocationMsg(toUser, openKFID, msgID string, location *Location, result *ResultMsgSend) wx.Action {
+// SendLocationMsg 发送地理位置消息
+func SendLocationMsg(toUser, openKFID string, location *Location, result *ResultMsgSend) wx.Action {
 	params := &ParamsMsgSend{
 		ToUser:   toUser,
 		OpenKFID: openKFID,
-		MsgID:    msgID,
 		MsgType:  event.MsgLocation,
 		Location: location,
 	}
 
 	return wx.NewPostAction(urls.CorpKFSendMsg,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+type ParamsMsgOnEvent struct {
+	Code    string        `json:"code"`
+	MsgType event.MsgType `json:"msgtype"`
+	Text    *Text         `json:"text,omitempty"`
+	Menu    *Menu         `json:"msgmenu,omitempty"`
+}
+
+// SendTextMsgOnEvent 发送欢迎语等事件响应消息（文本消息）
+func SendTextMsgOnEvent(code, content string, result *ResultMsgSend) wx.Action {
+	params := &ParamsMsgOnEvent{
+		Code:    code,
+		MsgType: event.MsgText,
+		Text: &Text{
+			Content: content,
+		},
+	}
+
+	return wx.NewPostAction(urls.CorpKFSendMsgOnEvent,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+// SendMenuMsgOnEvent 发送欢迎语等事件响应消息（菜单消息）
+func SendMenuMsgOnEvent(code string, menu *Menu, result *ResultMsgSend) wx.Action {
+	params := &ParamsMsgOnEvent{
+		Code:    code,
+		MsgType: event.MsgMsgMenu,
+		Menu:    menu,
+	}
+
+	return wx.NewPostAction(urls.CorpKFSendMsgOnEvent,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

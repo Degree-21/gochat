@@ -2,10 +2,9 @@ package minip
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
+	"os"
 	"path/filepath"
-
-	"github.com/shenghui0779/yiigo"
 
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
@@ -21,25 +20,33 @@ var (
 )
 
 // ImageSecCheck 校验一张图片是否含有违法违规内容
-func ImageSecCheck(path string) wx.Action {
-	_, filename := filepath.Split(path)
+func ImageSecCheck(imgPath string) wx.Action {
+	_, filename := filepath.Split(imgPath)
 
 	return wx.NewPostAction(urls.MinipImageSecCheck,
-		wx.WithUpload(func() (yiigo.UploadForm, error) {
-			path, err := filepath.Abs(filepath.Clean(path))
+		wx.WithUpload(func() (wx.UploadForm, error) {
+			path, err := filepath.Abs(filepath.Clean(imgPath))
 
 			if err != nil {
 				return nil, err
 			}
 
-			body, err := ioutil.ReadFile(path)
+			return wx.NewUploadForm(
+				wx.WithFormFile("media", filename, func(w io.Writer) error {
+					f, err := os.Open(path)
 
-			if err != nil {
-				return nil, err
-			}
+					if err != nil {
+						return err
+					}
 
-			return yiigo.NewUploadForm(
-				yiigo.WithFileField("media", filename, body),
+					defer f.Close()
+
+					if _, err = io.Copy(w, f); err != nil {
+						return err
+					}
+
+					return nil
+				}),
 			), nil
 		}),
 	)
@@ -56,10 +63,15 @@ type ResultMediaCheckAsync struct {
 }
 
 // MediaCheckAsync 异步校验图片/音频是否含有违法违规内容
-func MediaCheckAsync(params *ParamsMediaCheckAsync, result *ResultMediaCheckAsync) wx.Action {
+func MediaCheckAsync(mediaType SecMediaType, mediaURL string, result *ResultMediaCheckAsync) wx.Action {
+	params := &ParamsMediaCheckAsync{
+		MediaType: mediaType,
+		MediaURL:  mediaURL,
+	}
+
 	return wx.NewPostAction(urls.MinipMediaCheckAsync,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -71,7 +83,7 @@ func MediaCheckAsync(params *ParamsMediaCheckAsync, result *ResultMediaCheckAsyn
 func MsgSecCheck(content string) wx.Action {
 	return wx.NewPostAction(urls.MinipMsgSecCheck,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(yiigo.X{
+			return wx.MarshalNoEscapeHTML(wx.M{
 				"content": content,
 			})
 		}),

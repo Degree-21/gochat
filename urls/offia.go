@@ -31,8 +31,16 @@ const (
 	OffiaSnsUserInfo           = "https://api.weixin.qq.com/sns/userinfo"
 )
 
-// subscriber
+// user
 const (
+	OffiaTagCreate        = "https://api.weixin.qq.com/cgi-bin/tags/create"
+	OffiaTagUpdate        = "https://api.weixin.qq.com/cgi-bin/tags/update"
+	OffiaTagGet           = "https://api.weixin.qq.com/cgi-bin/tags/get"
+	OffiaTagDelete        = "https://api.weixin.qq.com/cgi-bin/tags/delete"
+	OffiaTagUserGet       = "https://api.weixin.qq.com/cgi-bin/user/tag/get"
+	OffiaBatchTagging     = "https://api.weixin.qq.com/cgi-bin/tags/members/batchtagging"
+	OffiaBatchUnTagging   = "https://api.weixin.qq.com/cgi-bin/tags/members/batchuntagging"
+	OffiaTagGetIDList     = "https://api.weixin.qq.com/cgi-bin/tags/getidlist"
 	OffiaUserGet          = "https://api.weixin.qq.com/cgi-bin/user/info"
 	OffiaUserBatchGet     = "https://api.weixin.qq.com/cgi-bin/user/info/batchget"
 	OffiaUserList         = "https://api.weixin.qq.com/cgi-bin/user/get"
@@ -44,13 +52,13 @@ const (
 
 // message
 const (
-	OffiaSetIndustry              = "https://api.weixin.qq.com/cgi-bin/template/api_set_industry"
-	OffiaGetIndustry              = "https://api.weixin.qq.com/cgi-bin/template/get_industry"
-	OffiaTemplateAdd              = "https://api.weixin.qq.com/cgi-bin/template/api_add_template"
-	OffiaGetAllPrivateTemplate    = "https://api.weixin.qq.com/cgi-bin/template/get_all_private_template"
-	OffiaDelPrivateTemplate       = "https://api.weixin.qq.com/cgi-bin/template/del_private_template"
-	OffiaTemplateMsgSend          = "https://api.weixin.qq.com/cgi-bin/message/template/send"
-	OffiaSubscribeTemplateMsgSend = "https://api.weixin.qq.com/cgi-bin/message/template/subscribe"
+	OffiaSetIndustry           = "https://api.weixin.qq.com/cgi-bin/template/api_set_industry"
+	OffiaGetIndustry           = "https://api.weixin.qq.com/cgi-bin/template/get_industry"
+	OffiaTemplateAdd           = "https://api.weixin.qq.com/cgi-bin/template/api_add_template"
+	OffiaGetAllPrivateTemplate = "https://api.weixin.qq.com/cgi-bin/template/get_all_private_template"
+	OffiaDelPrivateTemplate    = "https://api.weixin.qq.com/cgi-bin/template/del_private_template"
+	OffiaTemplateMsgSend       = "https://api.weixin.qq.com/cgi-bin/message/template/send"
+	OffiaTemplateSubscribe     = "https://api.weixin.qq.com/cgi-bin/message/template/subscribe"
 )
 
 // popularize
@@ -62,14 +70,16 @@ const (
 
 // media
 const (
-	OffiaMediaUpload     = "https://api.weixin.qq.com/cgi-bin/media/upload"
-	OffiaMediaGet        = "https://api.weixin.qq.com/cgi-bin/media/get"
-	OffiaNewsAdd         = "https://api.weixin.qq.com/cgi-bin/material/add_news"
-	OffiaNewUpdate     = "https://api.weixin.qq.com/cgi-bin/material/update_news"
-	OffiaNewsImageUpload = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
-	OffiaMaterialAdd     = "https://api.weixin.qq.com/cgi-bin/material/add_material"
-	OffiaMaterialDelete  = "https://api.weixin.qq.com/cgi-bin/material/del_material"
-	OffiaMaterialGet     = "https://api.weixin.qq.com/cgi-bin/material/get_material"
+	OffiaMediaUpload      = "https://api.weixin.qq.com/cgi-bin/media/upload"
+	OffiaMediaGet         = "https://api.weixin.qq.com/cgi-bin/media/get"
+	OffiaNewsAdd          = "https://api.weixin.qq.com/cgi-bin/material/add_news"
+	OffiaNewsUpdate       = "https://api.weixin.qq.com/cgi-bin/material/update_news"
+	OffiaNewsImgUpload    = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
+	OffiaMaterialAdd      = "https://api.weixin.qq.com/cgi-bin/material/add_material"
+	OffiaMaterialDelete   = "https://api.weixin.qq.com/cgi-bin/material/del_material"
+	OffiaMaterialGet      = "https://api.weixin.qq.com/cgi-bin/material/get_material"
+	OffiaMaterialCountGet = "https://api.weixin.qq.com/cgi-bin/material/get_materialcount"
+	OffiaMaterialBatchGet = "https://api.weixin.qq.com/cgi-bin/material/batchget_material"
 )
 
 // image
@@ -107,4 +117,35 @@ const (
 	OffiaKFMsgRecordList = "https://api.weixin.qq.com/customservice/msgrecord/getmsglist"
 	OffiaKFMsgSend       = "https://api.weixin.qq.com/cgi-bin/message/custom/send"
 	OffiaSetTyping       = "https://api.weixin.qq.com/cgi-bin/message/custom/typing"
+)
+
+// subscribe
+const (
+	OffiaSubscribeAddTemplate            = "https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate"
+	OffiaSubscribeDeleteTemplate         = "https://api.weixin.qq.com/wxaapi/newtmpl/deltemplate"
+	OffiaSubscribeGetCategory            = "https://api.weixin.qq.com/wxaapi/newtmpl/getcategory"
+	OffiaSubscribeGetPubTemplateKeywords = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatekeywords"
+	OffiaSubscribeGetPubTemplateTitles   = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatetitles"
+	OffiaSubscribeGetTemplateList        = "https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate"
+	OffiaSubscribeMsgBizSend             = "https://api.weixin.qq.com/cgi-bin/message/subscribe/bizsend"
+)
+
+// draft
+const (
+	OffiaDraftAdd      = "https://api.weixin.qq.com/cgi-bin/draft/add"
+	OffiaDraftGet      = "https://api.weixin.qq.com/cgi-bin/draft/get"
+	OffiaDraftDelete   = "https://api.weixin.qq.com/cgi-bin/draft/delete"
+	OffiaDraftUpdate   = "https://api.weixin.qq.com/cgi-bin/draft/update"
+	OffiaDraftCount    = "https://api.weixin.qq.com/cgi-bin/draft/count"
+	OffiaDraftBatchGet = "https://api.weixin.qq.com/cgi-bin/draft/batchget"
+	OffiaDraftSwitch   = "https://api.weixin.qq.com/cgi-bin/draft/switch"
+)
+
+// publish
+const (
+	OffiaPublishSubmit     = "https://api.weixin.qq.com/cgi-bin/freepublish/submit"
+	OffiaPublishGet        = "https://api.weixin.qq.com/cgi-bin/freepublish/get"
+	OffiaPublishDelete     = "https://api.weixin.qq.com/cgi-bin/freepublish/delete"
+	OffiaPublishGetArticle = "https://api.weixin.qq.com/cgi-bin/freepublish/getarticle"
+	OffiaPublishBatchGet   = "https://api.weixin.qq.com/cgi-bin/freepublish/batchget"
 )

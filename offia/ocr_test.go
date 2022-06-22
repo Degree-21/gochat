@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/shenghui0779/gochat/mock"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/shenghui0779/yiigo"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestOCRIDCardFront(t *testing.T) {
@@ -34,7 +34,7 @@ func TestOCRIDCardFront(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/idcard?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/idcard?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -108,7 +108,7 @@ func TestOCRIDCardBack(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/idcard?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/idcard?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -169,7 +169,7 @@ func TestOCRBankCard(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/bankcard?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/bankcard?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -229,7 +229,7 @@ func TestOCRPlateNumber(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/platenum?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/platenum?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -299,7 +299,7 @@ func TestOCRDriverLicense(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/drivinglicense?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/drivinglicense?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -402,7 +402,7 @@ func TestOCRVehicleLicense(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/driving?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/driving?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -540,7 +540,7 @@ func TestOCRBusinessLicense(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/bizlicense?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/bizlicense?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))
@@ -752,7 +752,7 @@ func TestOCRComm(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/comm?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/cv/ocr/comm?access_token=ACCESS_TOKEN&type=photo", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	oa := New("APPID", "APPSECRET")
 	oa.SetClient(wx.WithHTTPClient(client))

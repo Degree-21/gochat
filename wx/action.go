@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-
-	"github.com/shenghui0779/yiigo"
 )
 
 // Action is the interface that handle wechat api
@@ -17,13 +15,13 @@ type Action interface {
 	URL(accessToken ...string) string
 
 	// WXML returns body for xml request
-	WXML(appid, mchid, nonce string) (WXML, error)
+	WXML(mchid, nonce string) (WXML, error)
 
 	// Body returns body for post request
 	Body() ([]byte, error)
 
 	// UploadForm returns form for uploading media
-	UploadForm() (yiigo.UploadForm, error)
+	UploadForm() (UploadForm, error)
 
 	// Decode decodes response
 	Decode(resp []byte) error
@@ -35,20 +33,13 @@ type Action interface {
 	IsTLS() bool
 }
 
-type UploadField struct {
-	FileField string
-	Filename  string
-	MetaField string
-	Metadata  string
-}
-
 type action struct {
 	method     string
 	reqURL     string
 	query      url.Values
-	wxml       func(appid, mchid, nonce string) (WXML, error)
+	wxml       func(mchid, nonce string) (WXML, error)
 	body       func() ([]byte, error)
-	uploadform func() (yiigo.UploadForm, error)
+	uploadform func() (UploadForm, error)
 	decode     func(resp []byte) error
 	upload     bool
 	tls        bool
@@ -70,9 +61,9 @@ func (a *action) URL(accessToken ...string) string {
 	return fmt.Sprintf("%s?%s", a.reqURL, a.query.Encode())
 }
 
-func (a *action) WXML(appid, mchid, nonce string) (WXML, error) {
+func (a *action) WXML(mchid, nonce string) (WXML, error) {
 	if a.wxml != nil {
-		return a.wxml(appid, mchid, nonce)
+		return a.wxml(mchid, nonce)
 	}
 
 	return WXML{}, nil
@@ -86,12 +77,12 @@ func (a *action) Body() ([]byte, error) {
 	return nil, nil
 }
 
-func (a *action) UploadForm() (yiigo.UploadForm, error) {
+func (a *action) UploadForm() (UploadForm, error) {
 	if a.uploadform != nil {
 		return a.uploadform()
 	}
 
-	return yiigo.NewUploadForm(), nil
+	return NewUploadForm(), nil
 }
 
 func (a *action) Decode(resp []byte) error {

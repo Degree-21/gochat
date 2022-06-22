@@ -21,25 +21,34 @@ type DialCaller struct {
 }
 
 type DialCallee struct {
+	UserID   string `json:"userid"`
 	Phone    string `json:"phone"`
 	Duration int    `json:"duration"`
 }
 
-type ParamsDialRecordGet struct {
+type ParamsDialRecord struct {
 	StartTime int64 `json:"start_time,omitempty"`
 	EndTime   int64 `json:"end_time,omitempty"`
 	Offset    int   `json:"offset,omitempty"`
 	Limit     int   `json:"limit,omitempty"`
 }
 
-type ResultDialRecordGet struct {
+type ResultDialRecord struct {
 	Record []*DialRecord `json:"record"`
 }
 
-func GetDialRecord(params *ParamsDialRecordGet, result *ResultDialRecordGet) wx.Action {
-	return wx.NewPostAction(urls.CorpToolsDialGetRecord,
+// GetDialRecord 获取公费电话拨打记录
+func GetDialRecord(starttime, endtime int64, offset, limit int, result *ResultDialRecord) wx.Action {
+	params := &ParamsDialRecord{
+		StartTime: starttime,
+		EndTime:   endtime,
+		Offset:    offset,
+		Limit:     limit,
+	}
+
+	return wx.NewPostAction(urls.CorpToolsDialRecordGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

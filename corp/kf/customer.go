@@ -24,10 +24,15 @@ type Customer struct {
 	UnionID        string `json:"unionid"`
 }
 
-func BatchGetCustomer(params *ParamsCustomerBatchGet, result *ResultCustomerBatchGet) wx.Action {
+// BatchGetCustomer 获取客户基础信息
+func BatchGetCustomer(externalUserIDs []string, result *ResultCustomerBatchGet) wx.Action {
+	params := &ParamsCustomerBatchGet{
+		ExternalUseridList: externalUserIDs,
+	}
+
 	return wx.NewPostAction(urls.CorpKFCustomerBatchGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -49,6 +54,7 @@ type GroupChatRange struct {
 	ChatIDList []string `json:"chat_id_list"`
 }
 
+// GetUpgradeServiceConfig 获取配置的专员与客户群
 func GetUpgradeServiceConfig(result *ResultServiceUpgradeConfig) wx.Action {
 	return wx.NewGetAction(urls.CorpKFGetUpgradeServiceConfig,
 		wx.WithDecode(func(resp []byte) error {
@@ -75,10 +81,34 @@ type GroupChat struct {
 	Wording string `json:"wording"`
 }
 
-func UpgradeService(params *ParamsServiceUpgrade) wx.Action {
+// UpgradeMemberService 为客户升级为专员服务
+func UpgradeMemberService(openKFID, externalUserID string, member *Member) wx.Action {
+	params := &ParamsServiceUpgrade{
+		OpenKFID:       openKFID,
+		ExternalUserID: externalUserID,
+		Type:           1,
+		Member:         member,
+	}
+
 	return wx.NewPostAction(urls.CorpKFUpgradeService,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+	)
+}
+
+// UpgradeGroupChatService 为客户升级为客户群服务
+func UpgradeGroupChatService(openKFID, externalUserID string, groupChat *GroupChat) wx.Action {
+	params := &ParamsServiceUpgrade{
+		OpenKFID:       openKFID,
+		ExternalUserID: externalUserID,
+		Type:           2,
+		GroupChat:      groupChat,
+	}
+
+	return wx.NewPostAction(urls.CorpKFUpgradeService,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -88,10 +118,16 @@ type ParamsServiceUpgradeCancel struct {
 	ExternalUserID string `json:"external_userid"`
 }
 
-func CancelUpgradeService(params *ParamsServiceUpgradeCancel) wx.Action {
+// CancelUpgradeService 为客户取消推荐
+func CancelUpgradeService(openKFID, externalUserID string) wx.Action {
+	params := &ParamsServiceUpgradeCancel{
+		OpenKFID:       openKFID,
+		ExternalUserID: externalUserID,
+	}
+
 	return wx.NewPostAction(urls.CorpKFCancelUpgradeService,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/shenghui0779/gochat/wx"
 )
 
-// OrderData 统一下单数据
-type OrderData struct {
+// ParamsUnifyOrder 统一下单参数
+type ParamsUnifyOrder struct {
 	// 必填参数
 	OutTradeNO     string // 商户系统内部的订单号，32个字符内、可包含字母，其他说明见商户订单号
 	TotalFee       int    // 订单总金额，单位为分，详见支付金额
@@ -32,69 +32,69 @@ type OrderData struct {
 }
 
 // UnifyOrder 统一下单
-func UnifyOrder(data *OrderData) wx.Action {
+func UnifyOrder(appid string, params *ParamsUnifyOrder) wx.Action {
 	return wx.NewPostAction(urls.MchOrderUnify,
-		wx.WithWXML(func(appid, mchid, nonce string) (wx.WXML, error) {
+		wx.WithWXML(func(mchid, nonce string) (wx.WXML, error) {
 			body := wx.WXML{
 				"appid":            appid,
 				"mch_id":           mchid,
 				"nonce_str":        nonce,
 				"fee_type":         "CNY",
-				"trade_type":       data.TradeType,
-				"body":             data.Body,
-				"out_trade_no":     data.OutTradeNO,
-				"total_fee":        strconv.Itoa(data.TotalFee),
-				"spbill_create_ip": data.SpbillCreateIP,
-				"notify_url":       data.NotifyURL,
-				"sign_type":        SignMD5,
+				"trade_type":       params.TradeType,
+				"body":             params.Body,
+				"out_trade_no":     params.OutTradeNO,
+				"total_fee":        strconv.Itoa(params.TotalFee),
+				"spbill_create_ip": params.SpbillCreateIP,
+				"notify_url":       params.NotifyURL,
+				"sign_type":        string(SignMD5),
 			}
 
-			if data.DeviceInfo != "" {
-				body["device_info"] = data.DeviceInfo
+			if len(params.DeviceInfo) != 0 {
+				body["device_info"] = params.DeviceInfo
 			}
 
-			if data.Detail != "" {
-				body["detail"] = data.Detail
+			if len(params.Detail) != 0 {
+				body["detail"] = params.Detail
 			}
 
-			if data.Attach != "" {
-				body["attach"] = data.Attach
+			if len(params.Attach) != 0 {
+				body["attach"] = params.Attach
 			}
 
-			if data.FeeType != "" {
-				body["fee_type"] = data.FeeType
+			if len(params.FeeType) != 0 {
+				body["fee_type"] = params.FeeType
 			}
 
-			if data.TimeStart != "" {
-				body["time_start"] = data.TimeStart
+			if len(params.TimeStart) != 0 {
+				body["time_start"] = params.TimeStart
 			}
 
-			if data.TimeExpire != "" {
-				body["time_expire"] = data.TimeExpire
+			if len(params.TimeExpire) != 0 {
+				body["time_expire"] = params.TimeExpire
 			}
 
-			if data.GoodsTag != "" {
-				body["goods_tag"] = data.GoodsTag
+			if len(params.GoodsTag) != 0 {
+				body["goods_tag"] = params.GoodsTag
 			}
 
-			if data.ProductID != "" {
-				body["product_id"] = data.ProductID
+			if len(params.ProductID) != 0 {
+				body["product_id"] = params.ProductID
 			}
 
-			if data.LimitPay != "" {
-				body["limit_pay"] = data.LimitPay
+			if len(params.LimitPay) != 0 {
+				body["limit_pay"] = params.LimitPay
 			}
 
-			if data.OpenID != "" {
-				body["openid"] = data.OpenID
+			if len(params.OpenID) != 0 {
+				body["openid"] = params.OpenID
 			}
 
-			if data.Receipt {
+			if params.Receipt {
 				body["receipt"] = "Y"
 			}
 
-			if data.SceneInfo != "" {
-				body["scene_info"] = data.SceneInfo
+			if len(params.SceneInfo) != 0 {
+				body["scene_info"] = params.SceneInfo
 			}
 
 			return body, nil
@@ -102,45 +102,45 @@ func UnifyOrder(data *OrderData) wx.Action {
 }
 
 // QueryOrderByTransactionID 根据微信订单号查询
-func QueryOrderByTransactionID(transactionID string) wx.Action {
+func QueryOrderByTransactionID(appid, transactionID string) wx.Action {
 	return wx.NewPostAction(urls.MchOrderQuery,
-		wx.WithWXML(func(appid, mchid, nonce string) (wx.WXML, error) {
+		wx.WithWXML(func(mchid, nonce string) (wx.WXML, error) {
 			return wx.WXML{
 				"appid":          appid,
 				"mch_id":         mchid,
 				"transaction_id": transactionID,
 				"nonce_str":      nonce,
-				"sign_type":      SignMD5,
+				"sign_type":      string(SignMD5),
 			}, nil
 		}),
 	)
 }
 
 // QueryOrderByOutTradeNO 根据商户订单号查询
-func QueryOrderByOutTradeNO(outTradeNO string) wx.Action {
+func QueryOrderByOutTradeNO(appid, outTradeNO string) wx.Action {
 	return wx.NewPostAction(urls.MchOrderQuery,
-		wx.WithWXML(func(appid, mchid, nonce string) (wx.WXML, error) {
+		wx.WithWXML(func(mchid, nonce string) (wx.WXML, error) {
 			return wx.WXML{
 				"appid":        appid,
 				"mch_id":       mchid,
 				"out_trade_no": outTradeNO,
 				"nonce_str":    nonce,
-				"sign_type":    SignMD5,
+				"sign_type":    string(SignMD5),
 			}, nil
 		}),
 	)
 }
 
 // CloseOrder 关闭订单【注意：订单生成后不能马上调用关单接口，最短调用时间间隔为5分钟。】
-func CloseOrder(outTradeNO string) wx.Action {
+func CloseOrder(appid, outTradeNO string) wx.Action {
 	return wx.NewPostAction(urls.MchOrderClose,
-		wx.WithWXML(func(appid, mchid, nonce string) (wx.WXML, error) {
+		wx.WithWXML(func(mchid, nonce string) (wx.WXML, error) {
 			return wx.WXML{
 				"appid":        appid,
 				"mch_id":       mchid,
 				"out_trade_no": outTradeNO,
 				"nonce_str":    nonce,
-				"sign_type":    SignMD5,
+				"sign_type":    string(SignMD5),
 			}, nil
 		}),
 	)

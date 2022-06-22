@@ -14,80 +14,74 @@ import (
 
 	"github.com/shenghui0779/gochat/mock"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/shenghui0779/yiigo"
 )
 
 func TestNew(t *testing.T) {
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
-	assert.Equal(t, "wx2421b1c4370ec43b", mch.AppID())
 	assert.Equal(t, "10000100", mch.MchID())
 	assert.Equal(t, "192006250b4c09247ec02edce69f6a2d", mch.ApiKey())
 }
 
-// 涉及时间戳，签名会变化（已通过固定时间戳验证）
-// func TestAPPAPI(t *testing.T) {
-// 	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d")
+// 涉及时间戳，签名会变化（请先固定时间戳：1414561699）
+func TestAPPAPI(t *testing.T) {
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d")
 
-// 	mch.nonce = func(size int) string {
-// 		return "5K8264ILTKCH16CQ2502SI8ZNMTM67VS"
-// 	}
+	mch.nonce = func() string {
+		return "5K8264ILTKCH16CQ2502SI8ZNMTM67VS"
+	}
 
-// 	m := mch.APPAPI("WX1217752501201407033233368018")
+	m := mch.APPAPI("wx2421b1c4370ec43b", "WX1217752501201407033233368018")
 
-// 	assert.Equal(t, wx.WXML{
-// 		"appid":     "wx2421b1c4370ec43b",
-// 		"partnerid": "10000100",
-// 		"prepayid":  "WX1217752501201407033233368018",
-// 		"package":   "Sign=WXPay",
-// 		"noncestr":  "5K8264ILTKCH16CQ2502SI8ZNMTM67VS",
-// 		"timestamp": "1414561699",
-// 		"sign":      "C9612FA7A6BA5F51E195D5F9337CA288",
-// 	}, m)
-// }
+	assert.Equal(t, wx.WXML{
+		"appid":     "wx2421b1c4370ec43b",
+		"partnerid": "10000100",
+		"prepayid":  "WX1217752501201407033233368018",
+		"package":   "Sign=WXPay",
+		"noncestr":  "5K8264ILTKCH16CQ2502SI8ZNMTM67VS",
+		"timestamp": "1414561699",
+		"sign":      "C9612FA7A6BA5F51E195D5F9337CA288",
+	}, m)
+}
 
-// 涉及时间戳，签名会变化（已通过固定时间戳验证）
-// func TestJSAPI(t *testing.T) {
-// 	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d")
+// 涉及时间戳，签名会变化（请先固定时间戳：1414561699）
+func TestJSAPI(t *testing.T) {
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d")
 
-//  assert.Nil(t, err)
+	mch.nonce = func() string {
+		return "e61463f8efa94090b1f366cccfbbb444"
+	}
 
-// 	mch.nonce = func(size int) string {
-// 		return "e61463f8efa94090b1f366cccfbbb444"
-// 	}
+	m := mch.JSAPI("wx2421b1c4370ec43b", "u802345jgfjsdfgsdg888")
 
-// 	m := mch.JSAPI("u802345jgfjsdfgsdg888")
+	assert.Equal(t, wx.WXML{
+		"appId":     "wx2421b1c4370ec43b",
+		"timeStamp": "1414561699",
+		"nonceStr":  "e61463f8efa94090b1f366cccfbbb444",
+		"package":   "prepay_id=u802345jgfjsdfgsdg888",
+		"signType":  "MD5",
+		"paySign":   "A62A01211E36F5D2173A9EE93EBAC56C",
+	}, m)
+}
 
-// 	assert.Equal(t, wx.WXML{
-// 		"appId":     "wx2421b1c4370ec43b",
-// 		"timeStamp": "1414561699",
-// 		"nonceStr":  "e61463f8efa94090b1f366cccfbbb444",
-// 		"package":   "prepay_id=u802345jgfjsdfgsdg888",
-// 		"signType":  "MD5",
-// 		"paySign":   "A62A01211E36F5D2173A9EE93EBAC56C",
-// 	}, m)
-// }
+// 涉及时间戳，签名会变化（请先固定时间戳：1414561699）
+func TestMinipRedpackJSAPI(t *testing.T) {
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d")
 
-// 涉及时间戳，签名会变化（已通过固定时间戳验证）
-// func TestMinipRedpackJSAPI(t *testing.T) {
-// 	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d")
+	mch.nonce = func() string {
+		return "e61463f8efa94090b1f366cccfbbb444"
+	}
 
-// 	assert.Nil(t, err)
+	m := mch.MinipRedpackJSAPI("wx2421b1c4370ec43b", "sendid=242e8abd163d300019b2cae74ba8e8c06e3f0e51ab84d16b3c80decd22a5b672&ver=8&sign=4110d649a5aef52dd6b95654ddf91ca7d5411ac159ace4e1a766b7d3967a1c3dfe1d256811445a4abda2d9cfa4a9b377a829258bd00d90313c6c346f2349fe5d&mchid=11475856&appid=wxd27ebc41b85ce36d")
 
-// 	mch.nonce = func(size int) string {
-// 		return "e61463f8efa94090b1f366cccfbbb444"
-// 	}
-
-// 	m := mch.MinipRedpackJSAPI("sendid=242e8abd163d300019b2cae74ba8e8c06e3f0e51ab84d16b3c80decd22a5b672&ver=8&sign=4110d649a5aef52dd6b95654ddf91ca7d5411ac159ace4e1a766b7d3967a1c3dfe1d256811445a4abda2d9cfa4a9b377a829258bd00d90313c6c346f2349fe5d&mchid=11475856&appid=wxd27ebc41b85ce36d")
-
-// 	assert.Equal(t, wx.WXML{
-// 		"timeStamp": "1414561699",
-// 		"nonceStr":  "e61463f8efa94090b1f366cccfbbb444",
-// 		"package":   "sendid%3D242e8abd163d300019b2cae74ba8e8c06e3f0e51ab84d16b3c80decd22a5b672%26ver%3D8%26sign%3D4110d649a5aef52dd6b95654ddf91ca7d5411ac159ace4e1a766b7d3967a1c3dfe1d256811445a4abda2d9cfa4a9b377a829258bd00d90313c6c346f2349fe5d%26mchid%3D11475856%26appid%3Dwxd27ebc41b85ce36d",
-// 		"signType":  "MD5",
-// 		"paySign":   "0cecd02326e26c27fbc77f6062ef8654",
-// 	}, m)
-// }
+	assert.Equal(t, wx.WXML{
+		"timeStamp": "1414561699",
+		"nonceStr":  "e61463f8efa94090b1f366cccfbbb444",
+		"package":   "sendid%3D242e8abd163d300019b2cae74ba8e8c06e3f0e51ab84d16b3c80decd22a5b672%26ver%3D8%26sign%3D4110d649a5aef52dd6b95654ddf91ca7d5411ac159ace4e1a766b7d3967a1c3dfe1d256811445a4abda2d9cfa4a9b377a829258bd00d90313c6c346f2349fe5d%26mchid%3D11475856%26appid%3Dwxd27ebc41b85ce36d",
+		"signType":  "MD5",
+		"paySign":   "0cecd02326e26c27fbc77f6062ef8654",
+	}, m)
+}
 
 func TestDownloadBill(t *testing.T) {
 	body, err := wx.FormatMap2XML(wx.WXML{
@@ -115,9 +109,9 @@ func TestDownloadBill(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.mch.weixin.qq.com/pay/downloadbill", body, gomock.AssignableToTypeOf(yiigo.WithHTTPClose())).Return(resp, nil)
+	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.mch.weixin.qq.com/pay/downloadbill", body, gomock.AssignableToTypeOf(wx.WithHTTPClose())).Return(resp, nil)
 
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	mch.nonce = func() string {
 		return "21df7dc9cd8616b56919f20d9f679233"
@@ -125,7 +119,7 @@ func TestDownloadBill(t *testing.T) {
 	mch.SetClient(wx.WithHTTPClient(client))
 	mch.SetTLSClient(wx.WithHTTPClient(client))
 
-	b, err := mch.DownloadBill(context.TODO(), "20141110", BillTypeAll)
+	b, err := mch.DownloadBill(context.TODO(), "wx2421b1c4370ec43b", "20141110", BillTypeAll)
 
 	assert.Nil(t, err)
 	assert.Equal(t, []byte(`交易时间,公众账号ID,商户号,子商户号,设备号,微信订单号,商户订单号,用户标识,交易类型,交易状态,付款银行,货币种类,总金额,代金券或立减优惠金额,微信退款单号,商户退款单号,退款金额,代金券或立减优惠退款金额,退款类型,退款状态,商品名称,商户数据包,手续费,费率
@@ -161,9 +155,9 @@ func TestDownloadFundFlow(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.mch.weixin.qq.com/pay/downloadfundflow", body, gomock.AssignableToTypeOf(yiigo.WithHTTPClose())).Return(resp, nil)
+	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.mch.weixin.qq.com/pay/downloadfundflow", body, gomock.AssignableToTypeOf(wx.WithHTTPClose())).Return(resp, nil)
 
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	mch.nonce = func() string {
 		return "21df7dc9cd8616b56919f20d9f679233"
@@ -171,7 +165,7 @@ func TestDownloadFundFlow(t *testing.T) {
 	mch.SetClient(wx.WithHTTPClient(client))
 	mch.SetTLSClient(wx.WithHTTPClient(client))
 
-	b, err := mch.DownloadFundFlow(context.TODO(), "20141110", AccountTypeBasic)
+	b, err := mch.DownloadFundFlow(context.TODO(), "wx2421b1c4370ec43b", "20141110", AccountTypeBasic)
 
 	assert.Nil(t, err)
 	assert.Equal(t, []byte(`交易时间,公众账号ID,商户号,子商户号,设备号,微信订单号,商户订单号,用户标识,交易类型,交易状态,付款银行,货币种类,总金额,代金券或立减优惠金额,微信退款单号,商户退款单号,退款金额,代金券或立减优惠退款金额,退款类型,退款状态,商品名称,商户数据包,手续费,费率
@@ -208,9 +202,9 @@ func TestBatchQueryComment(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment", body, gomock.AssignableToTypeOf(yiigo.WithHTTPClose())).Return(resp, nil)
+	client.EXPECT().Do(gomock.AssignableToTypeOf(context.TODO()), http.MethodPost, "https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment", body, gomock.AssignableToTypeOf(wx.WithHTTPClose())).Return(resp, nil)
 
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	mch.nonce = func() string {
 		return "5K8264ILTKCH16CQ2502SI8ZNMTM67VS"
@@ -218,7 +212,7 @@ func TestBatchQueryComment(t *testing.T) {
 	mch.SetClient(wx.WithHTTPClient(client))
 	mch.SetTLSClient(wx.WithHTTPClient(client))
 
-	b, err := mch.BatchQueryComment(context.TODO(), "20170724000000", "20170725000000", 0, 100)
+	b, err := mch.BatchQueryComment(context.TODO(), "wx2421b1c4370ec43b", "20170724000000", "20170725000000", 0, 100)
 
 	assert.Nil(t, err)
 	assert.Equal(t, []byte(`100
@@ -228,7 +222,7 @@ func TestBatchQueryComment(t *testing.T) {
 }
 
 func TestSignWithMD5(t *testing.T) {
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	m := wx.WXML{
 		"appid":     "wx2421b1c4370ec43b",
@@ -240,11 +234,11 @@ func TestSignWithMD5(t *testing.T) {
 	}
 
 	// 签名校验来自：[微信支付接口签名校验工具](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=20_1)
-	assert.Equal(t, "66724B3332E124BFC3D62A31A68F7887", mch.SignWithMD5(m, true))
+	assert.Equal(t, "66724B3332E124BFC3D62A31A68F7887", mch.Sign(SignMD5, m, true))
 }
 
 func TestSignWithHMacSHA256(t *testing.T) {
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	m := wx.WXML{
 		"appid":     "wx2421b1c4370ec43b",
@@ -256,11 +250,11 @@ func TestSignWithHMacSHA256(t *testing.T) {
 	}
 
 	// 签名校验来自：[微信支付接口签名校验工具](https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=20_1)
-	assert.Equal(t, "3B12F569A5714858F8251366BC3CBCDDBD249905CCA01D8F56D365EF1FC2CA5C", mch.SignWithHMacSHA256(m, true))
+	assert.Equal(t, "3B12F569A5714858F8251366BC3CBCDDBD249905CCA01D8F56D365EF1FC2CA5C", mch.Sign(SignHMacSHA256, m, true))
 }
 
 func TestVerifyWXMLResult(t *testing.T) {
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	m := wx.WXML{
 		"return_code": "SUCCESS",
@@ -278,7 +272,7 @@ func TestVerifyWXMLResult(t *testing.T) {
 }
 
 func TestDecryptWithAES256ECB(t *testing.T) {
-	mch := New("wx2421b1c4370ec43b", "10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
+	mch := New("10000100", "192006250b4c09247ec02edce69f6a2d", p12cert)
 
 	info, err := mch.DecryptWithAES256ECB("4gS8kbcHysCW7bHqyEU0M4GTNkgJQP6/zKHbA/E3CvwLlNgCKUkGRy0OpONZjd4saggSnB6Fr7dHRYn6tvu8XDRU6t9IC3GuUKHs3SXmFKkm5cy3YR0oWIZFU4C5LV9LU7U3hwvUSZNx1QcFQXX9yZz68Wq8pwf/DeZ6iOXy/XRulylo75C7n0p3dMm/yJamZ44ir2iwWwEis3Tiif9Y6foLxrFA+fESQK1aH/OEZhIrJPIlnrtoxGJVJfoWAOYrC13a52BaR7CHKmNhAtw60n+XBUPLx5VzwpHKf3zZB1EpCngiVGcxmEAy3I59wotsScP4iaUeObWqPs7RYdQCiFQ9oRo4/c6bUWocW6HfOJGyWXj3VNfZtjTp1J6R05bP/1PCNV9FIMlt+owfcjTPO4pmRx0SpuKPy7j80APUCyC4g/0FU2ppbw/jN3faXAOV/1+Vl5vrDWxg2hiWm9JCttJ5kAHD/9XB6hfM0BH4iwf/Z/FZO+ECvO2A9buqnpCeOYWsOZNN1Z2Ow9kfJXhiDs/N0UICa2lodyl44nBrbP3amju/Zm6yyyFr74jl2GUsGO3PBrqfP1mbX96WiG09BcjQp1PAw40kfw32o7LW8ZT7DakPEGf0Khhuy+xbdusziU/CihrSEIUJP2qlK2/WrM3MtKE7qMqGBMDTG/n/BB1B82zfpNEh1py0CKTS+ezCKQp4IlRnMZhAMtyOfcKLbMEwOF1u3TdfNh+GSXPbEdydvKTcrMddQ5bbUosAT0d+dcPSPlM8Ckq6OPWJfyaySg8x1PM39psr2UqhJGFQ/kcDLzCYt1gVX+qjOdMC0v0IBG+YszRCIvJkNGues9wip94bkBWQeHdtuES+XZS9wIR0jwIA5G+mJJD3tRW/JpCXeIVgW84XStyaniaekKdo/Q6lkmNwtztmzB0Ub6ct/rQPMdTzN/abK9lKoSRhUP5Hq3yjxpWFegmV3TtECOaAtSj8cubVTONJL2m2vzF7RpOCXbPq7TuRyVqYF1fTBJH50z8YV7B5zZ5f1JU2tCMvRaIe1jZ0yyZLytG/dONZ+ee7rjV3lKvcHiHEASz1EtvM")
 
@@ -303,8 +297,8 @@ func TestDecryptWithAES256ECB(t *testing.T) {
 var (
 	p12cert tls.Certificate
 	// rsa key
-	privateKey []byte
 	publicKey  []byte
+	privateKey []byte
 )
 
 func TestMain(m *testing.M) {
@@ -315,6 +309,16 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	publicKey = []byte(`-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl1c+37GJSFSqbuHJ/wge
+LzxLp7C2GYrjzVAnEF3xgjJVTltkQzdu3u+fcB3c/dgHX/Zdv5fqVoOqvoOMk4N4
+zdGeaxN+Cm19c1gsxigNJDtm6Qno1s1T/qPph/zRArylM0N9Z3vWVEq4xI4B4NXk
+6IoK/bXc1dwQe5UBzIZyzU5aWfqmTQilWEs7mqro43LTFkhN05QjC7IUFvWEhh6T
+wvGYLBSAn+oNw/uSAu6B3c6dh+pslgORCzrIRs68GWsARGZkI/lmOJWEgzQ9KC7b
+yHVqEnDDaWQFyQpq30JdP6YTXR/xlKyo8f1DingoSDXAhKMGRKaT4oIFkE6OA3jt
+DQIDAQAB
+-----END PUBLIC KEY-----`)
 
 	privateKey = []byte(`-----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEAl1c+37GJSFSqbuHJ/wgeLzxLp7C2GYrjzVAnEF3xgjJVTltk
@@ -343,16 +347,6 @@ hF3R1b1NcYSMwL918+TCxdXgQVtQKO8aNjw7gu6tCcQ8qnXvpWLBATv1m8w4Hxmt
 xuHKcd+Q3/PUQKM5lPFpXqyY/pCE9AQpjFmjo5eU99NNy/oS0P8IaCS2SyppGhF2
 HsIxLjl3+jtjS8cptPO47qFnr7Pnvb7kA8MNVrI+ymny/WG/yfU=
 -----END RSA PRIVATE KEY-----`)
-
-	publicKey = []byte(`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAl1c+37GJSFSqbuHJ/wge
-LzxLp7C2GYrjzVAnEF3xgjJVTltkQzdu3u+fcB3c/dgHX/Zdv5fqVoOqvoOMk4N4
-zdGeaxN+Cm19c1gsxigNJDtm6Qno1s1T/qPph/zRArylM0N9Z3vWVEq4xI4B4NXk
-6IoK/bXc1dwQe5UBzIZyzU5aWfqmTQilWEs7mqro43LTFkhN05QjC7IUFvWEhh6T
-wvGYLBSAn+oNw/uSAu6B3c6dh+pslgORCzrIRs68GWsARGZkI/lmOJWEgzQ9KC7b
-yHVqEnDDaWQFyQpq30JdP6YTXR/xlKyo8f1DingoSDXAhKMGRKaT4oIFkE6OA3jt
-DQIDAQAB
------END PUBLIC KEY-----`)
 
 	m.Run()
 }

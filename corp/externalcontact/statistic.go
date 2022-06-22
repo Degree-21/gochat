@@ -7,9 +7,9 @@ import (
 	"github.com/shenghui0779/gochat/wx"
 )
 
-type ParamsUserBehaviorDataGet struct {
+type ParamsUserBehaviorData struct {
 	UserID    []string `json:"userid,omitempty"`
-	PartyID   []string `json:"partyid,omitempty"`
+	PartyID   []int64  `json:"partyid,omitempty"`
 	StartTime int64    `json:"start_time"`
 	EndTime   int64    `json:"end_time"`
 }
@@ -25,14 +25,15 @@ type UserBehaviorData struct {
 	NewContactCnt       int     `json:"new_contact_cnt"`
 }
 
-type ResultUserBehaviorDataGet struct {
+type ResultUserBehaviorData struct {
 	BehaviorData []*UserBehaviorData `json:"behavior_data"`
 }
 
-func GetUserBehaviorData(params *ParamsUserBehaviorDataGet, result *ResultUserBehaviorDataGet) wx.Action {
+// GetUserBehaviorData 获取「联系客户统计」数据
+func GetUserBehaviorData(params *ParamsUserBehaviorData, result *ResultUserBehaviorData) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGetUserBehaviorData,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -72,10 +73,11 @@ type ResultGroupChatStatistic struct {
 	Items      []*GroupChatStatisticItem `json:"items"`
 }
 
+// GetGroupChatStatistic 获取「群聊数据统计」数据（注意，企业微信仅存储180天的数据）
 func GetGroupChatStatistic(params *ParamsGroupChatStatistic, result *ResultGroupChatStatistic) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGroupChatStatistic,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -90,8 +92,8 @@ type ParamsGroupChatStatisticByDay struct {
 }
 
 type GroupChatStatisticByDayItem struct {
-	StartTime int64                   `json:"start_time"`
-	Data      *GroupChatStatisticData `json:"data"`
+	StatTime int64                   `json:"stat_time"`
+	Data     *GroupChatStatisticData `json:"data"`
 }
 
 type ResultGroupChatStatisticByDay struct {
@@ -101,7 +103,7 @@ type ResultGroupChatStatisticByDay struct {
 func GetGroupChatStatisticByDay(params *ParamsGroupChatStatisticByDay, result *ResultGroupChatStatisticByDay) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactGroupChatStatisticByDay,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

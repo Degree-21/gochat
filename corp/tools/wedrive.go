@@ -10,7 +10,7 @@ import (
 type WedriveAuthInfo struct {
 	Type         int    `json:"type"`
 	UserID       string `json:"userid,omitempty"`
-	DepartmentID string `json:"departmentid,omitempty"`
+	DepartmentID int64  `json:"departmentid,omitempty"`
 	Auth         int    `json:"auth,omitempty"`
 }
 
@@ -24,10 +24,11 @@ type ResultWedriveSpaceCreate struct {
 	SpaceID string `json:"spaceid"`
 }
 
+// CreateWedriveSpace 新建空间
 func CreateWedriveSpace(params *ParamsWedriveSpaceCreate, result *ResultWedriveSpaceCreate) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceCreate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -41,10 +42,17 @@ type ParamsWedriveSpaceRename struct {
 	SpaceName string `json:"space_name"`
 }
 
-func RenameWedriveSpace(params *ParamsWedriveSpaceRename) wx.Action {
+// RenameWedriveSpace 重命名空间
+func RenameWedriveSpace(userID, spaceID, spaceName string) wx.Action {
+	params := &ParamsWedriveSpaceRename{
+		UserID:    userID,
+		SpaceID:   spaceID,
+		SpaceName: spaceName,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceRename,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -54,10 +62,16 @@ type ParamsWedriveSpaceDismiss struct {
 	SpaceID string `json:"spaceid"`
 }
 
-func DismissWedriveSpace(params *ParamsWedriveSpaceRename) wx.Action {
+// DismissWedriveSpace 解散空间
+func DismissWedriveSpace(userID, spaceID string) wx.Action {
+	params := &ParamsWedriveSpaceDismiss{
+		UserID:  userID,
+		SpaceID: spaceID,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceDismiss,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -82,10 +96,16 @@ type WedriveSpaceAuthList struct {
 	QuitUserID []string           `json:"quit_userid"`
 }
 
-func GetWedriveSpaceInfo(params *ParamsWedriveSpaceInfo, result *ResultWedriveSpaceInfo) wx.Action {
+// GetWedriveSpaceInfo 获取空间信息
+func GetWedriveSpaceInfo(userID, spaceID string, result *ResultWedriveSpaceInfo) wx.Action {
+	params := &ParamsWedriveSpaceInfo{
+		UserID:  userID,
+		SpaceID: spaceID,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceInfo,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -93,30 +113,38 @@ func GetWedriveSpaceInfo(params *ParamsWedriveSpaceInfo, result *ResultWedriveSp
 	)
 }
 
-type ParamsWedriveSpaceAclAdd struct {
+type ParamsWedriveSpaceAclOpt struct {
 	UserID   string             `json:"userid"`
 	SpaceID  string             `json:"spaceid"`
 	AuthInfo []*WedriveAuthInfo `json:"auth_info"`
 }
 
-func AddWedriveSpaceAcl(params *ParamsWedriveSpaceAclAdd) wx.Action {
+// AddWedriveSpaceAcl 添加空间成员/部门
+func AddWedriveSpaceAcl(userID, spaceID string, acls ...*WedriveAuthInfo) wx.Action {
+	params := &ParamsWedriveSpaceAclOpt{
+		UserID:   userID,
+		SpaceID:  spaceID,
+		AuthInfo: acls,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceAclAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
-type ParamsWedriveSpaceAclDel struct {
-	UserID   string             `json:"userid"`
-	SpaceID  string             `json:"spaceid"`
-	AuthInfo []*WedriveAuthInfo `json:"auth_info"`
-}
+// DeleteWedriveSpaceAcl 移除空间成员/部门
+func DeleteWedriveSpaceAcl(userID, spaceID string, acls ...*WedriveAuthInfo) wx.Action {
+	params := &ParamsWedriveSpaceAclOpt{
+		UserID:   userID,
+		SpaceID:  spaceID,
+		AuthInfo: acls,
+	}
 
-func DelWedriveSpaceAcl(params *ParamsWedriveSpaceAclAdd) wx.Action {
-	return wx.NewPostAction(urls.CorpToolsWedriveSpaceAclAdd,
+	return wx.NewPostAction(urls.CorpToolsWedriveSpaceAclDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -131,10 +159,11 @@ type ParamsWedriveSpaceSetting struct {
 	ShareURLNoApproveDefaultAuth int    `json:"share_url_no_approve_default_auth,omitempty"`
 }
 
+// SetWedriveSpace 空间权限管理（修改空间权限）
 func SetWedriveSpace(params *ParamsWedriveSpaceSetting) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceSetting,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -148,10 +177,16 @@ type ResultWedriveSpaceShare struct {
 	SpaceShareURL string `json:"space_share_url"`
 }
 
-func ShareWedriveSpace(params *ParamsWedriveSpaceShare, result *ResultWedriveSpaceShare) wx.Action {
+// ShareWedriveSpace 获取空间邀请链接
+func ShareWedriveSpace(userID, spaceID string, result *ResultWedriveSpaceShare) wx.Action {
+	params := &ParamsWedriveSpaceShare{
+		UserID:  userID,
+		SpaceID: spaceID,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveSpaceShare,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -195,10 +230,11 @@ type ResultWedriveFileList struct {
 	FileList  *WedriveFileList `json:"file_list"`
 }
 
-func GetWedriveFileList(params *ParamsWedriveFileList, result *ResultWedriveFileList) wx.Action {
+// ListWedriveFile 获取文件列表
+func ListWedriveFile(params *ParamsWedriveFileList, result *ResultWedriveFileList) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveFileList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -218,10 +254,11 @@ type ResultWedriveFileUpload struct {
 	FileID string `json:"fileid"`
 }
 
+// UploadWedriveFile 上传文件
 func UploadWedriveFile(params *ParamsWedriveFileUpload, result *ResultWedriveFileUpload) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveFileUpload,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -240,10 +277,16 @@ type ResultWedriveFileDownload struct {
 	CookieValue string `json:"cookie_value"`
 }
 
-func DownloadWedriveFile(params *ParamsWedriveFileDownload, result *ResultWedriveFileDownload) wx.Action {
+// DownloadWedriveFile 下载文件
+func DownloadWedriveFile(userID, fileID string, result *ResultWedriveFileDownload) wx.Action {
+	params := &ParamsWedriveFileDownload{
+		UserID: userID,
+		FileID: fileID,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveFileDownload,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -264,10 +307,11 @@ type ResultWedriveFileCreate struct {
 	URL    string `json:"url"`
 }
 
+// CreateWedriveFile 新建文件/微文档
 func CreateWedriveFile(params *ParamsWedriveFileCreate, result *ResultWedriveFileCreate) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveFileCreate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -285,10 +329,17 @@ type ResultWedriveFileRename struct {
 	File *WedriveFileInfo `json:"file"`
 }
 
-func RenameWedriveFile(params *ParamsWedriveFileRename, result *ResultWedriveFileRename) wx.Action {
+// RenameWedriveFile 重命名文件
+func RenameWedriveFile(userID, fileID, filename string, result *ResultWedriveFileRename) wx.Action {
+	params := &ParamsWedriveFileRename{
+		UserID:  userID,
+		FileID:  fileID,
+		NewName: filename,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveFileRename,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -307,10 +358,11 @@ type ResultWedriveFileMove struct {
 	FileList *WedriveFileList `json:"file_list"`
 }
 
+// MoveWedriveFile 移动文件
 func MoveWedriveFile(params *ParamsWedriveFileMove, result *ResultWedriveFileMove) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveFileMove,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -323,10 +375,16 @@ type ParamsWedriveFileDelete struct {
 	FileID []string `json:"fileid"`
 }
 
-func DeleteWedriveFile(params *ParamsWedriveFileDelete) wx.Action {
+// DeleteWedriveFile 删除文件
+func DeleteWedriveFile(userID string, fileIDs ...string) wx.Action {
+	params := &ParamsWedriveFileDelete{
+		UserID: userID,
+		FileID: fileIDs,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveFileDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -340,10 +398,16 @@ type ResultWedriveFileInfo struct {
 	FileInfo *WedriveFileInfo `json:"file_info"`
 }
 
-func GetWedriveFileInfo(params *ParamsWedriveFileInfo, result *ResultWedriveFileInfo) wx.Action {
+// GetWedriveFileInfo 获取文件信息
+func GetWedriveFileInfo(userID, fileID string, result *ResultWedriveFileInfo) wx.Action {
+	params := &ParamsWedriveFileInfo{
+		UserID: userID,
+		FileID: fileID,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveFileInfo,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -351,30 +415,38 @@ func GetWedriveFileInfo(params *ParamsWedriveFileInfo, result *ResultWedriveFile
 	)
 }
 
-type ParamsWedriveFileAclAdd struct {
+type ParamsWedriveFileAclOpt struct {
 	UserID   string             `json:"userid"`
 	FileID   string             `json:"fileid"`
 	AuthInfo []*WedriveAuthInfo `json:"auth_info"`
 }
 
-func AddWedriveFileAcl(params *ParamsWedriveFileAclAdd) wx.Action {
+// AddWedriveFileAcl 新增文件指定人
+func AddWedriveFileAcl(userID, fileID string, acls ...*WedriveAuthInfo) wx.Action {
+	params := &ParamsWedriveFileAclOpt{
+		UserID:   userID,
+		FileID:   fileID,
+		AuthInfo: acls,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveFileAclAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
-type ParamsWedriveFileAclDel struct {
-	UserID   string             `json:"userid"`
-	FileID   string             `json:"fileid"`
-	AuthInfo []*WedriveAuthInfo `json:"auth_info"`
-}
+// DeleteWedriveFileAcl 删除文件指定人
+func DeleteWedriveFileAcl(userID, fileID string, acls ...*WedriveAuthInfo) wx.Action {
+	params := &ParamsWedriveFileAclOpt{
+		UserID:   userID,
+		FileID:   fileID,
+		AuthInfo: acls,
+	}
 
-func DelWedriveFileAcl(params *ParamsWedriveFileAclAdd) wx.Action {
-	return wx.NewPostAction(urls.CorpToolsWedriveFileAclAdd,
+	return wx.NewPostAction(urls.CorpToolsWedriveFileAclDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -386,10 +458,11 @@ type ParamsWedriveFileSetting struct {
 	Auth      int    `json:"auth"`
 }
 
+// SetWedriveFile 文件分享设置
 func SetWedriveFile(params *ParamsWedriveFileSetting) wx.Action {
 	return wx.NewPostAction(urls.CorpToolsWedriveFileSetting,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -400,13 +473,19 @@ type ParamsWedriveFileShare struct {
 }
 
 type ResultWedriveFileShare struct {
-	FileShareURL string `json:"file_share_url"`
+	ShareURL string `json:"share_url"`
 }
 
-func ShareWedriveFile(params *ParamsWedriveFileShare, result *ResultWedriveFileShare) wx.Action {
+// ShareWedriveFile 获取分享链接
+func ShareWedriveFile(userID, fileID string, result *ResultWedriveFileShare) wx.Action {
+	params := &ParamsWedriveFileShare{
+		UserID: userID,
+		FileID: fileID,
+	}
+
 	return wx.NewPostAction(urls.CorpToolsWedriveFileShare,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

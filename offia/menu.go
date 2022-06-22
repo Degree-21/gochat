@@ -35,7 +35,7 @@ type MenuButton struct {
 	Key       string         `json:"key,omitempty"`        // click等点击类型必须，菜单KEY值，用于消息接口推送，不超过128字节
 	URL       string         `json:"url,omitempty"`        // view、miniprogram类型必须，网页 链接，用户点击菜单可打开链接，不超过1024字节。 type为miniprogram时，不支持小程序的老版本客户端将打开本url。
 	AppID     string         `json:"appid,omitempty"`      // miniprogram类型必须，小程序的appid（仅认证公众号可配置）
-	Pagepath  string         `json:"pagepath,omitempty"`   // miniprogram类型必须，小程序的页面路径
+	PagePath  string         `json:"pagepath,omitempty"`   // miniprogram类型必须，小程序的页面路径
 	MediaID   string         `json:"media_id,omitempty"`   // media_id类型和view_limited类型必须，调用新增永久素材接口返回的合法media_id
 	ArticleID string         `json:"article_id,omitempty"` // article_id类型和article_view_limited类型必须
 	SubButton []*MenuButton  `json:"sub_button,omitempty"` // 二级菜单数组，个数应为1~5个
@@ -45,11 +45,15 @@ type ParamsMenuCreate struct {
 	Button []*MenuButton `json:"button"`
 }
 
-// CreateMenu 创建自定义菜单
-func CreateMenu(params *ParamsMenuCreate) wx.Action {
+// CreateMenu 自定义菜单 - 创建自定义菜单
+func CreateMenu(buttons ...*MenuButton) wx.Action {
+	params := &ParamsMenuCreate{
+		Button: buttons,
+	}
+
 	return wx.NewPostAction(urls.OffiaMenuCreate,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -61,15 +65,20 @@ type MenuMatchRule struct {
 }
 
 type ParamsConditionalMenuCreate struct {
-	Button    []*MenuButton `json:"button"`
-	MatchRule MenuMatchRule `json:"matchrule"`
+	Button    []*MenuButton  `json:"button"`
+	MatchRule *MenuMatchRule `json:"matchrule"`
 }
 
-// CreateConditionalMenu 创建个性化菜单
-func CreateConditionalMenu(params *ParamsConditionalMenuCreate) wx.Action {
+// CreateConditionalMenu 自定义菜单 - 创建个性化菜单
+func CreateConditionalMenu(matchRule *MenuMatchRule, buttons ...*MenuButton) wx.Action {
+	params := &ParamsConditionalMenuCreate{
+		Button:    buttons,
+		MatchRule: matchRule,
+	}
+
 	return wx.NewPostAction(urls.OffiaMenuAddConditional,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -82,8 +91,7 @@ type ResultMenuMatch struct {
 	Button []*MenuButton `json:"button"`
 }
 
-// TryMatchMenu 测试匹配个性化菜单
-// user_id可以是粉丝的OpenID，也可以是粉丝的微信号。
+// TryMatchMenu 自定义菜单 - 测试匹配个性化菜单（user_id可以是粉丝的OpenID，也可以是粉丝的微信号）
 func TryMatchMenu(userID string, result *ResultMenuMatch) wx.Action {
 	params := &ParamsMenuMatch{
 		UserID: userID,
@@ -91,7 +99,7 @@ func TryMatchMenu(userID string, result *ResultMenuMatch) wx.Action {
 
 	return wx.NewPostAction(urls.OffiaMenuTryMatch,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -117,7 +125,7 @@ type ResultMenuGet struct {
 	ConditionalMenu []*ConditionalMenu `json:"conditionalmenu"` // 个性化菜单
 }
 
-// GetMenu 获取自定义菜单配置
+// GetMenu 自定义菜单 - 获取自定义菜单配置
 func GetMenu(result *ResultMenuGet) wx.Action {
 	return wx.NewGetAction(urls.OffiaMenuGet,
 		wx.WithDecode(func(resp []byte) error {
@@ -126,7 +134,7 @@ func GetMenu(result *ResultMenuGet) wx.Action {
 	)
 }
 
-// DeleteMenu 删除自定义菜单
+// DeleteMenu 自定义菜单 - 删除自定义菜单
 func DeleteMenu() wx.Action {
 	return wx.NewGetAction(urls.OffiaMenuDelete)
 }
@@ -135,7 +143,7 @@ type ParamsConditionalMenuDelete struct {
 	MenuID string `json:"menuid"`
 }
 
-// DeleteConditional 删除个性化菜单
+// DeleteConditionalMenu 自定义菜单 - 删除个性化菜单
 func DeleteConditionalMenu(menuID string) wx.Action {
 	params := &ParamsConditionalMenuDelete{
 		MenuID: menuID,
@@ -143,7 +151,7 @@ func DeleteConditionalMenu(menuID string) wx.Action {
 
 	return wx.NewPostAction(urls.OffiaMenuDeleteConditional,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -274,6 +282,6 @@ func MinipButton(name, appid, pagepath, redirectURL string) *MenuButton {
 		Name:     name,
 		URL:      redirectURL,
 		AppID:    appid,
-		Pagepath: pagepath,
+		PagePath: pagepath,
 	}
 }

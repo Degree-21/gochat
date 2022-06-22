@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/shenghui0779/yiigo"
 	"github.com/tidwall/gjson"
 
 	"github.com/shenghui0779/gochat/event"
@@ -60,7 +59,7 @@ func (mp *Minip) AppSecret() string {
 }
 
 // Code2Session 获取小程序授权的session_key
-func (mp *Minip) Code2Session(ctx context.Context, code string, options ...yiigo.HTTPOption) (*AuthSession, error) {
+func (mp *Minip) Code2Session(ctx context.Context, code string, options ...wx.HTTPOption) (*AuthSession, error) {
 	resp, err := mp.client.Do(ctx, http.MethodGet, fmt.Sprintf("%s?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", urls.MinipCode2Session, mp.appid, mp.appsecret, code), nil, options...)
 
 	if err != nil {
@@ -83,7 +82,7 @@ func (mp *Minip) Code2Session(ctx context.Context, code string, options ...yiigo
 }
 
 // AccessToken 获取小程序的access_token
-func (mp *Minip) AccessToken(ctx context.Context, options ...yiigo.HTTPOption) (*AccessToken, error) {
+func (mp *Minip) AccessToken(ctx context.Context, options ...wx.HTTPOption) (*AccessToken, error) {
 	resp, err := mp.client.Do(ctx, http.MethodGet, fmt.Sprintf("%s?appid=%s&secret=%s&grant_type=client_credential", urls.MinipAccessToken, mp.appid, mp.appsecret), nil, options...)
 
 	if err != nil {
@@ -106,7 +105,7 @@ func (mp *Minip) AccessToken(ctx context.Context, options ...yiigo.HTTPOption) (
 }
 
 // DecryptAuthInfo 解密授权信息
-func (mp *Minip) DecryptAuthInfo(sessionKey, iv, encryptedData string, result AuthInfo) error {
+func (mp *Minip) DecryptAuthInfo(sessionKey, iv, encryptedData string, result *AuthInfo) error {
 	key, err := base64.StdEncoding.DecodeString(sessionKey)
 
 	if err != nil {
@@ -125,7 +124,7 @@ func (mp *Minip) DecryptAuthInfo(sessionKey, iv, encryptedData string, result Au
 		return err
 	}
 
-	cbc := yiigo.NewCBCCrypto(key, ivb, yiigo.PKCS7)
+	cbc := wx.NewCBCCrypto(key, ivb, wx.PKCS7)
 
 	b, err := cbc.Decrypt(cipherText)
 
@@ -133,19 +132,11 @@ func (mp *Minip) DecryptAuthInfo(sessionKey, iv, encryptedData string, result Au
 		return err
 	}
 
-	if err := json.Unmarshal(b, result); err != nil {
-		return err
-	}
-
-	if result.AppID() != mp.appid {
-		return fmt.Errorf("appid mismatch, want: %s, got: %s", mp.appid, result.AppID())
-	}
-
-	return nil
+	return json.Unmarshal(b, result)
 }
 
 // Do exec action
-func (mp *Minip) Do(ctx context.Context, accessToken string, action wx.Action, options ...yiigo.HTTPOption) error {
+func (mp *Minip) Do(ctx context.Context, accessToken string, action wx.Action, options ...wx.HTTPOption) error {
 	var (
 		resp []byte
 		err  error
@@ -184,7 +175,7 @@ func (mp *Minip) Do(ctx context.Context, accessToken string, action wx.Action, o
 }
 
 // VerifyEventSign 验证事件消息签名
-// 验证消息来自微信服务器，使用：signature、timestamp、nonce；若验证成功，请原样返回echostr参数内容
+// 验证消息来自微信服务器，使用：signature、timestamp、nonce（若验证成功，请原样返回echostr参数内容）
 // 验证事件消息签名，使用：msg_signature、timestamp、nonce、msg_encrypt
 // [参考](https://developers.weixin.qq.com/miniprogram/dev/framework/server-ability/message-push.html)
 func (mp *Minip) VerifyEventSign(signature string, items ...string) bool {

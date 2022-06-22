@@ -2,7 +2,10 @@ package wx
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
@@ -16,6 +19,9 @@ import (
 
 	"golang.org/x/crypto/pkcs12"
 )
+
+// M is a convenient alias for a map[string]interface{}.
+type M map[string]interface{}
 
 // WXML deal with xml for wechat
 type WXML map[string]string
@@ -36,6 +42,31 @@ func Nonce(size uint) string {
 	io.ReadFull(rand.Reader, nonce)
 
 	return hex.EncodeToString(nonce)
+}
+
+// MD5 calculates the md5 hash of a string.
+func MD5(s string) string {
+	h := md5.New()
+	h.Write([]byte(s))
+
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// SHA256 calculates the sha256 hash of a string.
+func SHA256(s string) string {
+	h := sha256.New()
+	h.Write([]byte(s))
+
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// HMacSHA256 generates a keyed sha256 hash value.
+func HMacSHA256(s, key string) string {
+	mac := hmac.New(sha256.New, []byte(key))
+
+	mac.Write([]byte(s))
+
+	return hex.EncodeToString(mac.Sum(nil))
 }
 
 // FormatMap2XML format map to xml
@@ -59,32 +90,32 @@ func FormatMap2XML(m WXML) ([]byte, error) {
 	return []byte(builder.String()), nil
 }
 
-// FormatMap2XML format map to xml with sorted keys for test
+// FormatMap2XML 用于单元测试
 // func FormatMap2XML(m WXML) ([]byte, error) {
 // 	ks := make([]string, 0, len(m))
-
+//
 // 	for k := range m {
 // 		ks = append(ks, k)
 // 	}
-
+//
 // 	sort.Strings(ks)
-
+//
 // 	var builder strings.Builder
-
+//
 // 	builder.WriteString("<xml>")
-
+//
 // 	for _, k := range ks {
 // 		builder.WriteString(fmt.Sprintf("<%s>", k))
-
+//
 // 		if err := xml.EscapeText(&builder, []byte(m[k])); err != nil {
 // 			return nil, err
 // 		}
-
+//
 // 		builder.WriteString(fmt.Sprintf("</%s>", k))
 // 	}
-
+//
 // 	builder.WriteString("</xml>")
-
+//
 // 	return []byte(builder.String()), nil
 // }
 
@@ -167,8 +198,8 @@ func DecodeBytesToUint32(b []byte) uint32 {
 	return uint32(b[0])<<24 | uint32(b[1])<<16 | uint32(b[2])<<8 | uint32(b[3])
 }
 
-// MarshalWithNoEscapeHTML marshal with no escape HTML
-func MarshalWithNoEscapeHTML(v interface{}) ([]byte, error) {
+// MarshalNoEscapeHTML marshal with no escape HTML
+func MarshalNoEscapeHTML(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 
 	jsonEncoder := json.NewEncoder(&buf)

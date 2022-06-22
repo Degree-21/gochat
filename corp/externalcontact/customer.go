@@ -21,13 +21,14 @@ type ExternalContact struct {
 }
 
 type ExternalProfile struct {
-	ExternalCorpName string  `json:"external_corp_name"`
-	WechatChannels   string  `json:"wechat_channels"`
-	ExternalAttr     []*Attr `json:"external_attr"`
+	ExternalCorpName string          `json:"external_corp_name"`
+	WechatChannels   *WechatChannels `json:"wechat_channels"`
+	ExternalAttr     []*Attr         `json:"external_attr"`
 }
 
-type ExtAttr struct {
-	Attrs []*Attr `json:"attrs"`
+type WechatChannels struct {
+	Nickname string `json:"nickname"`
+	Status   int    `json:"status"`
 }
 
 type Attr struct {
@@ -50,17 +51,18 @@ type AttrWeb struct {
 type AttrMinip struct {
 	Title    string `json:"title"`
 	AppID    string `json:"appid"`
-	Pagepath string `json:"pagepath"`
+	PagePath string `json:"pagepath"`
 }
 
 type FollowInfo struct {
 	UserID         string   `json:"userid"`
 	Remark         string   `json:"remark"`
 	Description    string   `json:"description"`
-	CreateTime     int64    `json:"create_time"`
+	CreateTime     int64    `json:"createtime"`
 	TagID          []string `json:"tag_id"`
 	RemarkCorpName string   `json:"remark_corp_name"`
 	RemarkMobiles  []string `json:"remark_mobiles"`
+	State          string   `json:"state"`
 	OperUserID     string   `json:"oper_userid"`
 	AddWay         int      `json:"add_way"`
 }
@@ -69,7 +71,7 @@ type FollowUser struct {
 	UserID         string       `json:"userid"`
 	Remark         string       `json:"remark"`
 	Description    string       `json:"description"`
-	CreateTime     int64        `json:"create_time"`
+	CreateTime     int64        `json:"createtime"`
 	RemarkCorpName string       `json:"remark_corp_name"`
 	RemarkMobiles  []string     `json:"remark_mobiles"`
 	OperUserID     string       `json:"oper_userid"`
@@ -79,18 +81,19 @@ type FollowUser struct {
 }
 
 type FollowTag struct {
-	TagID     string
-	TagName   string
-	Type      int
-	GroupName string
+	GroupName string `json:"group_name"`
+	TagName   string `json:"tag_name"`
+	TagID     string `json:"tag_id"`
+	Type      int    `json:"type"`
 }
 
-type ResultCustomerList struct {
+type ResultList struct {
 	ExternalUserID []string `json:"external_userid"`
 }
 
-func ListCustomer(userID string, result *ResultCustomerList) wx.Action {
-	return wx.NewGetAction(urls.CorpExternalContactCustomerList,
+// List 获取客户列表
+func List(userID string, result *ResultList) wx.Action {
+	return wx.NewGetAction(urls.CorpExternalContactList,
 		wx.WithQuery("userid", userID),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -98,39 +101,35 @@ func ListCustomer(userID string, result *ResultCustomerList) wx.Action {
 	)
 }
 
-type ParamsCustomerGet struct {
-	ExternalUserID string `json:"external_userid"`
-	Cursor         string `json:"cursor"`
-}
-
-type ResultCustomerGet struct {
+type ResultGet struct {
 	ExternalContact *ExternalContact `json:"external_contact"`
 	FollowUser      []*FollowUser    `json:"follow_user"`
 	NextCursor      string           `json:"next_cursor"`
 }
 
-func GetCustomer(params *ParamsCustomerGet, result *ResultCustomerGet) wx.Action {
+// Get 获取客户详情
+func Get(externalUserID, cursor string, result *ResultGet) wx.Action {
 	options := []wx.ActionOption{
-		wx.WithQuery("external_userid", params.ExternalUserID),
+		wx.WithQuery("external_userid", externalUserID),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
 		}),
 	}
 
-	if len(params.Cursor) != 0 {
-		options = append(options, wx.WithQuery("cursor", params.Cursor))
+	if len(cursor) != 0 {
+		options = append(options, wx.WithQuery("cursor", cursor))
 	}
 
-	return wx.NewGetAction(urls.CorpExternalContactCustomerGet, options...)
+	return wx.NewGetAction(urls.CorpExternalContactGet, options...)
 }
 
-type ParamsCustomerBatchGetByUser struct {
+type ParamsBatchGetByUser struct {
 	UserIDList []string `json:"userid_list"`
 	Cursor     string   `json:"cursor,omitempty"`
 	Limit      int      `json:"limit,omitempty"`
 }
 
-type ResultCustomerBatchGetByUser struct {
+type ResultBatchGetByUser struct {
 	ExternalContactList []*CustomerBatchGetData `json:"external_contact_list"`
 	NextCursor          string                  `json:"next_cursor"`
 }
@@ -140,10 +139,17 @@ type CustomerBatchGetData struct {
 	FollowInfo      *FollowInfo      `json:"follow_info"`
 }
 
-func BatchGetCustomerByUser(params *ParamsCustomerBatchGetByUser, result *ResultCustomerBatchGetByUser) wx.Action {
-	return wx.NewPostAction(urls.CorpExternalContactCustomerBatchGetByUser,
+// BatchGetByUser 批量获取客户详情
+func BatchGetByUser(userIDs []string, cursor string, limit int, result *ResultBatchGetByUser) wx.Action {
+	params := &ParamsBatchGetByUser{
+		UserIDList: userIDs,
+		Cursor:     cursor,
+		Limit:      limit,
+	}
+
+	return wx.NewPostAction(urls.CorpExternalContactBatchGetByUser,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -151,7 +157,7 @@ func BatchGetCustomerByUser(params *ParamsCustomerBatchGetByUser, result *Result
 	)
 }
 
-type ParamsCustomerRemark struct {
+type ParamsRemark struct {
 	UserID           string   `json:"userid"`
 	ExternalUserID   string   `json:"external_userid"`
 	Remark           string   `json:"remark"`
@@ -161,10 +167,11 @@ type ParamsCustomerRemark struct {
 	RemarkPicMediaID string   `json:"remark_pic_mediaid"`
 }
 
-func RemarkCustomer(params *ParamsCustomerRemark) wx.Action {
-	return wx.NewPostAction(urls.CorpExternalContactCustomerRemark,
+// Remark 修改客户备注信息
+func Remark(params *ParamsRemark) wx.Action {
+	return wx.NewPostAction(urls.CorpExternalContactRemark,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

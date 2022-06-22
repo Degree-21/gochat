@@ -24,10 +24,15 @@ type ParamsQRCodeCreate struct {
 }
 
 // CreateQRCode 创建小程序二维码（数量有限）
-func CreateQRCode(params *ParamsQRCodeCreate, qrcode *QRCode) wx.Action {
+func CreateQRCode(pagepath string, width int, qrcode *QRCode) wx.Action {
+	params := ParamsQRCodeCreate{
+		Path:  pagepath,
+		Width: width,
+	}
+
 	return wx.NewPostAction(urls.MinipQRCodeCreate,
 		wx.WithBody(func() ([]byte, error) {
-			return wx.MarshalWithNoEscapeHTML(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			qrcode.Buffer = make([]byte, len(resp))
@@ -57,7 +62,7 @@ type ParamsQRCodeGet struct {
 func GetQRCode(params *ParamsQRCodeGet, qrcode *QRCode) wx.Action {
 	return wx.NewPostAction(urls.MinipQRCodeGet,
 		wx.WithBody(func() ([]byte, error) {
-			return wx.MarshalWithNoEscapeHTML(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			qrcode.Buffer = make([]byte, len(resp))
@@ -83,7 +88,7 @@ type ParamsQRCodeUnlimit struct {
 func GetUnlimitQRCode(params *ParamsQRCodeUnlimit, qrcode *QRCode) wx.Action {
 	return wx.NewPostAction(urls.MinipQRCodeGetUnlimit,
 		wx.WithBody(func() ([]byte, error) {
-			return wx.MarshalWithNoEscapeHTML(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			qrcode.Buffer = make([]byte, len(resp))

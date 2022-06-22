@@ -2,12 +2,27 @@ package wx
 
 import (
 	"context"
-	"strings"
 	"time"
 
-	"github.com/shenghui0779/yiigo"
+	"github.com/tidwall/pretty"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
+
+func debugLogger(options ...zap.Option) *zap.Logger {
+	cfg := zap.NewDevelopmentConfig()
+
+	cfg.DisableCaller = true
+	cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	cfg.EncoderConfig.EncodeTime = func(t time.Time, pae zapcore.PrimitiveArrayEncoder) {
+		pae.AppendString(t.In(time.FixedZone("CST", 8*3600)).Format("2006-01-02 15:04:05"))
+	}
+	cfg.EncoderConfig.EncodeCaller = zapcore.FullCallerEncoder
+
+	l, _ := cfg.Build(options...)
+
+	return l
+}
 
 type Logger interface {
 	Log(ctx context.Context, data *LogData)
@@ -23,9 +38,9 @@ type LogData struct {
 	Error      error         `json:"error"`
 }
 
-var replacer = strings.NewReplacer("\n", "", "\t", "", "\r", "#")
-
-type wxlogger struct{}
+type wxlogger struct {
+	zlog *zap.Logger
+}
 
 func (l *wxlogger) Log(ctx context.Context, data *LogData) {
 	fields := make([]zap.Field, 0, 7)
@@ -33,8 +48,8 @@ func (l *wxlogger) Log(ctx context.Context, data *LogData) {
 	fields = append(fields,
 		zap.String("method", data.Method),
 		zap.String("url", data.URL),
-		zap.String("body", replacer.Replace(string(data.Body))),
-		zap.String("response", replacer.Replace(string(data.Response))),
+		zap.ByteString("body", pretty.Ugly(data.Body)),
+		zap.ByteString("response", pretty.Ugly(data.Response)),
 		zap.Int("status", data.StatusCode),
 		zap.String("duration", data.Duration.String()),
 	)
@@ -42,15 +57,17 @@ func (l *wxlogger) Log(ctx context.Context, data *LogData) {
 	if data.Error != nil {
 		fields = append(fields, zap.Error(data.Error))
 
-		yiigo.Logger().Error("[gochat] action do error", fields...)
+		l.zlog.Error("[gochat] action error", fields...)
 
 		return
 	}
 
-	yiigo.Logger().Info("[gochat] action do info", fields...)
+	l.zlog.Info("[gochat] action info", fields...)
 }
 
 // DefaultLogger returns default logger
 func DefaultLogger() Logger {
-	return new(wxlogger)
+	return &wxlogger{
+		zlog: debugLogger(),
+	}
 }

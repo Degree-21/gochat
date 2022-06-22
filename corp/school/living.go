@@ -7,21 +7,28 @@ import (
 	"github.com/shenghui0779/gochat/wx"
 )
 
-type ParamsUserAllLivingIDGet struct {
+type ParamsUserAllLivingID struct {
 	UserID string `json:"userid"`
 	Cursor string `json:"cursor"`
 	Limit  int    `json:"limit"`
 }
 
-type ResultUserAllLivingIDGet struct {
+type ResultUserAllLivingID struct {
 	NextCursor   string   `json:"next_cursor"`
 	LivingIDList []string `json:"livingid_list"`
 }
 
-func GetUserAllLivingID(params *ParamsUserAllLivingIDGet, result *ResultUserAllLivingIDGet) wx.Action {
+// GetUserAllLivingID 获取老师直播ID列表
+func GetUserAllLivingID(userID, cursor string, limit int, result *ResultUserAllLivingID) wx.Action {
+	params := &ParamsUserAllLivingID{
+		UserID: userID,
+		Cursor: cursor,
+		Limit:  limit,
+	}
+
 	return wx.NewPostAction(urls.CorpSchoolGetUserAllLivingID,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -46,11 +53,12 @@ type LivingRange struct {
 	GroupNames []string `json:"group_names"`
 }
 
-type ResultLivingInfoGet struct {
+type ResultLivingInfo struct {
 	LivingInfo *LivingInfo `json:"living_info"`
 }
 
-func GetLivingInfo(livingID string, result *ResultLivingInfoGet) wx.Action {
+// GetLivingInfo 获取直播详情
+func GetLivingInfo(livingID string, result *ResultLivingInfo) wx.Action {
 	return wx.NewGetAction(urls.CorpSchoolGetLivingInfo,
 		wx.WithQuery("livingid", livingID),
 		wx.WithDecode(func(resp []byte) error {
@@ -82,21 +90,27 @@ type LivingWatchStatInfo struct {
 	Visitors []*LivingVisitor      `json:"visitors"`
 }
 
-type ParamsLivingWatchStatGet struct {
+type ParamsLivingWatchStat struct {
 	LivingID string `json:"livingid"`
-	NextKey  string `json:"next_key"`
+	NextKey  string `json:"next_key,omitempty"`
 }
 
-type ResultLivingWatchStatGet struct {
+type ResultLivingWatchStat struct {
 	Ending     int                  `json:"ending"`
 	NextKey    string               `json:"next_key"`
 	StatInfoes *LivingWatchStatInfo `json:"stat_infoes"`
 }
 
-func GetLivingWatchStat(params *ParamsLivingWatchStatGet, result *ResultLivingWatchStatGet) wx.Action {
+// GetLivingWatchStat 获取观看直播统计
+func GetLivingWatchStat(livingID, nextKey string, result *ResultLivingWatchStat) wx.Action {
+	params := &ParamsLivingWatchStat{
+		LivingID: livingID,
+		NextKey:  nextKey,
+	}
+
 	return wx.NewPostAction(urls.CorpSchoolGetLivingWatchStat,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -114,21 +128,27 @@ type LivingUnwatchStatInfo struct {
 	Students []*LivingUnwatchStudent `json:"students"`
 }
 
-type ParamsLivingUnwatchStatGet struct {
+type ParamsLivingUnwatchStat struct {
 	LivingID string `json:"livingid"`
-	NextKey  string `json:"next_key"`
+	NextKey  string `json:"next_key,omitempty"`
 }
 
-type ResultLivingUnwatchStatGet struct {
+type ResultLivingUnwatchStat struct {
 	Ending   int                    `json:"ending"`
 	NextKey  string                 `json:"next_key"`
 	StatInfo *LivingUnwatchStatInfo `json:"stat_info"`
 }
 
-func GetLivingUnwatchStat(params *ParamsLivingUnwatchStatGet, result *ResultLivingUnwatchStatGet) wx.Action {
+// GetLivingUnwatchStat 获取未观看直播统计
+func GetLivingUnwatchStat(livingID, nextKey string, result *ResultLivingUnwatchStat) wx.Action {
+	params := &ParamsLivingUnwatchStat{
+		LivingID: livingID,
+		NextKey:  nextKey,
+	}
+
 	return wx.NewPostAction(urls.CorpSchoolGetLivingUnwatchStat,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -140,10 +160,15 @@ type ParamsLivingReplayDataDelete struct {
 	LivingID string `json:"livingid"`
 }
 
-func DeleteLivingReplayData(params *ParamsLivingReplayDataDelete) wx.Action {
+// DeleteLivingReplayData 删除直播回放
+func DeleteLivingReplayData(livingID string) wx.Action {
+	params := &ParamsLivingReplayDataDelete{
+		LivingID: livingID,
+	}
+
 	return wx.NewPostAction(urls.CorpSchoolDeleteLivingReplayData,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

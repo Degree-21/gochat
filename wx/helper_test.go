@@ -3,7 +3,6 @@ package wx
 import (
 	"testing"
 
-	"github.com/shenghui0779/yiigo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,6 +26,18 @@ func TestWXML(t *testing.T) {
 	assert.Equal(t, m, r)
 }
 
+func TestMD5(t *testing.T) {
+	assert.Equal(t, "483367436bc9a6c5256bfc29a24f955e", MD5("iiinsomnia"))
+}
+
+func TestSHA256(t *testing.T) {
+	assert.Equal(t, "efed14231acf19fdca03adfac049171c109c922008e64dbaaf51a0c2cf11306b", SHA256("iiinsomnia"))
+}
+
+func TestHMacSHA256(t *testing.T) {
+	assert.Equal(t, "8a50abfc64f67dac0f6aa8b6560d26517574ce30b5f3487a258ab04b30776db4", HMacSHA256("ILoveGochat", "iiinsomnia"))
+}
+
 func TestUint32Bytes(t *testing.T) {
 	i := uint32(250)
 	b := EncodeUint32ToBytes(i)
@@ -34,8 +45,8 @@ func TestUint32Bytes(t *testing.T) {
 	assert.Equal(t, i, DecodeBytesToUint32(b))
 }
 
-func TestMarshalWithNoEscapeHTML(t *testing.T) {
-	b, err := MarshalWithNoEscapeHTML(yiigo.X{
+func TestMarshalNoEscapeHTML(t *testing.T) {
+	b, err := MarshalNoEscapeHTML(M{
 		"action":   "long2short",
 		"long_url": "http://wap.koudaitong.com/v2/showcase/goods?alias=128wi9shh&spm=h56083&redirect_count=1",
 	})

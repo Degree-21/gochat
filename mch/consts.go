@@ -11,9 +11,11 @@ const (
 )
 
 // 签名类型
+type SignType string
+
 const (
-	SignMD5        = "MD5"
-	SignHMacSHA256 = "HMAC-SHA256"
+	SignMD5        SignType = "MD5"
+	SignHMacSHA256 SignType = "HMAC-SHA256"
 )
 
 // 返回结果
@@ -124,6 +126,11 @@ const (
 	RedpackSendTypeAPI      = "API"      // 通过API接口发放
 	RedpackSendTypeUpload   = "UPLOAD"   // 通过上传文件方式发放
 	RedpackSendTypeActivity = "ACTIVITY" // 通过活动方式发放
+)
+
+const (
+	WorkWXNormalMsg  = "NORMAL_MSG"   // 普通付款消息
+	WorkWXAprovalMsg = "APPROVAL_MSG" // 审批付款消息
 )
 
 // 账单类型

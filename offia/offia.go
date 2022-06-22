@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/shenghui0779/yiigo"
 	"github.com/tidwall/gjson"
 
 	"github.com/shenghui0779/gochat/event"
@@ -89,8 +88,8 @@ func (oa *Offia) SubscribeMsgAuthURL(scene, templateID, redirectURL, reserved st
 	return fmt.Sprintf("%s?action=get_confirm&appid=%s&template_id=%s&redirect_url=%s&reserved=%s#wechat_redirect", urls.SubscribeMsgAuth, oa.appid, templateID, redirectURL, reserved)
 }
 
-// Code2AuthToken 获取网页授权AccessToken
-func (oa *Offia) Code2OAuthToken(ctx context.Context, code string, options ...yiigo.HTTPOption) (*OAuthToken, error) {
+// Code2OAuthToken 获取网页授权Token
+func (oa *Offia) Code2OAuthToken(ctx context.Context, code string, options ...wx.HTTPOption) (*OAuthToken, error) {
 	resp, err := oa.client.Do(ctx, http.MethodGet, fmt.Sprintf("%s?appid=%s&secret=%s&code=%s&grant_type=authorization_code", urls.OffiaSnsCode2Token, oa.appid, oa.appsecret, code), nil, options...)
 
 	if err != nil {
@@ -112,8 +111,8 @@ func (oa *Offia) Code2OAuthToken(ctx context.Context, code string, options ...yi
 	return token, nil
 }
 
-// RefreshAuthToken 刷新网页授权AccessToken
-func (oa *Offia) RefreshOAuthToken(ctx context.Context, refreshToken string, options ...yiigo.HTTPOption) (*OAuthToken, error) {
+// RefreshOAuthToken 刷新网页授权AccessToken
+func (oa *Offia) RefreshOAuthToken(ctx context.Context, refreshToken string, options ...wx.HTTPOption) (*OAuthToken, error) {
 	resp, err := oa.client.Do(ctx, http.MethodGet, fmt.Sprintf("%s?appid=%s&grant_type=refresh_token&refresh_token=%s", urls.OffiaSnsRefreshAccessToken, oa.appid, refreshToken), nil, options...)
 
 	if err != nil {
@@ -136,7 +135,7 @@ func (oa *Offia) RefreshOAuthToken(ctx context.Context, refreshToken string, opt
 }
 
 // AccessToken 获取普通AccessToken
-func (oa *Offia) AccessToken(ctx context.Context, options ...yiigo.HTTPOption) (*AccessToken, error) {
+func (oa *Offia) AccessToken(ctx context.Context, options ...wx.HTTPOption) (*AccessToken, error) {
 	resp, err := oa.client.Do(ctx, http.MethodGet, fmt.Sprintf("%s?grant_type=client_credential&appid=%s&secret=%s", urls.OffiaCgiBinAccessToken, oa.appid, oa.appsecret), nil, options...)
 
 	if err != nil {
@@ -159,7 +158,7 @@ func (oa *Offia) AccessToken(ctx context.Context, options ...yiigo.HTTPOption) (
 }
 
 // Do exec action
-func (oa *Offia) Do(ctx context.Context, accessToken string, action wx.Action, options ...yiigo.HTTPOption) error {
+func (oa *Offia) Do(ctx context.Context, accessToken string, action wx.Action, options ...wx.HTTPOption) error {
 	var (
 		resp []byte
 		err  error
@@ -197,7 +196,7 @@ func (oa *Offia) Do(ctx context.Context, accessToken string, action wx.Action, o
 }
 
 // VerifyEventSign 验证消息事件签名
-// 验证消息来自微信服务器，使用：signature、timestamp、nonce；若验证成功，请原样返回echostr参数内容
+// 验证消息来自微信服务器，使用：signature、timestamp、nonce（若验证成功，请原样返回echostr参数内容）
 // 验证事件消息签名，使用：msg_signature、timestamp、nonce、msg_encrypt
 // [参考](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html)
 func (oa *Offia) VerifyEventSign(signature string, items ...string) bool {

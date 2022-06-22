@@ -12,10 +12,16 @@ type ParamsMerchantAdd struct {
 	MerchantName string `json:"merchant_name"`
 }
 
-func AddMerchant(params *ParamsMerchantAdd) wx.Action {
+// AddMerchant 新增收款商户号
+func AddMerchant(mchID, mchName string) wx.Action {
+	params := &ParamsMerchantAdd{
+		MchID:        mchID,
+		MerchantName: mchName,
+	}
+
 	return wx.NewPostAction(urls.CorpPaymentMerchantAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -37,10 +43,15 @@ type ResultMerchantGet struct {
 	AllowUseScope *AllowUseScope `json:"allow_use_scope"`
 }
 
-func GetMerchant(params *ParamsMerchantGet, result *ResultMerchantGet) wx.Action {
+// GetMerchant 查询收款商户号详情
+func GetMerchant(mchID string, result *ResultMerchantGet) wx.Action {
+	params := &ParamsMerchantGet{
+		MchID: mchID,
+	}
+
 	return wx.NewPostAction(urls.CorpPaymentMerchantGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -52,10 +63,15 @@ type ParamsMerchantDelete struct {
 	MchID string `json:"mch_id"`
 }
 
-func DeleteMerchant(params *ParamsMerchantDelete) wx.Action {
+// DeleteMerchant 删除收款商户号
+func DeleteMerchant(mchID string) wx.Action {
+	params := &ParamsMerchantDelete{
+		MchID: mchID,
+	}
+
 	return wx.NewPostAction(urls.CorpPaymentMerchantDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -65,10 +81,16 @@ type ParamsMchUseScopeSet struct {
 	AllowUseScope *AllowUseScope `json:"allow_use_scope"`
 }
 
-func SetMchUseScope(params *ParamsMchUseScopeSet) wx.Action {
+// SetMchUseScope 设置收款商户号使用范围
+func SetMchUseScope(mchID string, scope *AllowUseScope) wx.Action {
+	params := &ParamsMchUseScopeSet{
+		MchID:         mchID,
+		AllowUseScope: scope,
+	}
+
 	return wx.NewPostAction(urls.CorpPaymentMchUseScopeSet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -110,23 +132,24 @@ type PayerInfo struct {
 	Address string `json:"address"`
 }
 
-type ParamsBillListGet struct {
-	StartTime   int64  `json:"start_time"`
+type ParamsBillList struct {
+	BeginTime   int64  `json:"begin_time"`
 	EndTime     int64  `json:"end_time"`
 	PayeeUserID string `json:"payee_userid,omitempty"`
 	Cursor      string `json:"cursor,omitempty"`
 	Limit       int    `json:"limit,omitempty"`
 }
 
-type ResultBillListGet struct {
+type ResultBillList struct {
 	NextCursor string      `json:"next_cursor"`
 	BillList   []*BillInfo `json:"bill_list"`
 }
 
-func GetBillList(params *ParamsBillListGet, result *ResultBillListGet) wx.Action {
+// GetBillList 获取对外收款记录
+func GetBillList(params *ParamsBillList, result *ResultBillList) wx.Action {
 	return wx.NewPostAction(urls.CorpPaymentBillListGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

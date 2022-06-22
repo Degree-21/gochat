@@ -21,10 +21,15 @@ type PstnccState struct {
 	UserID string `json:"userid"`
 }
 
-func CallPstncc(params *ParamsPstnccCall, result *ResultPstnccCall) wx.Action {
+// CallPstncc 发起语音电话
+func CallPstncc(calleeUserIDs []string, result *ResultPstnccCall) wx.Action {
+	params := &ParamsPstnccCall{
+		CalleeUserID: calleeUserIDs,
+	}
+
 	return wx.NewPostAction(urls.CorpOACallPstncc,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -32,22 +37,28 @@ func CallPstncc(params *ParamsPstnccCall, result *ResultPstnccCall) wx.Action {
 	)
 }
 
-type ParamsPstnccStatesGet struct {
+type ParamsPstnccStates struct {
 	CalleeUserID string `json:"callee_userid"`
 	CallID       string `json:"callid"`
 }
 
-type ResultPstnccStatesGet struct {
+type ResultPstnccStates struct {
 	IsTalked int   `json:"istalked"`
 	CallTime int64 `json:"calltime"`
 	TalkTime int   `json:"talktime"`
 	Reason   int   `json:"reason"`
 }
 
-func GetPstnccStates(params *ParamsPstnccStatesGet, result *ResultPstnccStatesGet) wx.Action {
+// GetPstnccStates 获取接听状态
+func GetPstnccStates(calleeUserID, callID string, result *ResultPstnccStates) wx.Action {
+	params := &ParamsPstnccStates{
+		CalleeUserID: calleeUserID,
+		CallID:       callID,
+	}
+
 	return wx.NewPostAction(urls.CorpOAGetPstnccStates,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

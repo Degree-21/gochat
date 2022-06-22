@@ -3,8 +3,6 @@ package minip
 import (
 	"encoding/json"
 
-	"github.com/shenghui0779/yiigo"
-
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -39,21 +37,21 @@ func ApplyPlugin(pluginAppID, reason string) wx.Action {
 
 	return wx.NewPostAction(urls.MinipPluginManage,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
 // PluginDevApplyInfo 插件使用方信息
 type PluginDevApplyInfo struct {
-	AppID      string    `json:"appid"`       // 使用者的appid
-	Status     int       `json:"status"`      // 插件状态
-	Nickname   string    `json:"nickname"`    // 使用者的昵称
-	HeadImgURL string    `json:"headimgurl"`  // 使用者的头像
-	Categories []yiigo.X `json:"categories"`  // 使用者的类目
-	CreateTime string    `json:"create_time"` // 使用者的申请时间
-	ApplyURL   string    `json:"apply_url"`   // 使用者的小程序码
-	Reason     string    `json:"reason"`      // 使用者的申请说明
+	AppID      string `json:"appid"`       // 使用者的appid
+	Status     int    `json:"status"`      // 插件状态
+	Nickname   string `json:"nickname"`    // 使用者的昵称
+	HeadImgURL string `json:"headimgurl"`  // 使用者的头像
+	Categories []wx.M `json:"categories"`  // 使用者的类目
+	CreateTime string `json:"create_time"` // 使用者的申请时间
+	ApplyURL   string `json:"apply_url"`   // 使用者的小程序码
+	Reason     string `json:"reason"`      // 使用者的申请说明
 }
 
 type ParamsPluginDevApplyList struct {
@@ -66,8 +64,8 @@ type ResultPluginDevApplyList struct {
 	ApplyList []*PluginDevApplyInfo `json:"apply_list"`
 }
 
-// GetPluginDevApplyList 获取当前所有插件使用方（供插件开发者调用）
-func GetPluginDevApplyList(page, num int, result *ResultPluginDevApplyList) wx.Action {
+// ListPluginDevApply 获取当前所有插件使用方（供插件开发者调用）
+func ListPluginDevApply(page, num int, result *ResultPluginDevApplyList) wx.Action {
 	params := &ParamsPluginDevApplyList{
 		Action: PluginDevApplyList,
 		Page:   page,
@@ -76,7 +74,7 @@ func GetPluginDevApplyList(page, num int, result *ResultPluginDevApplyList) wx.A
 
 	return wx.NewPostAction(urls.MinipPluginDevManage,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -100,13 +98,13 @@ type ResultPluginList struct {
 	PluginList []*PluginInfo `json:"plugin_list"`
 }
 
-// GetPluginList 查询已添加的插件
-func GetPluginList(result *ResultPluginList) wx.Action {
+// ListPlugin 查询已添加的插件
+func ListPlugin(result *ResultPluginList) wx.Action {
 	params := &ParamsPluginList{Action: PluginList}
 
 	return wx.NewPostAction(urls.MinipPluginManage,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -121,10 +119,16 @@ type ParamsDevPluginApplyStatus struct {
 }
 
 // SetDevPluginApplyStatus 修改插件使用申请的状态（供插件开发者调用）
-func SetDevPluginApplyStatus(params *ParamsDevPluginApplyStatus) wx.Action {
+func SetDevPluginApplyStatus(action PluginAction, appid string, reason string) wx.Action {
+	params := &ParamsDevPluginApplyStatus{
+		Action: action,
+		AppID:  appid,
+		Reason: reason,
+	}
+
 	return wx.NewPostAction(urls.MinipPluginDevManage,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -143,7 +147,7 @@ func UnbindPlugin(pluginAppID string) wx.Action {
 
 	return wx.NewPostAction(urls.MinipPluginManage,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

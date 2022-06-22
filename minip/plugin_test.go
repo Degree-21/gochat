@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/shenghui0779/gochat/mock"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/shenghui0779/yiigo"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestApplyPlugin(t *testing.T) {
@@ -37,7 +37,7 @@ func TestApplyPlugin(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestGetPluginDevApplyList(t *testing.T) {
+func TestListPluginDevApply(t *testing.T) {
 	body := []byte(`{"action":"dev_apply_list","page":1,"num":10}`)
 
 	resp := &http.Response{
@@ -73,7 +73,7 @@ func TestGetPluginDevApplyList(t *testing.T) {
 
 	result := new(ResultPluginDevApplyList)
 
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", GetPluginDevApplyList(1, 10, result))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", ListPluginDevApply(1, 10, result))
 
 	assert.Nil(t, err)
 	assert.Equal(t, &ResultPluginDevApplyList{
@@ -83,7 +83,7 @@ func TestGetPluginDevApplyList(t *testing.T) {
 				Status:     1,
 				Nickname:   "名称",
 				HeadImgURL: "**********",
-				Categories: []yiigo.X{
+				Categories: []wx.M{
 					{
 						"first":  "IT科技",
 						"second": "硬件与设备",
@@ -97,7 +97,7 @@ func TestGetPluginDevApplyList(t *testing.T) {
 	}, result)
 }
 
-func TestGetPluginList(t *testing.T) {
+func TestListPlugin(t *testing.T) {
 	body := []byte(`{"action":"list"}`)
 
 	resp := &http.Response{
@@ -126,7 +126,7 @@ func TestGetPluginList(t *testing.T) {
 
 	result := new(ResultPluginList)
 
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", GetPluginList(result))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", ListPlugin(result))
 
 	assert.Nil(t, err)
 	assert.Equal(t, &ResultPluginList{
@@ -159,12 +159,7 @@ func TestSetDevPluginApplyStatus(t *testing.T) {
 	mp := New("APPID", "APPSECRET")
 	mp.SetClient(wx.WithHTTPClient(client))
 
-	params := &ParamsDevPluginApplyStatus{
-		Action: PluginDevAgree,
-		AppID:  "APPID",
-	}
-
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", SetDevPluginApplyStatus(params))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", SetDevPluginApplyStatus(PluginDevAgree, "APPID", ""))
 
 	assert.Nil(t, err)
 }

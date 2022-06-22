@@ -3,22 +3,28 @@ package externalcontact
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
+	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/shenghui0779/yiigo"
 )
 
 type MediaType string
 
 const (
 	MediaImage MediaType = "image"
-	MediaLink  MediaType = "link"
-	MediaMinip MediaType = "miniprogram"
 	MediaVideo MediaType = "video"
 	MediaFile  MediaType = "file"
+)
+
+type AttachmentType int
+
+const (
+	AttachmentMoment       AttachmentType = 1 // 朋友圈
+	AttachmentProductAlbum AttachmentType = 2 // 商品相册
 )
 
 type ResultAttachmentUpload struct {
@@ -27,32 +33,36 @@ type ResultAttachmentUpload struct {
 	CreatedAt int64     `json:"created_at"`
 }
 
-type ParamsAttachmentUpload struct {
-	MediaType      MediaType
-	AttachmentType int
-	Path           string
-}
+// UploadAttachment 上传附件资源
+func UploadAttachment(mediaType MediaType, attachmentType AttachmentType, attachmentPath string, result *ResultAttachmentUpload) wx.Action {
+	_, filename := filepath.Split(attachmentPath)
 
-func UploadAttachment(params *ParamsAttachmentUpload, result *ResultAttachmentUpload) wx.Action {
-	_, filename := filepath.Split(params.Path)
-
-	return wx.NewPostAction(urls.OffiaMediaUpload,
-		wx.WithQuery("type", string(params.MediaType)),
-		wx.WithUpload(func() (yiigo.UploadForm, error) {
-			path, err := filepath.Abs(filepath.Clean(params.Path))
+	return wx.NewPostAction(urls.CorpExternalContactUploadAttachment,
+		wx.WithQuery("media_type", string(mediaType)),
+		wx.WithQuery("attachment_type", strconv.Itoa(int(attachmentType))),
+		wx.WithUpload(func() (wx.UploadForm, error) {
+			path, err := filepath.Abs(filepath.Clean(attachmentPath))
 
 			if err != nil {
 				return nil, err
 			}
 
-			body, err := ioutil.ReadFile(path)
+			return wx.NewUploadForm(
+				wx.WithFormFile("media", filename, func(w io.Writer) error {
+					f, err := os.Open(path)
 
-			if err != nil {
-				return nil, err
-			}
+					if err != nil {
+						return err
+					}
 
-			return yiigo.NewUploadForm(
-				yiigo.WithFileField("media", filename, body),
+					defer f.Close()
+
+					if _, err = io.Copy(w, f); err != nil {
+						return err
+					}
+
+					return nil
+				}),
 			), nil
 		}),
 		wx.WithDecode(func(resp []byte) error {
@@ -61,34 +71,28 @@ func UploadAttachment(params *ParamsAttachmentUpload, result *ResultAttachmentUp
 	)
 }
 
-type ParamsAttachmentUploadByURL struct {
-	MediaType      MediaType
-	AttachmentType int
-	Filename       string
-	URL            string
-}
-
 // UploadAttachmentByURL 上传附件资源
-func UploadAttachmentByURL(params *ParamsAttachmentUploadByURL, result *ResultAttachmentUpload) wx.Action {
-	return wx.NewPostAction(urls.OffiaMediaUpload,
-		wx.WithQuery("type", string(params.MediaType)),
-		wx.WithUpload(func() (yiigo.UploadForm, error) {
-			resp, err := yiigo.HTTPGet(context.Background(), params.URL)
+func UploadAttachmentByURL(mediaType MediaType, attachmentType AttachmentType, filename, url string, result *ResultAttachmentUpload) wx.Action {
+	return wx.NewPostAction(urls.CorpExternalContactUploadAttachment,
+		wx.WithQuery("media_type", string(mediaType)),
+		wx.WithQuery("attachment_type", strconv.Itoa(int(attachmentType))),
+		wx.WithUpload(func() (wx.UploadForm, error) {
+			return wx.NewUploadForm(
+				wx.WithFormFile("media", filename, func(w io.Writer) error {
+					resp, err := wx.HTTPGet(context.Background(), url)
 
-			if err != nil {
-				return nil, err
-			}
+					if err != nil {
+						return err
+					}
 
-			defer resp.Body.Close()
+					defer resp.Body.Close()
 
-			body, err := ioutil.ReadAll(resp.Body)
+					if _, err = io.Copy(w, resp.Body); err != nil {
+						return err
+					}
 
-			if err != nil {
-				return nil, err
-			}
-
-			return yiigo.NewUploadForm(
-				yiigo.WithFileField("media", params.Filename, body),
+					return nil
+				}),
 			), nil
 		}),
 		wx.WithDecode(func(resp []byte) error {

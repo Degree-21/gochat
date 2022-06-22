@@ -7,18 +7,23 @@ import (
 	"github.com/shenghui0779/gochat/wx"
 )
 
-type ParamsPermitUserListGet struct {
-	Type int `json:"type"`
+type ParamsPermitUserList struct {
+	Type int `json:"type,omitempty"`
 }
 
-type ResultPermitUserListGet struct {
+type ResultPermitUserList struct {
 	IDs []string `json:"ids"`
 }
 
-func GetPermitUserList(params *ParamsPermitUserListGet, result *ResultPermitUserListGet) wx.Action {
+// ListPermitUser 获取会话内容存档开启成员列表
+func ListPermitUser(listType int, result *ResultPermitUserList) wx.Action {
+	params := &ParamsPermitUserList{
+		Type: listType,
+	}
+
 	return wx.NewPostAction(urls.CorpMsgAuditGetPermitUserList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -26,30 +31,35 @@ func GetPermitUserList(params *ParamsPermitUserListGet, result *ResultPermitUser
 	)
 }
 
-type CheckInfo struct {
-	UserID         string `json:"userid"`
-	ExternalOpenID string `json:"externalopenid"`
-}
-
-type AgreeInfo struct {
-	StatusChangeTime int64  `json:"status_change_time"`
-	UserID           string `json:"userid"`
-	ExternalOpenID   string `json:"externalopenid"`
-	AgreeStatus      string `json:"agree_status"`
-}
-
 type ParamsSingleAgreeCheck struct {
-	Info []*CheckInfo `json:"info"`
+	Info []*ParamsSingleAgree `json:"info"`
+}
+
+type ParamsSingleAgree struct {
+	UserID         string `json:"userid"`
+	ExternalOpenID string `json:"exteranalopenid"`
 }
 
 type ResultSingleAgreeCheck struct {
-	AgreeInfo []*AgreeInfo `json:"agree_info"`
+	AgreeInfo []*SingleAgreeInfo `json:"agreeinfo"`
 }
 
-func CheckSingleAgree(params *ParamsSingleAgreeCheck, result *ResultSingleAgreeCheck) wx.Action {
+type SingleAgreeInfo struct {
+	StatusChangeTime int64  `json:"status_change_time"`
+	UserID           string `json:"userid"`
+	ExternalOpenID   string `json:"exteranalopenid"`
+	AgreeStatus      string `json:"agree_status"`
+}
+
+// CheckSingleAgree 获取会话同意情况（单聊）
+func CheckSingleAgree(agrees []*ParamsSingleAgree, result *ResultSingleAgreeCheck) wx.Action {
+	params := &ParamsSingleAgreeCheck{
+		Info: agrees,
+	}
+
 	return wx.NewPostAction(urls.CorpMsgAuditCheckSingleAgree,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -62,13 +72,24 @@ type ParamsRoomAgreeCheck struct {
 }
 
 type ResultRoomAgreeCheck struct {
-	AgreeInfo []*AgreeInfo `json:"agree_info"`
+	AgreeInfo []*RoomAgreeInfo `json:"agreeinfo"`
 }
 
-func CheckRoomAgree(params *ParamsRoomAgreeCheck, result *ResultRoomAgreeCheck) wx.Action {
+type RoomAgreeInfo struct {
+	StatusChangeTime int64  `json:"status_change_time"`
+	ExternalOpenID   string `json:"exteranalopenid"`
+	AgreeStatus      string `json:"agree_status"`
+}
+
+// CheckRoomAgree 获取会话同意情况（群聊）
+func CheckRoomAgree(roomID string, result *ResultRoomAgreeCheck) wx.Action {
+	params := &ParamsRoomAgreeCheck{
+		RoomID: roomID,
+	}
+
 	return wx.NewPostAction(urls.CorpMsgAuditCheckRoomAgree,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -81,11 +102,11 @@ type GroupMember struct {
 	JoinTime int64  `json:"jointime"`
 }
 
-type ParamsGroupChatGet struct {
+type ParamsGroupChat struct {
 	RoomID string `json:"roomid"`
 }
 
-type ResultGroupChatGet struct {
+type ResultGroupChat struct {
 	RoomName       string         `json:"roomname"`
 	Creator        string         `json:"creator"`
 	RoomCreateTime int64          `json:"room_create_time"`
@@ -93,10 +114,15 @@ type ResultGroupChatGet struct {
 	Members        []*GroupMember `json:"members"`
 }
 
-func GetGroupChat(params *ParamsGroupChatGet, result *ResultGroupChatGet) wx.Action {
+// GetGroupChat 获取会话内容存档内部群信息
+func GetGroupChat(roomID string, result *ResultGroupChat) wx.Action {
+	params := &ParamsGroupChat{
+		RoomID: roomID,
+	}
+
 	return wx.NewPostAction(urls.CorpMsgAuditGroupChatGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

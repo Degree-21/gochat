@@ -17,6 +17,7 @@ type ResultResidentGridInfo struct {
 	GridList []*ResidentGrid `json:"grid_list"`
 }
 
+// GetResidentGridInfo 获取配置的网格及网格负责人
 func GetResidentGridInfo(result *ResultResidentGridInfo) wx.Action {
 	return wx.NewGetAction(urls.CorpReportGetResidentGridInfo,
 		wx.WithDecode(func(resp []byte) error {
@@ -39,10 +40,15 @@ type ResultResidentCorpStatus struct {
 	TotalSolved   int `json:"total_solved"`
 }
 
-func GetResidentCorpStatus(params *ParamsResidentCorpStatus, result *ResultResidentCorpStatus) wx.Action {
+// GetResidentCorpStatus 获取单位居民上报数据统计
+func GetResidentCorpStatus(gridID string, result *ResultResidentCorpStatus) wx.Action {
+	params := &ParamsResidentCorpStatus{
+		GridID: gridID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetResidentCorpStatus,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -61,10 +67,15 @@ type ResultResidentUserStatus struct {
 	Pending     int `json:"pending"`
 }
 
-func GetResidentUserStatus(params *ParamsResidentUserStatus, result *ResultResidentUserStatus) wx.Action {
+// GetResidentUserStatus 获取个人居民上报数据统计
+func GetResidentUserStatus(userID string, result *ResultResidentUserStatus) wx.Action {
+	params := &ParamsResidentUserStatus{
+		UserID: userID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetResidentUserStatus,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -89,10 +100,15 @@ type ResultResidentCategoryStatistic struct {
 	DashboardList []*ResidentCategoryStatistic `json:"dashboard_list"`
 }
 
-func GetResidentCategoryStatistic(params *ParamsResidentCategoryStatistic, result *ResultResidentCategoryStatistic) wx.Action {
+// GetResidentCategoryStatistic 获取上报事件分类统计
+func GetResidentCategoryStatistic(categoryID string, result *ResultResidentCategoryStatistic) wx.Action {
+	params := &ParamsResidentCategoryStatistic{
+		CategoryID: categoryID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportResidentCategoryStatistic,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -130,10 +146,18 @@ type ResultResidentOrderList struct {
 	OrderList  []*ResidentOrder `json:"order_list"`
 }
 
-func GetResidentOrderList(params *ParamsResidentOrderList, result *ResultResidentOrderList) wx.Action {
+// ListResidentOrder 获取居民上报事件列表
+func ListResidentOrder(beginCreateTime, beginModifyTime int64, cursor string, limit int, result *ResultResidentOrderList) wx.Action {
+	params := &ParamsResidentOrderList{
+		BeginCreateTime: beginCreateTime,
+		BeginModifyTime: beginModifyTime,
+		Cursor:          cursor,
+		Limit:           limit,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetResidentOrderList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -149,10 +173,15 @@ type ResultResidentOrderInfo struct {
 	OrderInfo *ResidentOrder `json:"order_info"`
 }
 
-func GetResidentOrderInfo(params *ParamsResidentOrderInfo, result *ResultResidentOrderInfo) wx.Action {
+// GetResidentOrderInfo 获取居民上报的事件详情信息
+func GetResidentOrderInfo(orderID string, result *ResultResidentOrderInfo) wx.Action {
+	params := &ParamsResidentOrderInfo{
+		OrderID: orderID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetResidentOrderInfo,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

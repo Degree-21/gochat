@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/shenghui0779/gochat/mock"
 	"github.com/shenghui0779/gochat/wx"
-	"github.com/shenghui0779/yiigo"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestImageSecCheck(t *testing.T) {
@@ -25,7 +25,7 @@ func TestImageSecCheck(t *testing.T) {
 
 	client := mock.NewMockHTTPClient(ctrl)
 
-	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/wxa/img_sec_check?access_token=ACCESS_TOKEN", gomock.AssignableToTypeOf(yiigo.NewUploadForm())).Return(resp, nil)
+	client.EXPECT().Upload(gomock.AssignableToTypeOf(context.TODO()), "https://api.weixin.qq.com/wxa/img_sec_check?access_token=ACCESS_TOKEN", gomock.AssignableToTypeOf(wx.NewUploadForm())).Return(resp, nil)
 
 	mp := New("APPID", "APPSECRET")
 	mp.SetClient(wx.WithHTTPClient(client))
@@ -57,13 +57,9 @@ func TestMediaCheckAsync(t *testing.T) {
 	mp := New("APPID", "APPSECRET")
 	mp.SetClient(wx.WithHTTPClient(client))
 
-	params := &ParamsMediaCheckAsync{
-		MediaType: SecMediaImage,
-		MediaURL:  "https://developers.weixin.qq.com/miniprogram/assets/images/head_global_z_@all.png",
-	}
 	result := new(ResultMediaCheckAsync)
 
-	err := mp.Do(context.TODO(), "ACCESS_TOKEN", MediaCheckAsync(params, result))
+	err := mp.Do(context.TODO(), "ACCESS_TOKEN", MediaCheckAsync(SecMediaImage, "https://developers.weixin.qq.com/miniprogram/assets/images/head_global_z_@all.png", result))
 
 	assert.Nil(t, err)
 	assert.Equal(t, &ResultMediaCheckAsync{

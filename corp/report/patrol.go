@@ -34,6 +34,7 @@ type ResultPatrolGridInfo struct {
 	GridList []*PatrolGrid `json:"grid_list"`
 }
 
+// GetPatrolGridInfo 获取配置的网格及网格负责人
 func GetPatrolGridInfo(result *ResultPatrolGridInfo) wx.Action {
 	return wx.NewGetAction(urls.CorpReportGetPatrolGridInfo,
 		wx.WithDecode(func(resp []byte) error {
@@ -55,10 +56,15 @@ type ResultPatrolCorpStatus struct {
 	TotalSolved  int `json:"total_solved"`
 }
 
-func GetPatrolCorpStatus(params *ParamsPatrolCorpStatus, result *ResultPatrolCorpStatus) wx.Action {
+// GetPatrolCorpStatus 获取单位巡查上报数据统计
+func GetPatrolCorpStatus(gridID string, result *ResultPatrolCorpStatus) wx.Action {
+	params := &ParamsPatrolCorpStatus{
+		GridID: gridID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetPatrolCorpStatus,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -76,15 +82,28 @@ type ResultPatrolUserStatus struct {
 	SolvedToday int `json:"solved_today"`
 }
 
-func GetPatrolUserStatus(params *ParamsPatrolUserStatus, result *ResultPatrolUserStatus) wx.Action {
+// GetPatrolUserStatus 获取个人巡查上报数据统计
+func GetPatrolUserStatus(userID string, result *ResultPatrolUserStatus) wx.Action {
+	params := &ParamsPatrolUserStatus{
+		UserID: userID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetPatrolUserStatus,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
 		}),
 	)
+}
+
+type ParamsPatrolCategoryStatistic struct {
+	CategoryID string `json:"category_id"`
+}
+
+type ResultPatrolCategoryStatistic struct {
+	DashboardList []*PatrolCategoryStatistic `json:"dashboard_list"`
 }
 
 type PatrolCategoryStatistic struct {
@@ -96,18 +115,15 @@ type PatrolCategoryStatistic struct {
 	TotalSolved   int    `json:"total_solved"`
 }
 
-type ParamsPatrolCategoryStatistic struct {
-	CategoryID string `json:"category_id"`
-}
+// GetPatrolCategoryStatistic 获取上报事件分类统计
+func GetPatrolCategoryStatistic(categoryID string, result *ResultPatrolCategoryStatistic) wx.Action {
+	params := &ParamsPatrolCategoryStatistic{
+		CategoryID: categoryID,
+	}
 
-type ResultPatrolCategoryStatistic struct {
-	DashboardList []*PatrolCategoryStatistic `json:"dashboard_list"`
-}
-
-func GetPatrolCategoryStatistic(params *ParamsPatrolCategoryStatistic, result *ResultPatrolCategoryStatistic) wx.Action {
 	return wx.NewPostAction(urls.CorpReportPatrolCategoryStatistic,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -142,10 +158,18 @@ type ResultPatrolOrderList struct {
 	OrderList  []*PatrolOrder `json:"order_list"`
 }
 
-func GetPatrolOrderList(params *ParamsPatrolOrderList, result *ResultPatrolOrderList) wx.Action {
+// ListPatrolOrder 获取巡查上报事件列表
+func ListPatrolOrder(beginCreateTime, beginModifyTime int64, cursor string, limit int, result *ResultPatrolOrderList) wx.Action {
+	params := &ParamsPatrolOrderList{
+		BeginCreateTime: beginCreateTime,
+		BeginModifyTime: beginModifyTime,
+		Cursor:          cursor,
+		Limit:           limit,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetPatrolOrderList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -161,10 +185,15 @@ type ResultPatrolOrderInfo struct {
 	OrderInfo *PatrolOrder `json:"order_info"`
 }
 
-func GetPatrolOrderInfo(params *ParamsPatrolOrderInfo, result *ResultPatrolOrderInfo) wx.Action {
+// GetPatrolOrderInfo 获取巡查上报的事件详情信息
+func GetPatrolOrderInfo(orderID string, result *ResultPatrolOrderInfo) wx.Action {
+	params := &ParamsPatrolOrderInfo{
+		OrderID: orderID,
+	}
+
 	return wx.NewPostAction(urls.CorpReportGetPatrolOrderInfo,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)

@@ -2,16 +2,17 @@ package urls
 
 // auth
 const (
-	MinipAccessToken  = "https://api.weixin.qq.com/cgi-bin/token"
-	MinipCode2Session = "https://api.weixin.qq.com/sns/jscode2session"
-	MinipPaidUnion    = "https://api.weixin.qq.com/wxa/getpaidunionid"
+	MinipAccessToken        = "https://api.weixin.qq.com/cgi-bin/token"
+	MinipCode2Session       = "https://api.weixin.qq.com/sns/jscode2session"
+	MinipPhoneNumber        = "https://api.weixin.qq.com/wxa/business/getuserphonenumber"
+	MinipEncryptedDataCheck = "https://api.weixin.qq.com/wxa/business/checkencryptedmsg"
+	MinipPaidUnion          = "https://api.weixin.qq.com/wxa/getpaidunionid"
 )
 
-// msg
+// message
 const (
 	MinipUniformMsgSend   = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/uniform_send"
 	MinipSubscribeMsgSend = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send"
-	MinipTemplateMsgSend  = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send"
 	MinipKFMsgSend        = "https://api.weixin.qq.com/cgi-bin/message/custom/send"
 	MinipKFTypingSend     = "https://api.weixin.qq.com/cgi-bin/message/custom/typing"
 )
@@ -60,9 +61,24 @@ const (
 	MinipOCRComm            = "https://api.weixin.qq.com/cv/ocr/comm"
 )
 
+// subscribe
+const (
+	MinipSubscribeAddTemplate            = "https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate"
+	MinipSubscribeDeleteTemplate         = "https://api.weixin.qq.com/wxaapi/newtmpl/deltemplate"
+	MinipSubscribeGetCategory            = "https://api.weixin.qq.com/wxaapi/newtmpl/getcategory"
+	MinipSubscribeGetPubTemplateKeyWords = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatekeywords"
+	MinipSubscribeGetPubTemplateTitles   = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatetitles"
+	MinipSubscribeGetTemplateList        = "https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate"
+)
+
 // other
 const (
-	MinipInvokeService = "https://api.weixin.qq.com/wxa/servicemarket"
-	MinipSoterVerify   = "https://api.weixin.qq.com/cgi-bin/soter/verify_signature"
-	MinipUserRiskRank  = "https://api.weixin.qq.com/wxa/getuserriskrank"
+	MinipInvokeService   = "https://api.weixin.qq.com/wxa/servicemarket"
+	MinipSoterVerify     = "https://api.weixin.qq.com/cgi-bin/soter/verify_signature"
+	MinipShortLink       = "https://api.weixin.qq.com/wxa/genwxashortlink"
+	MinipUserRiskRank    = "https://api.weixin.qq.com/wxa/getuserriskrank"
+	MinipGenerateScheme  = "https://api.weixin.qq.com/wxa/generatescheme"
+	MinipQueryScheme     = "https://api.weixin.qq.com/wxa/queryscheme"
+	MinipGenerateURLLink = "https://api.weixin.qq.com/wxa/generate_urllink"
+	MinipQueryURLLink    = "https://api.weixin.qq.com/wxa/query_urllink"
 )

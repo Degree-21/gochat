@@ -7,23 +7,6 @@ import (
 	"github.com/shenghui0779/gochat/wx"
 )
 
-type CorpTag struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	CreateTime int64  `json:"create_time"`
-	Order      uint32 `json:"order"`
-	Deleted    bool   `json:"delete"`
-}
-
-type CorpTagGroup struct {
-	GroupID    string     `json:"group_id"`
-	GroupName  string     `json:"group_name"`
-	CreateTime int64      `json:"create_time"`
-	Order      uint32     `json:"order"`
-	Deleted    bool       `json:"deleted"`
-	Tag        []*CorpTag `json:"tag"`
-}
-
 type ParamsCorpTagList struct {
 	TagID   []string `json:"tag_id,omitempty"`
 	GroupID []string `json:"group_id,omitempty"`
@@ -33,10 +16,33 @@ type ResultCorpTagList struct {
 	TagGroup []*CorpTagGroup `json:"tag_group"`
 }
 
-func ListCorpTag(params *ParamsCorpTagList, result *ResultCorpTagList) wx.Action {
+type CorpTagGroup struct {
+	GroupID    string     `json:"group_id"`
+	GroupName  string     `json:"group_name"`
+	CreateTime int64      `json:"create_time"`
+	Order      int        `json:"order"`
+	Deleted    bool       `json:"deleted"`
+	Tag        []*CorpTag `json:"tag"`
+}
+
+type CorpTag struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	CreateTime int64  `json:"create_time"`
+	Order      int    `json:"order"`
+	Deleted    bool   `json:"deleted"`
+}
+
+// ListCorpTag 获取企业标签库
+func ListCorpTag(tagIDs, groupIDs []string, result *ResultCorpTagList) wx.Action {
+	params := &ParamsCorpTagList{
+		TagID:   tagIDs,
+		GroupID: groupIDs,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactCorpTagList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -46,13 +52,13 @@ func ListCorpTag(params *ParamsCorpTagList, result *ResultCorpTagList) wx.Action
 
 type ParamsCorpTag struct {
 	Name  string `json:"name"`
-	Order uint32 `json:"order,omitempty"`
+	Order int    `json:"order,omitempty"`
 }
 
 type ParamsCorpTagAdd struct {
 	GroupID   string           `json:"group_id,omitempty"`
 	GroupName string           `json:"group_name,omitempty"`
-	Order     uint32           `json:"order,omitempty"`
+	Order     int              `json:"order,omitempty"`
 	Tag       []*ParamsCorpTag `json:"tag"`
 	AgentID   int64            `json:"agentid,omitempty"`
 }
@@ -61,10 +67,11 @@ type ResultCorpTagAdd struct {
 	TagGroup *CorpTagGroup `json:"tag_group"`
 }
 
+// AddCorpTag 添加企业客户标签
 func AddCorpTag(params *ParamsCorpTagAdd, result *ResultCorpTagAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactCorpTagAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -75,14 +82,15 @@ func AddCorpTag(params *ParamsCorpTagAdd, result *ResultCorpTagAdd) wx.Action {
 type ParamsCorpTagEdit struct {
 	ID      string `json:"id"`
 	Name    string `json:"name,omitempty"`
-	Order   uint32 `json:"order,omitempty"`
+	Order   int    `json:"order,omitempty"`
 	AgentID int64  `json:"agentid,omitempty"`
 }
 
+// EditCorpTag 编辑企业客户标签
 func EditCorpTag(params *ParamsCorpTagEdit) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactCorpTagEdit,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -93,28 +101,19 @@ type ParamsCorpTagDelete struct {
 	AgentID int64    `json:"agentid"`
 }
 
-func DeleteCorpTag(params *ParamsCorpTagDelete) wx.Action {
+// DeleteCorpTag 删除企业客户标签
+func DeleteCorpTag(tagIDs, groupIDs []string, agentID int64) wx.Action {
+	params := &ParamsCorpTagDelete{
+		TagID:   tagIDs,
+		GroupID: groupIDs,
+		AgentID: agentID,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactCorpTagDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
-}
-
-type StrategyTag struct {
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	CreateTime int64  `json:"create_time"`
-	Order      uint32 `json:"order"`
-}
-
-type StrategyTagGroup struct {
-	GroupID    string     `json:"group_id"`
-	GroupName  string     `json:"group_name"`
-	CreateTime int64      `json:"create_time"`
-	Order      uint32     `json:"order"`
-	StrategyID int64      `json:"strategy_id"`
-	Tag        []*CorpTag `json:"tag"`
 }
 
 type ParamsStrategyTagList struct {
@@ -124,23 +123,41 @@ type ParamsStrategyTagList struct {
 }
 
 type ResultStrategyTagList struct {
-	TagGroup []*CorpTagGroup `json:"tag_group"`
+	TagGroup []*StrategyTagGroup `json:"tag_group"`
 }
 
-func ListStrategyTag(params *ParamsStrategyTagList, result *ResultStrategyTagList) wx.Action {
+type StrategyTagGroup struct {
+	GroupID    string         `json:"group_id"`
+	GroupName  string         `json:"group_name"`
+	CreateTime int64          `json:"create_time"`
+	Order      uint32         `json:"order"`
+	StrategyID int64          `json:"strategy_id"`
+	Tag        []*StrategyTag `json:"tag"`
+}
+
+type StrategyTag struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	CreateTime int64  `json:"create_time"`
+	Order      uint32 `json:"order"`
+}
+
+// ListStrategyTag 获取指定规则组下的企业客户标签
+func ListStrategyTag(strategyID int64, tagIDs, groupIDs []string, result *ResultStrategyTagList) wx.Action {
+	params := &ParamsStrategyTagList{
+		StrategyID: strategyID,
+		TagID:      tagIDs,
+		GroupID:    groupIDs,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactStrategyTagList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
 		}),
 	)
-}
-
-type ParamsStrategyTag struct {
-	Name  string `json:"name"`
-	Order uint32 `json:"order,omitempty"`
 }
 
 type ParamsStrategyTagAdd struct {
@@ -151,14 +168,20 @@ type ParamsStrategyTagAdd struct {
 	Tag        []*ParamsStrategyTag `json:"tag"`
 }
 
-type ResultStrategyTagAdd struct {
-	TagGroup *CorpTagGroup `json:"tag_group"`
+type ParamsStrategyTag struct {
+	Name  string `json:"name"`
+	Order uint32 `json:"order,omitempty"`
 }
 
-func AddStrategyTag(params *ParamsStrategyTag, result *ResultStrategyTagAdd) wx.Action {
+type ResultStrategyTagAdd struct {
+	TagGroup *StrategyTagGroup `json:"tag_group"`
+}
+
+// AddStrategyTag 为指定规则组创建企业客户标签
+func AddStrategyTag(params *ParamsStrategyTagAdd, result *ResultStrategyTagAdd) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactStrategyTagAdd,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -172,10 +195,11 @@ type ParamsStrategyTagEdit struct {
 	Order uint32 `json:"order,omitempty"`
 }
 
+// EditStrategyTag 编辑指定规则组下的企业客户标签
 func EditStrategyTag(params *ParamsStrategyTagEdit) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactStrategyTagEdit,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -185,10 +209,16 @@ type ParamsStrategyTagDelete struct {
 	GroupID []string `json:"group_id,omitempty"`
 }
 
-func DeleteStrategyTag(params *ParamsStrategyTagDelete) wx.Action {
+// DeleteStrategyTag 删除指定规则组下的企业客户标签
+func DeleteStrategyTag(tagIDs, groupIDs []string) wx.Action {
+	params := &ParamsStrategyTagDelete{
+		TagID:   tagIDs,
+		GroupID: groupIDs,
+	}
+
 	return wx.NewPostAction(urls.CorpExternalContactStrategyTagDelete,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
@@ -200,10 +230,11 @@ type ParamsTagMark struct {
 	RemoveTag      []string `json:"remove_tag,omitempty"`
 }
 
+// MarkTag 编辑客户企业标签
 func MarkTag(params *ParamsTagMark) wx.Action {
 	return wx.NewPostAction(urls.CorpExternalContactMarkTag,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }

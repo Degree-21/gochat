@@ -26,7 +26,201 @@ const (
 	AddSceneOthers           SubscribeScene = "ADD_SCENE_OTHERS"               // 其他
 )
 
-// UserInfo 关注用户信息
+type Tag struct {
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
+type ParamsTag struct {
+	ID   int64  `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type ParamsTagOpt struct {
+	Tag *ParamsTag `json:"tag"`
+}
+
+type ResultTagCreate struct {
+	Tag *Tag `json:"tag"`
+}
+
+// CreateTag 用户管理 - 用户标签管理 - 创建标签
+func CreateTag(name string, result *ResultTagCreate) wx.Action {
+	params := &ParamsTagOpt{
+		Tag: &ParamsTag{
+			Name: name,
+		},
+	}
+
+	return wx.NewPostAction(urls.OffiaTagCreate,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+// UpdateTag 用户管理 - 用户标签管理 - 编辑标签
+func UpdateTag(id int64, name string) wx.Action {
+	params := &ParamsTagOpt{
+		Tag: &ParamsTag{
+			ID:   id,
+			Name: name,
+		},
+	}
+
+	return wx.NewPostAction(urls.OffiaTagUpdate,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+	)
+}
+
+type ResultTagsGet struct {
+	Tags []*Tag `json:"tags"`
+}
+
+// GetTags 用户管理 - 用户标签管理 - 获取公众号已创建的标签
+func GetTags(result *ResultTagsGet) wx.Action {
+	return wx.NewGetAction(urls.OffiaTagGet,
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+// DeleteTag 用户管理 - 用户标签管理 - 删除标签
+func DeleteTag(id int64) wx.Action {
+	params := &ParamsTagOpt{
+		Tag: &ParamsTag{
+			ID: id,
+		},
+	}
+
+	return wx.NewPostAction(urls.OffiaTagDelete,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+	)
+}
+
+type ParamsTagUsers struct {
+	TagID      int64  `json:"tagid"`
+	NextOpenID string `json:"next_openid"`
+}
+
+type ResultTagUsers struct {
+	Count      int          `json:"count"`
+	Data       *TagUserData `json:"data"`
+	NextOpenID string       `json:"next_openid"`
+}
+
+type TagUserData struct {
+	OpenID []string `json:"openid"`
+}
+
+// GetTagUsers 用户管理 - 用户标签管理 - 获取标签下粉丝列表
+func GetTagUsers(tagID int64, nextOpenID string, result *ResultTagUsers) wx.Action {
+	params := &ParamsTagUsers{
+		TagID:      tagID,
+		NextOpenID: nextOpenID,
+	}
+
+	return wx.NewPostAction(urls.OffiaTagUserGet,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+type ParamsBatchTagging struct {
+	TagID      int64    `json:"tagid"`
+	OpenIDList []string `json:"openid_list"`
+}
+
+// BatchTaggingUsers 用户管理 - 用户标签管理 - 批量为用户打标签
+func BatchTaggingUsers(tagID int64, openids ...string) wx.Action {
+	params := &ParamsBatchTagging{
+		TagID:      tagID,
+		OpenIDList: openids,
+	}
+
+	return wx.NewPostAction(urls.OffiaBatchTagging,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+	)
+}
+
+type ParamsBatchUnTagging struct {
+	TagID      int64    `json:"tagid"`
+	OpenIDList []string `json:"openid_list"`
+}
+
+// BatchUnTaggingUsers 用户管理 - 用户标签管理 - 批量为用户取消标签
+func BatchUnTaggingUsers(tagID int64, openids ...string) wx.Action {
+	params := &ParamsBatchUnTagging{
+		TagID:      tagID,
+		OpenIDList: openids,
+	}
+
+	return wx.NewPostAction(urls.OffiaBatchUnTagging,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+	)
+}
+
+type ParamsUserTags struct {
+	OpenID string `json:"openid"`
+}
+
+type ResultUserTags struct {
+	TagIDList []int64 `json:"tagid_list"`
+}
+
+// GetUserTags 用户管理 - 用户标签管理 - 获取用户身上的标签列表
+func GetUserTags(openid string, result *ResultUserTags) wx.Action {
+	params := &ParamsUserTags{
+		OpenID: openid,
+	}
+
+	return wx.NewPostAction(urls.OffiaTagGetIDList,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+type ParamsUserRemark struct {
+	OpenID string `json:"openid"`
+	Remark string `json:"remark"`
+}
+
+// SetUserRemark 用户管理 - 设置用户备注名（该接口暂时开放给微信认证的服务号）
+func SetUserRemark(openid, remark string) wx.Action {
+	params := &ParamsUserRemark{
+		OpenID: openid,
+		Remark: remark,
+	}
+
+	return wx.NewPostAction(urls.OffiaUserRemarkSet,
+		wx.WithBody(func() ([]byte, error) {
+			return wx.MarshalNoEscapeHTML(params)
+		}),
+	)
+}
+
+// UserInfo 用户基本信息(UnionID机制)
 type UserInfo struct {
 	Subscribe      int            `json:"subscribe"`       // 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号，拉取不到其余信息。
 	OpenID         string         `json:"openid"`          // 用户的标识，对当前公众号唯一
@@ -47,13 +241,18 @@ type UserInfo struct {
 	QRSceneStr     string         `json:"qr_scene_str"`    // 二维码扫码场景描述（开发者自定义）
 }
 
-type ParamsUserGet struct {
+type ParamsUserInfo struct {
 	OpenID string `json:"openid"`
 	Lang   string `json:"lang,omitempty"`
 }
 
-// GetUser 获取关注用户信息
-func GetUser(params *ParamsUserGet, result *UserInfo) wx.Action {
+// GetUserInfo 用户管理 - 获取用户基本信息（包括UnionID机制）
+func GetUserInfo(openid, lang string, result *UserInfo) wx.Action {
+	params := &ParamsUserInfo{
+		OpenID: openid,
+		Lang:   lang,
+	}
+
 	options := []wx.ActionOption{
 		wx.WithQuery("openid", params.OpenID),
 		wx.WithDecode(func(resp []byte) error {
@@ -68,19 +267,23 @@ func GetUser(params *ParamsUserGet, result *UserInfo) wx.Action {
 	return wx.NewGetAction(urls.OffiaUserGet, options...)
 }
 
-type ParamsUserBatchGet struct {
-	UserList []*ParamsUserGet `json:"user_list"`
+type ParamsBatchUserInfo struct {
+	UserList []*ParamsUserInfo `json:"user_list"`
 }
 
-type ResultUserBatchGet struct {
+type ResultBatchUserInfo struct {
 	UserInfoList []*UserInfo `json:"user_info_list"`
 }
 
-// BatchGetUser 批量关注用户信息
-func BatchGetUser(params *ParamsUserBatchGet, result *ResultUserBatchGet) wx.Action {
+// BatchGetUserInfo 用户管理 - 批量获取用户基本信息
+func BatchGetUserInfo(users []*ParamsUserInfo, result *ResultBatchUserInfo) wx.Action {
+	params := &ParamsBatchUserInfo{
+		UserList: users,
+	}
+
 	return wx.NewPostAction(urls.OffiaUserBatchGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -99,8 +302,8 @@ type ResultUserList struct {
 	NextOpenID string       `json:"next_openid"`
 }
 
-// GetUserList 获取关注用户列表
-func GetUserList(nextOpenID string, result *ResultUserList) wx.Action {
+// ListUser 用户管理 - 获取用户列表
+func ListUser(nextOpenID string, result *ResultUserList) wx.Action {
 	options := []wx.ActionOption{
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -125,15 +328,15 @@ type ResultBlackList struct {
 	NextOpenID string       `json:"next_openid"`
 }
 
-// GetBlackList 获取用户黑名单列表
-func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
+// ListBlackUsers 用户管理 - 获取公众号的黑名单列表
+func ListBlackUsers(beginOpenID string, result *ResultBlackList) wx.Action {
 	params := &ParamsBlackList{
 		BeginOpenID: beginOpenID,
 	}
 
 	return wx.NewPostAction(urls.OffiaBlackListGet,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
@@ -141,55 +344,36 @@ func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
 	)
 }
 
-type ParamsBlackUsers struct {
+type ParamsBatchBlackUsers struct {
 	OpenIDList []string `json:"openid_list"`
 }
 
-// BlackUsers 拉黑用户
-func BlackUsers(openids ...string) wx.Action {
-	params := &ParamsBlackUsers{
+// BatchBlackUsers 用户管理 - 拉黑用户
+func BatchBlackUsers(openids ...string) wx.Action {
+	params := &ParamsBatchBlackUsers{
 		OpenIDList: openids,
 	}
 
 	return wx.NewPostAction(urls.OffiaBatchBlackList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
 
-type ParamsUnBlackUsers struct {
+type ParamsBatchUnBlackUsers struct {
 	OpenIDList []string `json:"openid_list"`
 }
 
-// UnBlackUser 取消拉黑用户
-func UnBlackUsers(openids ...string) wx.Action {
-	params := &ParamsUnBlackUsers{
+// BatchUnBlackUsers 用户管理 - 取消拉黑用户
+func BatchUnBlackUsers(openids ...string) wx.Action {
+	params := &ParamsBatchUnBlackUsers{
 		OpenIDList: openids,
 	}
 
 	return wx.NewPostAction(urls.OffiaBatchUnBlackList,
 		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
-		}),
-	)
-}
-
-type ParamsUserRemark struct {
-	OpenID string `json:"openid"`
-	Remark string `json:"remark"`
-}
-
-// SetUserRemark 设置用户备注名（该接口暂时开放给微信认证的服务号）
-func SetUserRemark(openid, remark string) wx.Action {
-	params := &ParamsUserRemark{
-		OpenID: openid,
-		Remark: remark,
-	}
-
-	return wx.NewPostAction(urls.OffiaUserRemarkSet,
-		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
+			return wx.MarshalNoEscapeHTML(params)
 		}),
 	)
 }
