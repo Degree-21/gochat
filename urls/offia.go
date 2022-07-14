@@ -65,7 +65,7 @@ const (
 	OffiaMediaUpload     = "https://api.weixin.qq.com/cgi-bin/media/upload"
 	OffiaMediaGet        = "https://api.weixin.qq.com/cgi-bin/media/get"
 	OffiaNewsAdd         = "https://api.weixin.qq.com/cgi-bin/material/add_news"
-	OffiaNewUpdate     = "https://api.weixin.qq.com/cgi-bin/material/update_news"
+	OffiaNewUpdate       = "https://api.weixin.qq.com/cgi-bin/material/update_news"
 	OffiaNewsImageUpload = "https://api.weixin.qq.com/cgi-bin/media/uploadimg"
 	OffiaMaterialAdd     = "https://api.weixin.qq.com/cgi-bin/material/add_material"
 	OffiaMaterialDelete  = "https://api.weixin.qq.com/cgi-bin/material/del_material"
@@ -107,4 +107,22 @@ const (
 	OffiaKFMsgRecordList = "https://api.weixin.qq.com/customservice/msgrecord/getmsglist"
 	OffiaKFMsgSend       = "https://api.weixin.qq.com/cgi-bin/message/custom/send"
 	OffiaSetTyping       = "https://api.weixin.qq.com/cgi-bin/message/custom/typing"
+)
+
+// card
+const (
+	// 卡券创建接口
+	CardCreate = "https://api.weixin.qq.com/card/create"
+	// 查询 卡券详情
+	CardGet = "https://api.weixin.qq.com/card/get"
+	// 卡券二维码ticker接口
+	CardQrcodeCreate = "https://api.weixin.qq.com/card/qrcode/create"
+	// 设置测试卡券白名单接口
+	CardWhitelist = "https://api.weixin.qq.com/card/testwhitelist/set?access_token="
+	// 核销卡券接口
+	CardCodeConsume = "https://api.weixin.qq.com/card/code/consume"
+	// 核销卡券 查询 code 接口
+	CardCodeGet = "https://api.weixin.qq.com/card/code/get"
+	// 获取用户已领取的卡券
+	CardUserList = "https://api.weixin.qq.com/card/user/getcardlist"
 )
