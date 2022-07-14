@@ -125,4 +125,8 @@ const (
 	CardCodeGet = "https://api.weixin.qq.com/card/code/get"
 	// 获取用户已领取的卡券
 	CardUserList = "https://api.weixin.qq.com/card/user/getcardlist"
+	// 批量获取卡券列表
+	CardBatchGet = "https://api.weixin.qq.com/card/batchget"
+	// 更改卡券信息
+	CardUpdate = "https://api.weixin.qq.com/card/update"
 )

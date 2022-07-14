@@ -226,6 +226,46 @@ type CardGetCard struct {
 	Discount *CardGetDiscount `json:"discount"`
 }
 
+// 批量查询卡券列表
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html
+type RequestCardBatchGet struct {
+	Offset     int      `json:"offset"`
+	Count      int      `json:"count"`
+	StatusList []string `json:"status_list"`
+}
+
+// 批量查询卡券列表结果
+type RespCardBatchGet struct {
+	CardIdList []string `json:"card_id_list"`
+	TotalNum   int      `json:"total_num"`
+}
+
+// 更改卡券信息
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html
+type RequestCardUpdate struct {
+	CardId     string      `json:"card_id"`
+	MemberCard *MemberCard `json:"member_card"`
+}
+
+type MemberCard struct {
+	BaseInfo struct {
+		LogoUrl        string `json:"logo_url"`
+		Color          string `json:"color"`
+		Notice         string `json:"notice"`
+		ServicePhone   string `json:"service_phone"`
+		Description    string `json:"description"`
+		LocationIdList []int  `json:"location_id_list"`
+	} `json:"base_info"`
+	BonusCleared string `json:"bonus_cleared"`
+	BonusRules   string `json:"bonus_rules"`
+	Prerogative  string `json:"prerogative"`
+}
+
+// 更改卡券信息 结果
+type RespCardUpdate struct {
+	SendCheck bool `json:"send_check"`
+}
+
 // 创建卡券
 func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Action {
 	return wx.NewPostAction(urls.CardCreate,
@@ -297,4 +337,29 @@ func GetCard(request *RequestCardGet, result *RespCardGet) wx.Action {
 			return json.Unmarshal(resp, result)
 		}),
 	)
+}
+
+// 批量获取卡券
+func GetBatchCardList(request *RequestCardBatchGet, result *RespCardBatchGet) wx.Action {
+	return wx.NewPostAction(urls.CardBatchGet,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+// 更新卡券信息
+func UpdateCard(request *RequestCardUpdate, result *RespCardUpdate) wx.Action {
+	return wx.NewPostAction(urls.CardUpdate,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+
 }
