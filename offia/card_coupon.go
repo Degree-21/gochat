@@ -266,6 +266,34 @@ type RespCardUpdate struct {
 	SendCheck bool `json:"send_check"`
 }
 
+// 修改库存
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html#6
+type RequestCardModifySocket struct {
+	CardId             string `json:"card_id"`
+	IncreaseStockValue int    `json:"increase_stock_value"`
+	ReduceStockValue   int    `json:"reduce_stock_value"`
+}
+
+// 修改库存返回结构体 nil
+
+// 修改卡券code
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html#6
+type RequestCardCodeUpdate struct {
+	Code    string `json:"code"`
+	CardId  string `json:"card_id"`
+	NewCode string `json:"new_code"`
+}
+
+// 修改卡券code nil
+
+// 删除卡券
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html#6
+type RequestCardDelete struct {
+	CardId string `json:"card_id"`
+}
+
+// 删除卡券返回结构体 nil
+
 // 创建卡券
 func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Action {
 	return wx.NewPostAction(urls.CardCreate,
@@ -361,5 +389,31 @@ func UpdateCard(request *RequestCardUpdate, result *RespCardUpdate) wx.Action {
 			return json.Unmarshal(resp, result)
 		}),
 	)
+}
 
+// 修改卡券库存接口
+func CardModifySocket(request *RequestCardModifySocket) wx.Action {
+	return wx.NewPostAction(urls.CardModifyStock,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+	)
+}
+
+// 修改卡券code
+func CardCodeUpdate(request *RequestCardCodeUpdate) wx.Action {
+	return wx.NewPostAction(urls.CardCodeUpdate,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+	)
+}
+
+// 删除卡券
+func CardDelete(request *RequestCardDelete) wx.Action {
+	return wx.NewPostAction(urls.CardDelete,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+	)
 }

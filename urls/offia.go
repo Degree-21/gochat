@@ -115,6 +115,8 @@ const (
 	CardCreate = "https://api.weixin.qq.com/card/create"
 	// 查询 卡券详情
 	CardGet = "https://api.weixin.qq.com/card/get"
+	// 删除 卡券
+	CardDelete = "https://api.weixin.qq.com/card/delete"
 	// 卡券二维码ticker接口
 	CardQrcodeCreate = "https://api.weixin.qq.com/card/qrcode/create"
 	// 设置测试卡券白名单接口
@@ -123,10 +125,14 @@ const (
 	CardCodeConsume = "https://api.weixin.qq.com/card/code/consume"
 	// 核销卡券 查询 code 接口
 	CardCodeGet = "https://api.weixin.qq.com/card/code/get"
+	// 修改卡券code
+	CardCodeUpdate = "https://api.weixin.qq.com/card/code/update"
 	// 获取用户已领取的卡券
 	CardUserList = "https://api.weixin.qq.com/card/user/getcardlist"
 	// 批量获取卡券列表
 	CardBatchGet = "https://api.weixin.qq.com/card/batchget"
 	// 更改卡券信息
 	CardUpdate = "https://api.weixin.qq.com/card/update"
+	// 修改库存接口
+	CardModifyStock = "https://api.weixin.qq.com/card/modifystock"
 )
