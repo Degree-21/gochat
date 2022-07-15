@@ -294,6 +294,20 @@ type RequestCardDelete struct {
 
 // 删除卡券返回结构体 nil
 
+// 设置卡券失效接口
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html#6
+//设置卡券失效接口 非自定义结构体
+type RequestCardCodeUnavailable struct {
+	Code   string `json:"code"`
+	Reason string `json:"reason"`
+}
+
+//设置卡券失效接口 自定义结构体
+type RequestCardCodeUnavailableAuto struct {
+	Code   string `json:"code"`
+	CardId string `json:"cardId"`
+}
+
 // 创建卡券
 func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Action {
 	return wx.NewPostAction(urls.CardCreate,
@@ -412,6 +426,24 @@ func CardCodeUpdate(request *RequestCardCodeUpdate) wx.Action {
 // 删除卡券
 func CardDelete(request *RequestCardDelete) wx.Action {
 	return wx.NewPostAction(urls.CardDelete,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+	)
+}
+
+// 设置卡券失效接口 自定义
+func CardCodeUnavailableAuto(request *RequestCardCodeUnavailableAuto) wx.Action {
+	return wx.NewPostAction(urls.CardCodeUnavailable,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+	)
+}
+
+// 设置卡券失效接口 非自定义
+func CardCodeUnavailable(request *RequestCardCodeUnavailable) wx.Action {
+	return wx.NewPostAction(urls.CardCodeUnavailable,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(request)
 		}),
