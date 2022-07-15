@@ -308,6 +308,33 @@ type RequestCardCodeUnavailableAuto struct {
 	CardId string `json:"cardId"`
 }
 
+// 统计卡券概况数据接口
+// https://developers.weixin.qq.com/doc/offiaccount/Cards_and_Offer/Managing_Coupons_Vouchers_and_Cards.html#6
+type RequestGetCardBizUinInfo struct {
+	BeginDate  string `json:"begin_date"`
+	EndDate    string `json:"end_date"`
+	CondSource int    `json:"cond_source"`
+}
+
+// 统计卡券概况数据接口 返回数据结构体
+type RespGetCardBizUinInfo struct {
+	List *GetCardBizUinInfoList `json:"list"`
+}
+
+type GetCardBizUinInfoList struct {
+	RefDate     string `json:"ref_date"`
+	ViewCnt     int    `json:"view_cnt"`
+	ViewUser    int    `json:"view_user"`
+	ReceiveCnt  int    `json:"receive_cnt"`
+	ReceiveUser int    `json:"receive_user"`
+	VerifyCnt   int    `json:"verify_cnt"`
+	VerifyUser  int    `json:"verify_user"`
+	GivenCnt    int    `json:"given_cnt"`
+	GivenUser   int    `json:"given_user"`
+	ExpireCnt   int    `json:"expire_cnt"`
+	ExpireUser  int    `json:"expire_user"`
+}
+
 // 创建卡券
 func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Action {
 	return wx.NewPostAction(urls.CardCreate,
@@ -448,4 +475,17 @@ func CardCodeUnavailable(request *RequestCardCodeUnavailable) wx.Action {
 			return json.Marshal(request)
 		}),
 	)
+}
+
+// 拉取卡券概况
+func CardBizUinInfo(request *RequestGetCardBizUinInfo, result *RespGetCardBizUinInfo) wx.Action {
+	return wx.NewPostAction(urls.CardBizUinInfo,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+
 }

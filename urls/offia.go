@@ -137,4 +137,6 @@ const (
 	CardUpdate = "https://api.weixin.qq.com/card/update"
 	// 设置卡券失效接口
 	CardCodeUnavailable = "https://api.weixin.qq.com/card/code/unavailable"
+	// 拉取卡券概括数据
+	CardBizUinInfo = "https://api.weixin.qq.com/datacube/getcardbizuininfo"
 )
