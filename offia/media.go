@@ -100,6 +100,21 @@ func UploadMediaByURL(params *ParamsMediaUploadByURL, result *ResultMediaUpload)
 	)
 }
 
+type UploadPublicMedia struct {
+	Articles []Articles `json:"articles"`
+}
+
+func UploadPublicMediaByMediaId(params *UploadPublicMedia, result *ResultMediaUpload) wx.Action {
+	return wx.NewPostAction(urls.OffiaMediaUploadNews,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(&params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
 // ResultMaterialAdd 永久素材新增结果
 type ResultMaterialAdd struct {
 	MediaID string `json:"media_id"`
@@ -139,6 +154,7 @@ func AddMaterial(params *ParamsMaterialAdd, result *ResultMaterialAdd) wx.Action
 		}),
 	)
 }
+
 type UpdateArticles struct {
 	MediaID  string   `json:"media_id"`
 	Index    string   `json:"index"`
