@@ -139,4 +139,8 @@ const (
 	CardCodeUnavailable = "https://api.weixin.qq.com/card/code/unavailable"
 	// 拉取卡券概括数据
 	CardBizUinInfo = "https://api.weixin.qq.com/datacube/getcardbizuininfo"
+	// code解码接口
+	CardCodeDecrypt = "https://api.weixin.qq.com/card/code/decrypt"
+	//获取免费券数据接口（优惠券、团购券、折扣券、礼品券）
+	CardFreeGet = "https://api.weixin.qq.com/datacube/getcardcardinfo"
 )

@@ -316,6 +316,14 @@ type RequestGetCardBizUinInfo struct {
 	CondSource int    `json:"cond_source"`
 }
 
+type RequestCardCodeDecrypt struct {
+	EncryptCode string `json:"encrypt_code"`
+}
+
+type RespCardCodeDecrypt struct {
+	Code string `json:"code"`
+}
+
 // 统计卡券概况数据接口 返回数据结构体
 type RespGetCardBizUinInfo struct {
 	List *GetCardBizUinInfoList `json:"list"`
@@ -488,4 +496,26 @@ func CardBizUinInfo(request *RequestGetCardBizUinInfo, result *RespGetCardBizUin
 		}),
 	)
 
+}
+
+func CardCodeDecrypt(req *RequestCardCodeDecrypt, result *RespCardCodeDecrypt) wx.Action {
+	return wx.NewPostAction(urls.CardCodeDecrypt,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(req)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func CardFreeGet(req *RequestGetCardBizUinInfo, resp *GetCardBizUinInfoList) wx.Action {
+	return wx.NewPostAction(urls.CardFreeGet,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(req)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, resp)
+		}),
+	)
 }
