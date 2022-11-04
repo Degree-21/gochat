@@ -9,11 +9,12 @@ import (
 
 // OAuthToken 公众号网页授权Token
 type OAuthToken struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int64  `json:"expires_in"`
-	OpenID       string `json:"openid"`
-	Scope        string `json:"scope"`
+	AccessToken    string `json:"access_token"`
+	RefreshToken   string `json:"refresh_token"`
+	ExpiresIn      int64  `json:"expires_in"`
+	OpenID         string `json:"openid"`
+	Scope          string `json:"scope"`
+	IsSnapshotuser int    `json:"is_snapshotuser"`
 }
 
 // AccessToken 公众号普通AccessToken

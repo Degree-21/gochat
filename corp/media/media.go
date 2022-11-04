@@ -8,6 +8,7 @@ import (
 
 	"github.com/shenghui0779/yiigo"
 
+	"fmt"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -29,7 +30,7 @@ type ParamsUpload struct {
 type ResultUpload struct {
 	Type      MediaType `json:"type"`
 	MediaID   string    `json:"media_id"`
-	CreatedAt string    `json:"created_at"`
+	CreatedAt int       `json:"created_at"`
 }
 
 func Upload(params *ParamsUpload, result *ResultUpload) wx.Action {
@@ -90,6 +91,7 @@ func UploadByURL(params *ParamsUploadByURL, result *ResultUpload) wx.Action {
 			), nil
 		}),
 		wx.WithDecode(func(resp []byte) error {
+			fmt.Println(string(resp))
 			return json.Unmarshal(resp, result)
 		}),
 	)
