@@ -509,13 +509,13 @@ func CardCodeDecrypt(req *RequestCardCodeDecrypt, result *RespCardCodeDecrypt) w
 	)
 }
 
-func CardFreeGet(req *RequestGetCardBizUinInfo, resp *GetCardBizUinInfoList) wx.Action {
+func CardFreeGet(req *RequestGetCardBizUinInfo, result *GetCardBizUinInfoList) wx.Action {
 	return wx.NewPostAction(urls.CardFreeGet,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(req)
 		}),
 		wx.WithDecode(func(resp []byte) error {
-			return json.Unmarshal(resp, resp)
+			return json.Unmarshal(resp, result)
 		}),
 	)
 }
