@@ -20,9 +20,10 @@ type RequestCreateCard struct {
 
 // card 结构体
 type Card struct {
-	CardType string    `json:"card_type"`
-	BaseInfo *BaseInfo `json:"base_info"`
-	Groupon  *Groupon  `json:"groupon"`
+	CardType   string      `json:"card_type"`
+	BaseInfo   *BaseInfo   `json:"base_info"`
+	Groupon    *Groupon    `json:"groupon"`
+	MemberCard *MemberCard `json:"member_card"`
 }
 
 type Groupon struct {
@@ -50,6 +51,77 @@ type Groupon struct {
 		BusinessService []string `json:"business_service"`
 	} `json:"advanced_info"`
 	DealDetail string `json:"deal_detail"`
+}
+
+type MemberCard struct {
+	ActivateURL      string       `json:"activate_url"`
+	AdvancedInfo     AdvancedInfo `json:"advanced_info"`
+	AutoActivate     bool         `json:"auto_activate"`
+	BackgroundPicURL string       `json:"background_pic_url"`
+	BaseInfo         BaseInfo     `json:"base_info"`
+	BonusRule        BonusRule    `json:"bonus_rule"`
+	CustomCell1      CustomCell1  `json:"custom_cell1"`
+	CustomField1     CustomField1 `json:"custom_field1"`
+	Discount         int64        `json:"discount"`
+	Prerogative      string       `json:"prerogative"`
+	SupplyBalance    bool         `json:"supply_balance"`
+	SupplyBonus      bool         `json:"supply_bonus"`
+	BonusCleared     string       `json:"bonus_cleared"`
+	BonusRules       string       `json:"bonus_rules"`
+}
+
+type AdvancedInfo struct {
+	Abstract        Abstract        `json:"abstract"`
+	BusinessService []string        `json:"business_service"`
+	TextImageList   []TextImageList `json:"text_image_list"`
+	TimeLimit       []TimeLimit     `json:"time_limit"`
+	UseCondition    UseCondition    `json:"use_condition"`
+}
+
+type Abstract struct {
+	Abstract    string   `json:"abstract"`
+	IconURLList []string `json:"icon_url_list"`
+}
+
+type TextImageList struct {
+	ImageURL string `json:"image_url"`
+	Text     string `json:"text"`
+}
+
+type TimeLimit struct {
+	BeginHour   *int64 `json:"begin_hour,omitempty"`
+	BeginMinute *int64 `json:"begin_minute,omitempty"`
+	EndHour     *int64 `json:"end_hour,omitempty"`
+	EndMinute   *int64 `json:"end_minute,omitempty"`
+	Type        string `json:"type"`
+}
+
+type UseCondition struct {
+	AcceptCategory          string `json:"accept_category"`
+	CanUseWithOtherDiscount bool   `json:"can_use_with_other_discount"`
+	RejectCategory          string `json:"reject_category"`
+}
+
+type BonusRule struct {
+	CostBonusUnit        int64 `json:"cost_bonus_unit"`
+	CostMoneyUnit        int64 `json:"cost_money_unit"`
+	IncreaseBonus        int64 `json:"increase_bonus"`
+	InitIncreaseBonus    int64 `json:"init_increase_bonus"`
+	LeastMoneyToUseBonus int64 `json:"least_money_to_use_bonus"`
+	MaxIncreaseBonus     int64 `json:"max_increase_bonus"`
+	MaxReduceBonus       int64 `json:"max_reduce_bonus"`
+	ReduceMoney          int64 `json:"reduce_money"`
+}
+
+type CustomCell1 struct {
+	Name string `json:"name"`
+	Tips string `json:"tips"`
+	URL  string `json:"url"`
+}
+
+type CustomField1 struct {
+	NameType string `json:"name_type"`
+	URL      string `json:"url"`
 }
 
 type BaseInfo struct {
@@ -245,20 +317,6 @@ type RespCardBatchGet struct {
 type RequestCardUpdate struct {
 	CardId     string      `json:"card_id"`
 	MemberCard *MemberCard `json:"member_card"`
-}
-
-type MemberCard struct {
-	BaseInfo struct {
-		LogoUrl        string `json:"logo_url"`
-		Color          string `json:"color"`
-		Notice         string `json:"notice"`
-		ServicePhone   string `json:"service_phone"`
-		Description    string `json:"description"`
-		LocationIdList []int  `json:"location_id_list"`
-	} `json:"base_info"`
-	BonusCleared string `json:"bonus_cleared"`
-	BonusRules   string `json:"bonus_rules"`
-	Prerogative  string `json:"prerogative"`
 }
 
 // 更改卡券信息 结果

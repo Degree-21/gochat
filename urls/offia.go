@@ -145,3 +145,8 @@ const (
 	//获取免费券数据接口（优惠券、团购券、折扣券、礼品券）
 	CardFreeGet = "https://api.weixin.qq.com/datacube/getcardcardinfo"
 )
+
+const (
+	EventPass    = "card_pass_check"     //通过审核
+	EventNotPass = "card_not_pass_check" //未通过审核
+)
