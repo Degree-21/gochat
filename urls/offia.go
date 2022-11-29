@@ -144,6 +144,17 @@ const (
 	CardCodeDecrypt = "https://api.weixin.qq.com/card/code/decrypt"
 	//获取免费券数据接口（优惠券、团购券、折扣券、礼品券）
 	CardFreeGet = "https://api.weixin.qq.com/datacube/getcardcardinfo"
+	//创建卡券货架
+	CardLandingPageCreate = "https://api.weixin.qq.com/card/landingpage/create"
+)
+
+const (
+	//激活会员卡
+	VipCardActivate = "https://api.weixin.qq.com/card/membercard/activate"
+	//获取会员卡信息
+	GetVipCardInfo = "https://api.weixin.qq.com/card/membercard/userinfo/get"
+	//更新会员用户信息
+	UpdateVipCardUserInfo = "https://api.weixin.qq.com/card/membercard/updateuser"
 )
 
 const (

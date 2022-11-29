@@ -401,6 +401,26 @@ type GetCardBizUinInfoList struct {
 	ExpireUser  int    `json:"expire_user"`
 }
 
+type LandingPageCreateRequest struct {
+	Banner   string     `json:"banner"`
+	CanShare bool       `json:"can_share"`
+	CardList []CardList `json:"card_list"`
+	Scene    string     `json:"scene"`
+	Title    string     `json:"title"`
+}
+
+type CardList struct {
+	CardID   string `json:"card_id"`
+	ThumbURL string `json:"thumb_url"`
+}
+
+type LandingPageCreateResponse struct {
+	Errcode int64  `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
+	PageID  int64  `json:"page_id"`
+	URL     string `json:"url"`
+}
+
 // 创建卡券
 func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Action {
 	return wx.NewPostAction(urls.CardCreate,
@@ -576,4 +596,14 @@ func CardFreeGet(req *RequestGetCardBizUinInfo, result *GetCardBizUinInfoList) w
 			return json.Unmarshal(resp, result)
 		}),
 	)
+}
+
+func LandingPageCreate(req *LandingPageCreateRequest, result *LandingPageCreateResponse) wx.Action {
+	return wx.NewPostAction(urls.CardLandingPageCreate,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(req)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}))
 }
