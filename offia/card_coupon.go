@@ -8,6 +8,7 @@ package offia
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -21,9 +22,9 @@ type RequestCreateCard struct {
 // card 结构体
 type Card struct {
 	CardType   string      `json:"card_type"`
-	BaseInfo   *BaseInfo   `json:"base_info"`
-	Groupon    *Groupon    `json:"groupon"`
-	MemberCard *MemberCard `json:"member_card"`
+	BaseInfo   *BaseInfo   `json:"base_info,omitempty"`
+	Groupon    *Groupon    `json:"groupon,omitempty"`
+	MemberCard *MemberCard `json:"member_card,omitempty"`
 }
 
 type Groupon struct {
@@ -141,22 +142,24 @@ type BaseInfo struct {
 	Sku struct {
 		Quantity int `json:"quantity"`
 	} `json:"sku"`
-	UseLimit          int    `json:"use_limit"`
-	GetLimit          int    `json:"get_limit"`
-	UseCustomCode     bool   `json:"use_custom_code"`
-	BindOpenid        bool   `json:"bind_openid"`
-	CanShare          bool   `json:"can_share"`
-	CanGiveFriend     bool   `json:"can_give_friend"`
-	LocationIDList    []int  `json:"location_id_list"`
-	CenterTitle       string `json:"center_title"`
-	CenterSubTitle    string `json:"center_sub_title"`
-	CenterURL         string `json:"center_url"`
-	CustomURLName     string `json:"custom_url_name"`
-	CustomURL         string `json:"custom_url"`
-	CustomURLSubTitle string `json:"custom_url_sub_title"`
-	PromotionURLName  string `json:"promotion_url_name"`
-	PromotionURL      string `json:"promotion_url"`
-	Source            string `json:"source"`
+	UseLimit               int    `json:"use_limit"`
+	GetLimit               int    `json:"get_limit"` //每人领取数量限制
+	UseCustomCode          bool   `json:"use_custom_code"`
+	BindOpenid             bool   `json:"bind_openid"`
+	CanShare               bool   `json:"can_share"`
+	CanGiveFriend          bool   `json:"can_give_friend"`
+	LocationIDList         []int  `json:"location_id_list"`
+	CenterTitle            string `json:"center_title"`
+	CenterSubTitle         string `json:"center_sub_title"`
+	CenterURL              string `json:"center_url"`
+	CustomURLName          string `json:"custom_url_name"`
+	CustomURL              string `json:"custom_url"`
+	CustomURLSubTitle      string `json:"custom_url_sub_title"`
+	PromotionURLName       string `json:"promotion_url_name"`
+	PromotionURL           string `json:"promotion_url"`
+	Source                 string `json:"source"`
+	CenterAppBrandUserName string `json:"center_app_brand_user_name"`
+	CenterAppBrandPass     string `json:"center_app_brand_pass"`
 }
 
 type RespCardCard struct {
@@ -220,6 +223,16 @@ type RespCardCodeConsume struct {
 		CardId string `json:"card_id"`
 	} `json:"card"`
 	Openid string `json:"openid"`
+}
+
+type RequestSetCardWhitelist struct {
+	Openid   []string `json:"openid"`
+	Username []string `json:"username"`
+}
+
+type RespSetCardWhitelist struct {
+	Errcode int64  `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
 }
 
 // 用户已领取卡券接口
@@ -426,6 +439,8 @@ func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Actio
 	return wx.NewPostAction(urls.CardCreate,
 		//wx.WithQuery("access_token", accessToken),
 		wx.WithBody(func() ([]byte, error) {
+			str, _ := json.Marshal(request)
+			fmt.Println(string(str))
 			return json.Marshal(request)
 		}),
 		wx.WithDecode(func(resp []byte) error {
@@ -456,6 +471,17 @@ func GetCardCode(request *RequestCardCodeGet, result *RespCardCodeGet) wx.Action
 			return json.Unmarshal(resp, result)
 		}),
 	)
+}
+
+//设置测试白名单
+func SetCardWhitelist(request *RequestSetCardWhitelist, result *RespSetCardWhitelist) wx.Action {
+	return wx.NewPostAction(urls.CardWhitelist,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(request)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}))
 }
 
 // 核销 code 接口

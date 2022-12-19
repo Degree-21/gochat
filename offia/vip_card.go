@@ -89,6 +89,17 @@ type UpdateVipCardUserInfoResponse struct {
 	Openid        string `json:"openid"`
 }
 
+type UpdateVipCardRequest struct {
+	CardID     string     `json:"card_id"`
+	MemberCard MemberCard `json:"member_card"`
+}
+
+type UpdateVipCardResponse struct {
+	Errcode   int64  `json:"errcode"`
+	Errmsg    string `json:"errmsg"`
+	SendCheck bool   `json:"send_check"`
+}
+
 //激活会员卡
 func VipCardActivate(req *VipCardActivateRequest, result *VipCardActivateResponse) wx.Action {
 	return wx.NewPostAction(urls.VipCardActivate,
@@ -101,7 +112,7 @@ func VipCardActivate(req *VipCardActivateRequest, result *VipCardActivateRespons
 }
 
 //获取会员卡信息
-func GetVipCardInfo(req *VipCardActivateRequest, result *VipCardActivateResponse) wx.Action {
+func GetVipCardInfo(req *GetVipCardInfoRequest, result *GetVipCardInfoResponse) wx.Action {
 	return wx.NewPostAction(urls.GetVipCardInfo, wx.WithBody(func() ([]byte, error) {
 		return json.Marshal(req)
 	}),
@@ -113,6 +124,16 @@ func GetVipCardInfo(req *VipCardActivateRequest, result *VipCardActivateResponse
 //更新用户信息
 func UpdateVipCardUserInfo(req *UpdateVipCardUserInfoRequest, result *UpdateVipCardUserInfoResponse) wx.Action {
 	return wx.NewPostAction(urls.UpdateVipCardUserInfo, wx.WithBody(func() ([]byte, error) {
+		return json.Marshal(req)
+	}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}))
+}
+
+//更新会员卡信息
+func UpdateVipCardInfo(req *UpdateVipCardRequest, result *UpdateVipCardResponse) wx.Action {
+	return wx.NewPostAction(urls.UpdateVipCardInfo, wx.WithBody(func() ([]byte, error) {
 		return json.Marshal(req)
 	}),
 		wx.WithDecode(func(resp []byte) error {

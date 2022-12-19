@@ -123,7 +123,7 @@ const (
 	// 卡券二维码ticker接口
 	CardQrcodeCreate = "https://api.weixin.qq.com/card/qrcode/create"
 	// 设置测试卡券白名单接口
-	CardWhitelist = "https://api.weixin.qq.com/card/testwhitelist/set?access_token="
+	CardWhitelist = "https://api.weixin.qq.com/card/testwhitelist/set"
 	// 核销卡券接口
 	CardCodeConsume = "https://api.weixin.qq.com/card/code/consume"
 	// 核销卡券 查询 code 接口
@@ -155,6 +155,8 @@ const (
 	GetVipCardInfo = "https://api.weixin.qq.com/card/membercard/userinfo/get"
 	//更新会员用户信息
 	UpdateVipCardUserInfo = "https://api.weixin.qq.com/card/membercard/updateuser"
+	//更新会员卡信息
+	UpdateVipCardInfo = "https://api.weixin.qq.com/card/update"
 )
 
 const (
