@@ -62,6 +62,7 @@ type MemberCard struct {
 	BaseInfo         BaseInfo     `json:"base_info"`
 	BonusRule        BonusRule    `json:"bonus_rule"`
 	CustomCell1      CustomCell1  `json:"custom_cell1"`
+	CustomCell2      CustomCell1  `json:"custom_cell2"`
 	CustomField1     CustomField1 `json:"custom_field1"`
 	CustomField2     CustomField1 `json:"custom_field2"`
 	Discount         int64        `json:"discount"`
@@ -122,8 +123,11 @@ type CustomCell1 struct {
 }
 
 type CustomField1 struct {
-	NameType string `json:"name_type"`
-	URL      string `json:"url"`
+	NameType         string `json:"name_type"`
+	Name             string `json:"name"`
+	URL              string `json:"url"`
+	AppBrandPass     string `json:"app_brand_pass"`
+	AppBrandUserName string `json:"app_brand_user_name"`
 }
 
 type BaseInfo struct {
