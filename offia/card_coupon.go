@@ -63,6 +63,7 @@ type MemberCard struct {
 	BonusRule        BonusRule    `json:"bonus_rule"`
 	CustomCell1      CustomCell1  `json:"custom_cell1"`
 	CustomField1     CustomField1 `json:"custom_field1"`
+	CustomField2     CustomField1 `json:"custom_field2"`
 	Discount         int64        `json:"discount"`
 	Prerogative      string       `json:"prerogative"`
 	SupplyBalance    bool         `json:"supply_balance"`
