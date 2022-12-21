@@ -147,24 +147,29 @@ type BaseInfo struct {
 	Sku struct {
 		Quantity int `json:"quantity"`
 	} `json:"sku"`
-	UseLimit               int    `json:"use_limit"`
-	GetLimit               int    `json:"get_limit"` //每人领取数量限制
-	UseCustomCode          bool   `json:"use_custom_code"`
-	BindOpenid             bool   `json:"bind_openid"`
-	CanShare               bool   `json:"can_share"`
-	CanGiveFriend          bool   `json:"can_give_friend"`
-	LocationIDList         []int  `json:"location_id_list"`
-	CenterTitle            string `json:"center_title"`
-	CenterSubTitle         string `json:"center_sub_title"`
-	CenterURL              string `json:"center_url"`
-	CustomURLName          string `json:"custom_url_name"`
-	CustomURL              string `json:"custom_url"`
-	CustomURLSubTitle      string `json:"custom_url_sub_title"`
-	PromotionURLName       string `json:"promotion_url_name"`
-	PromotionURL           string `json:"promotion_url"`
-	Source                 string `json:"source"`
-	CenterAppBrandUserName string `json:"center_app_brand_user_name"`
-	CenterAppBrandPass     string `json:"center_app_brand_pass"`
+	UseLimit                  int    `json:"use_limit"`
+	GetLimit                  int    `json:"get_limit"` //每人领取数量限制
+	UseCustomCode             bool   `json:"use_custom_code"`
+	BindOpenid                bool   `json:"bind_openid"`
+	CanShare                  bool   `json:"can_share"`
+	CanGiveFriend             bool   `json:"can_give_friend"`
+	LocationIDList            []int  `json:"location_id_list"`
+	CenterTitle               string `json:"center_title"`
+	CenterSubTitle            string `json:"center_sub_title"`
+	CenterURL                 string `json:"center_url"`
+	CustomURLName             string `json:"custom_url_name"`
+	CustomURL                 string `json:"custom_url"`
+	CustomURLSubTitle         string `json:"custom_url_sub_title"`
+	CustomAppBrandUserName    string `json:"custom_app_brand_user_name"`
+	CustomAppBrandPass        string `json:"custom_app_brand_pass"`
+	PromotionURLName          string `json:"promotion_url_name"`
+	PromotionURL              string `json:"promotion_url"`
+	PromotionAppBrandUserName string `json:"promotion_app_brand_user_name"`
+	PromotionAppBrandPass     string `json:"promotion_app_brand_pass"`
+	PromotionUrlSubTitle      string `json:"promotion_url_sub_title"`
+	Source                    string `json:"source"`
+	CenterAppBrandUserName    string `json:"center_app_brand_user_name"`
+	CenterAppBrandPass        string `json:"center_app_brand_pass"`
 }
 
 type RespCardCard struct {
