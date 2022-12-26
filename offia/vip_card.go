@@ -61,10 +61,10 @@ type CustomFieldListElement struct {
 }
 
 type UpdateVipCardUserInfoRequest struct {
-	AddBalance        int64          `json:"add_balance"`
+	AddBalance        int64          `json:"add_balance,omitempty"`
 	AddBonus          int64          `json:"add_bonus"`
 	BackgroundPicURL  string         `json:"background_pic_url"`
-	Balance           int64          `json:"balance"`
+	Balance           int64          `json:"balance,omitempty"`
 	Bonus             int64          `json:"bonus"`
 	CardID            string         `json:"card_id"`
 	Code              string         `json:"code"`

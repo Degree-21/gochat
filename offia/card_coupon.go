@@ -8,7 +8,6 @@ package offia
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
 )
@@ -141,8 +140,8 @@ type BaseInfo struct {
 	Description  string `json:"description"`
 	DateInfo     struct {
 		Type           string `json:"type"`
-		BeginTimestamp int    `json:"begin_timestamp"`
-		EndTimestamp   int    `json:"end_timestamp"`
+		BeginTimestamp int    `json:"begin_timestamp,omitempty"`
+		EndTimestamp   int    `json:"end_timestamp,omitempty"`
 	} `json:"date_info"`
 	Sku struct {
 		Quantity int `json:"quantity"`
@@ -449,8 +448,8 @@ func CreateCardCoupon(request *RequestCreateCard, result *RespCardCard) wx.Actio
 	return wx.NewPostAction(urls.CardCreate,
 		//wx.WithQuery("access_token", accessToken),
 		wx.WithBody(func() ([]byte, error) {
-			str, _ := json.Marshal(request)
-			fmt.Println(string(str))
+			//_, _ := json.Marshal(request)
+			//fmt.Println(string(str))
 			return json.Marshal(request)
 		}),
 		wx.WithDecode(func(resp []byte) error {
