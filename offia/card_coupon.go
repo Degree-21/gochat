@@ -54,22 +54,22 @@ type Groupon struct {
 }
 
 type MemberCard struct {
-	ActivateURL      string       `json:"activate_url"`
-	AdvancedInfo     AdvancedInfo `json:"advanced_info"`
-	AutoActivate     bool         `json:"auto_activate"`
-	BackgroundPicURL string       `json:"background_pic_url"`
-	BaseInfo         BaseInfo     `json:"base_info"`
-	BonusRule        BonusRule    `json:"bonus_rule"`
-	CustomCell1      CustomCell1  `json:"custom_cell1"`
-	CustomCell2      CustomCell1  `json:"custom_cell2"`
-	CustomField1     CustomField1 `json:"custom_field1"`
-	CustomField2     CustomField1 `json:"custom_field2"`
-	Discount         int64        `json:"discount"`
-	Prerogative      string       `json:"prerogative"`
-	SupplyBalance    bool         `json:"supply_balance"`
-	SupplyBonus      bool         `json:"supply_bonus"`
-	BonusCleared     string       `json:"bonus_cleared"`
-	BonusRules       string       `json:"bonus_rules"`
+	ActivateURL      string        `json:"activate_url"`
+	AdvancedInfo     *AdvancedInfo `json:"advanced_info,omitempty"`
+	AutoActivate     bool          `json:"auto_activate"`
+	BackgroundPicURL string        `json:"background_pic_url"`
+	BaseInfo         *BaseInfo     `json:"base_info"`
+	BonusRule        *BonusRule    `json:"bonus_rule"`
+	CustomCell1      *CustomCell1  `json:"custom_cell1"`
+	CustomCell2      *CustomCell1  `json:"custom_cell2"`
+	CustomField1     *CustomField1 `json:"custom_field1"`
+	CustomField2     *CustomField1 `json:"custom_field2"`
+	Discount         int64         `json:"discount"`
+	Prerogative      string        `json:"prerogative"`
+	SupplyBalance    bool          `json:"supply_balance"`
+	SupplyBonus      bool          `json:"supply_bonus"`
+	BonusCleared     string        `json:"bonus_cleared"`
+	BonusRules       string        `json:"bonus_rules"`
 }
 
 type AdvancedInfo struct {
@@ -133,7 +133,7 @@ type CustomField1 struct {
 
 type BaseInfo struct {
 	LogoURL      string `json:"logo_url"`
-	BrandName    string `json:"brand_name"`
+	BrandName    string `json:"brand_name,omitempty"`
 	CodeType     string `json:"code_type"`
 	Title        string `json:"title"`
 	Color        string `json:"color"`
@@ -145,32 +145,34 @@ type BaseInfo struct {
 		BeginTimestamp int    `json:"begin_timestamp,omitempty"`
 		EndTimestamp   int    `json:"end_timestamp,omitempty"`
 	} `json:"date_info"`
-	Sku struct {
-		Quantity int `json:"quantity"`
-	} `json:"sku"`
-	UseLimit                  int    `json:"use_limit"`
-	GetLimit                  int    `json:"get_limit"` //每人领取数量限制
-	UseCustomCode             bool   `json:"use_custom_code"`
-	BindOpenid                bool   `json:"bind_openid"`
-	CanShare                  bool   `json:"can_share"`
-	CanGiveFriend             bool   `json:"can_give_friend"`
-	LocationIDList            []int  `json:"location_id_list"`
-	CenterTitle               string `json:"center_title"`
-	CenterSubTitle            string `json:"center_sub_title"`
-	CenterURL                 string `json:"center_url"`
-	CustomURLName             string `json:"custom_url_name"`
-	CustomURL                 string `json:"custom_url"`
-	CustomURLSubTitle         string `json:"custom_url_sub_title"`
-	CustomAppBrandUserName    string `json:"custom_app_brand_user_name"`
-	CustomAppBrandPass        string `json:"custom_app_brand_pass"`
-	PromotionURLName          string `json:"promotion_url_name"`
-	PromotionURL              string `json:"promotion_url"`
-	PromotionAppBrandUserName string `json:"promotion_app_brand_user_name"`
-	PromotionAppBrandPass     string `json:"promotion_app_brand_pass"`
-	PromotionUrlSubTitle      string `json:"promotion_url_sub_title"`
-	Source                    string `json:"source"`
-	CenterAppBrandUserName    string `json:"center_app_brand_user_name"`
-	CenterAppBrandPass        string `json:"center_app_brand_pass"`
+	Sku                       *CardSku `json:"sku,omitempty"`
+	UseLimit                  int      `json:"use_limit"`
+	GetLimit                  int      `json:"get_limit"` //每人领取数量限制
+	UseCustomCode             bool     `json:"use_custom_code,omitempty"`
+	BindOpenid                bool     `json:"bind_openid"`
+	CanShare                  bool     `json:"can_share"`
+	CanGiveFriend             bool     `json:"can_give_friend"`
+	LocationIDList            []int    `json:"location_id_list"`
+	CenterTitle               string   `json:"center_title"`
+	CenterSubTitle            string   `json:"center_sub_title"`
+	CenterURL                 string   `json:"center_url"`
+	CustomURLName             string   `json:"custom_url_name"`
+	CustomURL                 string   `json:"custom_url"`
+	CustomURLSubTitle         string   `json:"custom_url_sub_title"`
+	CustomAppBrandUserName    string   `json:"custom_app_brand_user_name"`
+	CustomAppBrandPass        string   `json:"custom_app_brand_pass"`
+	PromotionURLName          string   `json:"promotion_url_name"`
+	PromotionURL              string   `json:"promotion_url"`
+	PromotionAppBrandUserName string   `json:"promotion_app_brand_user_name"`
+	PromotionAppBrandPass     string   `json:"promotion_app_brand_pass"`
+	PromotionUrlSubTitle      string   `json:"promotion_url_sub_title"`
+	Source                    string   `json:"source,omitempty"`
+	CenterAppBrandUserName    string   `json:"center_app_brand_user_name"`
+	CenterAppBrandPass        string   `json:"center_app_brand_pass"`
+}
+
+type CardSku struct {
+	Quantity int `json:"quantity"`
 }
 
 type RespCardCard struct {
@@ -347,7 +349,9 @@ type RequestCardUpdate struct {
 
 // 更改卡券信息 结果
 type RespCardUpdate struct {
-	SendCheck bool `json:"send_check"`
+	Errcode   int64  `json:"errcode"`
+	Errmsg    string `json:"errmsg"`
+	SendCheck bool   `json:"send_check"`
 }
 
 // 修改库存
