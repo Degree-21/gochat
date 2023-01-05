@@ -174,7 +174,9 @@ type BaseInfo struct {
 }
 
 type RespCardCard struct {
-	CardId string `json:"card_id"`
+	Errcode int    `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
+	CardId  string `json:"card_id"`
 }
 
 // 投放卡券
