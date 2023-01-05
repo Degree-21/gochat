@@ -116,9 +116,11 @@ type BonusRule struct {
 }
 
 type CustomCell1 struct {
-	Name string `json:"name"`
-	Tips string `json:"tips"`
-	URL  string `json:"url"`
+	Name             string `json:"name"`
+	Tips             string `json:"tips"`
+	URL              string `json:"url"`
+	AppBrandPass     string `json:"app_brand_pass"`
+	AppBrandUserName string `json:"app_brand_user_name"`
 }
 
 type CustomField1 struct {
