@@ -109,3 +109,57 @@ const (
 	OffiaKFMsgSend       = "https://api.weixin.qq.com/cgi-bin/message/custom/send"
 	OffiaSetTyping       = "https://api.weixin.qq.com/cgi-bin/message/custom/typing"
 )
+
+// card
+const (
+	// 卡券创建接口
+	CardCreate = "https://api.weixin.qq.com/card/create"
+	// 查询 卡券详情
+	CardGet = "https://api.weixin.qq.com/card/get"
+	// 删除 卡券
+	CardDelete = "https://api.weixin.qq.com/card/delete"
+	// 修改库存接口
+	CardModifyStock = "https://api.weixin.qq.com/card/modifystock"
+	// 卡券二维码ticker接口
+	CardQrcodeCreate = "https://api.weixin.qq.com/card/qrcode/create"
+	// 设置测试卡券白名单接口
+	CardWhitelist = "https://api.weixin.qq.com/card/testwhitelist/set"
+	// 核销卡券接口
+	CardCodeConsume = "https://api.weixin.qq.com/card/code/consume"
+	// 核销卡券 查询 code 接口
+	CardCodeGet = "https://api.weixin.qq.com/card/code/get"
+	// 修改卡券code
+	CardCodeUpdate = "https://api.weixin.qq.com/card/code/update"
+	// 获取用户已领取的卡券
+	CardUserList = "https://api.weixin.qq.com/card/user/getcardlist"
+	// 批量获取卡券列表
+	CardBatchGet = "https://api.weixin.qq.com/card/batchget"
+	// 更改卡券信息
+	CardUpdate = "https://api.weixin.qq.com/card/update"
+	// 设置卡券失效接口
+	CardCodeUnavailable = "https://api.weixin.qq.com/card/code/unavailable"
+	// 拉取卡券概括数据
+	CardBizUinInfo = "https://api.weixin.qq.com/datacube/getcardbizuininfo"
+	// code解码接口
+	CardCodeDecrypt = "https://api.weixin.qq.com/card/code/decrypt"
+	//获取免费券数据接口（优惠券、团购券、折扣券、礼品券）
+	CardFreeGet = "https://api.weixin.qq.com/datacube/getcardcardinfo"
+	//创建卡券货架
+	CardLandingPageCreate = "https://api.weixin.qq.com/card/landingpage/create"
+)
+
+const (
+	//激活会员卡
+	VipCardActivate = "https://api.weixin.qq.com/card/membercard/activate"
+	//获取会员卡信息
+	GetVipCardInfo = "https://api.weixin.qq.com/card/membercard/userinfo/get"
+	//更新会员用户信息
+	UpdateVipCardUserInfo = "https://api.weixin.qq.com/card/membercard/updateuser"
+	//更新会员卡信息
+	UpdateVipCardInfo = "https://api.weixin.qq.com/card/update"
+)
+
+const (
+	EventPass    = "card_pass_check"     //通过审核
+	EventNotPass = "card_not_pass_check" //未通过审核
+)
