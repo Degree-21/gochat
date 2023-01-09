@@ -54,22 +54,25 @@ type Groupon struct {
 }
 
 type MemberCard struct {
-	ActivateURL      string        `json:"activate_url"`
-	AdvancedInfo     *AdvancedInfo `json:"advanced_info,omitempty"`
-	AutoActivate     bool          `json:"auto_activate"`
-	BackgroundPicURL string        `json:"background_pic_url"`
-	BaseInfo         *BaseInfo     `json:"base_info"`
-	BonusRule        *BonusRule    `json:"bonus_rule"`
-	CustomCell1      *CustomCell1  `json:"custom_cell1"`
-	CustomCell2      *CustomCell1  `json:"custom_cell2"`
-	CustomField1     *CustomField1 `json:"custom_field1"`
-	CustomField2     *CustomField1 `json:"custom_field2"`
-	Discount         int64         `json:"discount"`
-	Prerogative      string        `json:"prerogative"`
-	SupplyBalance    bool          `json:"supply_balance"`
-	SupplyBonus      bool          `json:"supply_bonus"`
-	BonusCleared     string        `json:"bonus_cleared"`
-	BonusRules       string        `json:"bonus_rules"`
+	ActivateURL           string        `json:"activate_url"`
+	AdvancedInfo          *AdvancedInfo `json:"advanced_info,omitempty"`
+	AutoActivate          bool          `json:"auto_activate"`
+	BackgroundPicURL      string        `json:"background_pic_url"`
+	BaseInfo              *BaseInfo     `json:"base_info"`
+	BonusRule             *BonusRule    `json:"bonus_rule"`
+	CustomCell1           *CustomCell1  `json:"custom_cell1"`
+	CustomCell2           *CustomCell1  `json:"custom_cell2"`
+	CustomField1          *CustomField1 `json:"custom_field1"`
+	CustomField2          *CustomField1 `json:"custom_field2"`
+	Discount              int64         `json:"discount"`
+	Prerogative           string        `json:"prerogative"`
+	SupplyBalance         bool          `json:"supply_balance"`
+	SupplyBonus           bool          `json:"supply_bonus"`
+	BonusCleared          string        `json:"bonus_cleared"`
+	BonusRules            string        `json:"bonus_rules"`
+	BonusUrl              string        `json:"bonus_url,omitempty"`
+	BonusAppBrandUserName string        `json:"bonus_app_brand_user_name"`
+	BonusAppBrandPass     string        `json:"bonus_app_brand_pass"`
 }
 
 type AdvancedInfo struct {
