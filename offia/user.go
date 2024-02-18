@@ -125,7 +125,10 @@ type ResultBlackList struct {
 	NextOpenID string       `json:"next_openid"`
 }
 
-//{   "tag" : {     "name" : "广东"//标签名   } }
+type ParamsTagBatchTagging struct {
+	OpenidList []string `json:"openid_list"`
+	TagId      int      `json:"tagid"`
+}
 
 type ParamsTagCreate struct {
 	Tag struct {
@@ -143,7 +146,7 @@ type ResultTagCreateData struct {
 }
 
 type ResultTagList struct {
-	Tags []*ResultTagCreateData `json:"tags"`
+	Tags []*ResultTagData `json:"tags"`
 }
 
 type ResultTagData struct {
@@ -188,6 +191,14 @@ func GetTags(result *ResultTagList) wx.Action {
 	return wx.NewPostAction(urls.OffiaTagGet,
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func TagBatchTagging(params *ParamsTagBatchTagging) wx.Action {
+	return wx.NewPostAction(urls.OffiaTagGet,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
 		}),
 	)
 }
