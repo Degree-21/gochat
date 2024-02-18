@@ -38,6 +38,7 @@ const (
 	OffiaUserList     = "https://api.weixin.qq.com/cgi-bin/user/get"
 	// 公众号标签
 	OffiaTagCreate        = "https://api.weixin.qq.com/cgi-bin/tags/create"
+	OffiaTagGet           = "https://api.weixin.qq.com/cgi-bin/tags/get"
 	OffiaBlackListGet     = "https://api.weixin.qq.com/cgi-bin/tags/members/getblacklist"
 	OffiaBatchBlackList   = "https://api.weixin.qq.com/cgi-bin/tags/members/batchblacklist"
 	OffiaBatchUnBlackList = "https://api.weixin.qq.com/cgi-bin/tags/members/batchunblacklist"

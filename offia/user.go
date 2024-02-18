@@ -142,6 +142,16 @@ type ResultTagCreateData struct {
 	Name string `json:"name"`
 }
 
+type ResultTagList struct {
+	Tags []*ResultTagCreateData `json:"tags"`
+}
+
+type ResultTagData struct {
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
 // GetBlackList 获取用户黑名单列表
 func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
 	params := &ParamsBlackList{
@@ -168,6 +178,14 @@ func CreateTag(name string, result *ResultTagCreateList) wx.Action {
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
 		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func GetTags(result *ResultTagList) wx.Action {
+	return wx.NewPostAction(urls.OffiaTagGet,
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
 		}),
