@@ -125,6 +125,23 @@ type ResultBlackList struct {
 	NextOpenID string       `json:"next_openid"`
 }
 
+//{   "tag" : {     "name" : "广东"//标签名   } }
+
+type ParamsTagCreate struct {
+	Tag struct {
+		Name string `json:"name"`
+	} `json:"tag"`
+}
+
+type ResultTagCreateList struct {
+	Tag []*ResultTagCreateData `json:"tag"`
+}
+
+type ResultTagCreateData struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 // GetBlackList 获取用户黑名单列表
 func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
 	params := &ParamsBlackList{
@@ -132,6 +149,22 @@ func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
 	}
 
 	return wx.NewPostAction(urls.OffiaBlackListGet,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func CreateTag(name string, result *ResultTagCreateList) wx.Action {
+	params := &ParamsTagCreate{
+		Tag: struct {
+			Name string `json:"name"`
+		}(struct{ Name string }{Name: name}),
+	}
+	return wx.NewPostAction(urls.OffiaTagCreate,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
 		}),
