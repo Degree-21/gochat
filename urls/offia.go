@@ -33,9 +33,13 @@ const (
 
 // subscriber
 const (
-	OffiaUserGet          = "https://api.weixin.qq.com/cgi-bin/user/info"
-	OffiaUserBatchGet     = "https://api.weixin.qq.com/cgi-bin/user/info/batchget"
-	OffiaUserList         = "https://api.weixin.qq.com/cgi-bin/user/get"
+	OffiaUserGet      = "https://api.weixin.qq.com/cgi-bin/user/info"
+	OffiaUserBatchGet = "https://api.weixin.qq.com/cgi-bin/user/info/batchget"
+	OffiaUserList     = "https://api.weixin.qq.com/cgi-bin/user/get"
+	// 公众号标签
+	OffiaTagCreate        = "https://api.weixin.qq.com/cgi-bin/tags/create"
+	OffiaTagGet           = "https://api.weixin.qq.com/cgi-bin/tags/get"
+	OffiaTagBatchTagging  = "https://api.weixin.qq.com/cgi-bin/tags/members/batchtagging"
 	OffiaBlackListGet     = "https://api.weixin.qq.com/cgi-bin/tags/members/getblacklist"
 	OffiaBatchBlackList   = "https://api.weixin.qq.com/cgi-bin/tags/members/batchblacklist"
 	OffiaBatchUnBlackList = "https://api.weixin.qq.com/cgi-bin/tags/members/batchunblacklist"

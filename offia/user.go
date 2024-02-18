@@ -125,6 +125,36 @@ type ResultBlackList struct {
 	NextOpenID string       `json:"next_openid"`
 }
 
+type ParamsTagBatchTagging struct {
+	OpenidList []string `json:"openid_list"`
+	TagId      int      `json:"tagid"`
+}
+
+type ParamsTagCreate struct {
+	Tag struct {
+		Name string `json:"name"`
+	} `json:"tag"`
+}
+
+type ResultTagCreateList struct {
+	Tag []*ResultTagCreateData `json:"tag"`
+}
+
+type ResultTagCreateData struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+type ResultTagList struct {
+	Tags []*ResultTagData `json:"tags"`
+}
+
+type ResultTagData struct {
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
 // GetBlackList 获取用户黑名单列表
 func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
 	params := &ParamsBlackList{
@@ -137,6 +167,38 @@ func GetBlackList(beginOpenID string, result *ResultBlackList) wx.Action {
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func CreateTag(name string, result *ResultTagCreateList) wx.Action {
+	params := &ParamsTagCreate{
+		Tag: struct {
+			Name string `json:"name"`
+		}(struct{ Name string }{Name: name}),
+	}
+	return wx.NewPostAction(urls.OffiaTagCreate,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func GetTags(result *ResultTagList) wx.Action {
+	return wx.NewPostAction(urls.OffiaTagGet,
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func TagBatchTagging(params *ParamsTagBatchTagging) wx.Action {
+	return wx.NewPostAction(urls.OffiaTagGet,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
 		}),
 	)
 }
