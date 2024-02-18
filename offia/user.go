@@ -196,7 +196,7 @@ func GetTags(result *ResultTagList) wx.Action {
 }
 
 func TagBatchTagging(params *ParamsTagBatchTagging) wx.Action {
-	return wx.NewPostAction(urls.OffiaTagGet,
+	return wx.NewPostAction(urls.OffiaTagBatchTagging,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
 		}),
