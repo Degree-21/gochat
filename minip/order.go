@@ -10,18 +10,25 @@ import (
 
 // GetOrderList 获取订单列表
 type ParamsGetOrderList struct {
-	BeginTime  int64  `json:"begin_time,omitempty"`  // 起始时间，时间戳形式
-	EndTime    int64  `json:"end_time,omitempty"`    // 结束时间（含），时间戳形式
-	OrderState int    `json:"order_state,omitempty"` // 订单状态枚举 订单状态枚举：(1) 待发货；(2) 已发货；(3) 确认收货；(4) 交易完成；(5) 已退款。
-	OpenID     string `json:"openid,omitempty"`      // 支付者openid
-	LastIndex  string `json:"last_index,omitempty"`  // 翻页时使用的最后索引
-	PageSize   int    `json:"page_size,omitempty"`   // 翻页时使用，返回列表的长度
+	PayTimeRange *PayTimeRange `json:"pay_time_range"`        // 支付时间
+	OrderState   int           `json:"order_state,omitempty"` // 订单状态枚举 订单状态枚举：(1) 待发货；(2) 已发货；(3) 确认收货；(4) 交易完成；(5) 已退款。
+	OpenID       string        `json:"openid,omitempty"`      // 支付者openid
+	LastIndex    string        `json:"last_index,omitempty"`  // 翻页时使用的最后索引
+	PageSize     int           `json:"page_size,omitempty"`   // 翻页时使用，返回列表的长度
+}
+
+type PayTimeRange struct {
+	BeginTime int64 `json:"begin_time,omitempty"` // 起始时间，时间戳形式
+	EndTime   int64 `json:"end_time,omitempty"`   // 结束时间（含），时间戳形式
 }
 
 type ResultGetOrderList struct {
-	LastIndex string              `json:"last_index"` // 翻页时使用。
-	HasMore   bool                `json:"has_more"`   // 是否有下一页
-	OrderList []*GetOrderListData `json:"order_list"` //订单列表
+	Errcode int    `json:"errcode"`
+	Errmsg  string `json:"errmsg"`
+
+	LastIndex string              `json:"last_index"`           // 翻页时使用。
+	HasMore   bool                `json:"has_more"`             // 是否有下一页
+	OrderList []*GetOrderListData `json:"order_list,omitempty"` //订单列表
 }
 
 type GetOrderListData struct {
