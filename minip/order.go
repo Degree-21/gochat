@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/shenghui0779/gochat/urls"
 	"github.com/shenghui0779/gochat/wx"
+	"time"
 )
 
 //https://developers.weixin.qq.com/miniprogram/dev/platform-capabilities/business-capabilities/order-shipping/order-shipping.html#%E5%9B%9B%E3%80%81%E6%9F%A5%E8%AF%A2%E8%AE%A2%E5%8D%95%E5%88%97%E8%A1%A8
@@ -60,7 +61,8 @@ type ShippingInfo struct {
 	ExpressCompany string   `json:"express_company,omitempty"` // 物流公司编码
 	GoodsDesc      string   `json:"goods_desc,omitempty"`      // 商品描述
 	UploadTime     int64    `json:"upload_time,omitempty"`     // 上传时间
-	Contact        *Contact `json:"contact"`                   //联系方式。
+	ItemDesc       string   `json:"item_desc"`
+	Contact        *Contact `json:"contact,omitempty"`
 }
 
 type Contact struct {
@@ -68,8 +70,38 @@ type Contact struct {
 	ReceiverContact  string `json:"receiver_contact,omitempty"`  // 收件人联系方式
 }
 
+// Order represents the order information for logistics.
+type ParamsUploadShippingOrder struct {
+	OrderKey       string          `json:"order_key"`                  // 订单，需要上传物流信息的订单
+	LogisticsType  int             `json:"logistics_type"`             //物流模式，发货方式枚举值：1、实体物流配送采用快递公司进行实体物流配送形式 2、同城配送 3、虚拟商品，虚拟商品，例如话费充值，点卡等，无实体配送形式 4、用户自提
+	DeliveryMode   int             `json:"delivery_mode"`              //发货模式，发货模式枚举值：1、UNIFIED_DELIVERY（统一发货）2、SPLIT_DELIVERY（分拆发货） 示例值: UNIFIED_DELIVERY
+	IsAllDelivered bool            `json:"is_all_delivered,omitempty"` //分拆发货模式时必填，用于标识分拆发货模式下是否已全部发货完成，只有全部发货完成的情况下才会向用户推送发货完成通知。示例值: true/false
+	ShippingList   []*ShippingInfo `json:"shipping_list"`              // 物流信息列表，发货物流单列表，支持统一发货（单个物流单）和分拆发货（多个物流单）两种模式，多重性: [1, 10]
+	UploadTime     time.Time       `json:"upload_time"`                //上传时间，用于标识请求的先后顺序 示例值: `2022-12-15T13:29:35.120+08:00`
+	Payer          *Payer          `json:"payer"`                      //	支付者，支付者信息
+}
+
+// Payer represents the payer information.
+type Payer struct {
+	OpenID string `json:"openid"` //用户标识，用户在小程序appid下的唯一标识。 下单前需获取到用户的Openid 示例值: oUpF8uMuAJO_M2pxb1Q9zNjWeS6o 字符字节限制: [1, 128]
+}
+
+type ResultUploadShippingOrder struct {
+}
+
 func GetOrderList(params *ParamsGetOrderList, result *ResultGetOrderList) wx.Action {
 	return wx.NewPostAction(urls.MinipOrderGetOrderList,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func UploadShippingOrder(params *ParamsUploadShippingOrder, result *ResultUploadShippingOrder) wx.Action {
+	return wx.NewPostAction(urls.MinipOrderUploadShippingInfo,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
 		}),
