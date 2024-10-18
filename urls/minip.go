@@ -66,3 +66,11 @@ const (
 	MinipSoterVerify   = "https://api.weixin.qq.com/cgi-bin/soter/verify_signature"
 	MinipUserRiskRank  = "https://api.weixin.qq.com/wxa/getuserriskrank"
 )
+
+//order
+const (
+	//https://api.weixin.qq.com/wxa/sec/order/get_order_list?access_token=ACCESS_TOKEN
+	MinipOrderGetOrderList = "https://api.weixin.qq.com/wxa/sec/order/get_order_list"
+	//https://api.weixin.qq.com/wxa/sec/order/upload_shipping_info?access_token=ACCESS_TOKEN
+	MinipOrderUploadShippingInfo = "https://api.weixin.qq.com/wxa/sec/order/upload_shipping_info"
+)
