@@ -71,6 +71,7 @@ type Contact struct {
 }
 
 type ParamsIsTradeManaged struct {
+	Appid string `json:"appid"`
 }
 
 // Order represents the order information for logistics.
