@@ -74,5 +74,5 @@ const (
 	//https://api.weixin.qq.com/wxa/sec/order/upload_shipping_info?access_token=ACCESS_TOKEN
 	MinipOrderUploadShippingInfo = "https://api.weixin.qq.com/wxa/sec/order/upload_shipping_info"
 	//https://api.weixin.qq.com/wxa/sec/order/is_trade_managed?access_token=ACCESS_TOKEN
-	MinipOrderIsTradeManaged = "https://api.weixin.qq.com/wxa/sec/order/is_trade_managed?access_token=ACCESS_TOKEN"
+	MinipOrderIsTradeManaged = "https://api.weixin.qq.com/wxa/sec/order/is_trade_managed"
 )
