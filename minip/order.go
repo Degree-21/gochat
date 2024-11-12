@@ -70,6 +70,9 @@ type Contact struct {
 	ReceiverContact  string `json:"receiver_contact,omitempty"`  // 收件人联系方式
 }
 
+type ParamsIsTradeManaged struct {
+}
+
 // Order represents the order information for logistics.
 
 type ParamsUploadShippingOrder struct {
@@ -96,6 +99,10 @@ type Payer struct {
 type ResultUploadShippingOrder struct {
 }
 
+type ResultTradeManaged struct {
+	IsTradeManaged bool `json:"is_trade_managed"`
+}
+
 func GetOrderList(params *ParamsGetOrderList, result *ResultGetOrderList) wx.Action {
 	return wx.NewPostAction(urls.MinipOrderGetOrderList,
 		wx.WithBody(func() ([]byte, error) {
@@ -109,6 +116,17 @@ func GetOrderList(params *ParamsGetOrderList, result *ResultGetOrderList) wx.Act
 
 func UploadShippingOrder(params *ParamsUploadShippingOrder, result *ResultUploadShippingOrder) wx.Action {
 	return wx.NewPostAction(urls.MinipOrderUploadShippingInfo,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func IsTradeManaged(params *ParamsIsTradeManaged, result *ResultTradeManaged) wx.Action {
+	return wx.NewPostAction(urls.MinipOrderIsTradeManaged,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
 		}),
