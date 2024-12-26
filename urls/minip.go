@@ -76,3 +76,9 @@ const (
 	//https://api.weixin.qq.com/wxa/sec/order/is_trade_managed?access_token=ACCESS_TOKEN
 	MinipOrderIsTradeManaged = "https://api.weixin.qq.com/wxa/sec/order/is_trade_managed"
 )
+
+// scheme
+//https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateScheme.html
+const (
+	MinipSchemeGenerateScheme = "https://api.weixin.qq.com/wxa/generatescheme"
+)
