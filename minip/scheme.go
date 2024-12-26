@@ -17,6 +17,7 @@ type ParamsGenerateScheme struct {
 	IsExpire       bool     `json:"is_expire"`
 	ExpireType     int      `json:"expire_type"`
 	ExpireInterval int      `json:"expire_interval"`
+	ExpireTime     int      `json:"expire_time"`
 }
 
 type ResultGenerateScheme struct {
