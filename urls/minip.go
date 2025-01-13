@@ -78,7 +78,10 @@ const (
 )
 
 // scheme
-//https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateScheme.html
 const (
+	//https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-scheme/generateScheme.html
 	MinipSchemeGenerateScheme = "https://api.weixin.qq.com/wxa/generatescheme"
+	//generate_urllink
+	MinipGenerateUrllink = "https://api.weixin.qq.com/wxa/generate_urllink"
+	//https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-link/generateUrlLink.html
 )
