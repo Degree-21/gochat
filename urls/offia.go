@@ -163,6 +163,21 @@ const (
 	UpdateVipCardInfo = "https://api.weixin.qq.com/card/update"
 )
 
+// publish 发布能力
+//https://developers.weixin.qq.com/doc/offiaccount/Publish/Publish.html
+const (
+	// 发布
+	FreePublishSubmit = "https://api.weixin.qq.com/cgi-bin/freepublish/submit"
+	// 轮训获取结果
+	FreePublishGet = "https://api.weixin.qq.com/cgi-bin/freepublish/get"
+	// 删除
+	FreePublishDelete = "https://api.weixin.qq.com/cgi-bin/freepublish/delete"
+	//通过 article_id 获取已发布文章
+	FreePublishGetArticle = "https://api.weixin.qq.com/cgi-bin/freepublish/getarticle"
+	//获取成功发布列表
+	FreePublishBatchGet = "https://api.weixin.qq.com/cgi-bin/freepublish/batchget"
+)
+
 const (
 	EventPass    = "card_pass_check"     //通过审核
 	EventNotPass = "card_not_pass_check" //未通过审核
