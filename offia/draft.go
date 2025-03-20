@@ -76,7 +76,7 @@ type DraftAddResult struct {
 //}
 
 // 新增草稿
-func DraftAdd(params *ReqDraftAdd, result *ReqDraftAdd) wx.Action {
+func DraftAdd(params *ReqDraftAdd, result *DraftAddResult) wx.Action {
 	return wx.NewPostAction(urls.DraftAdd,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
