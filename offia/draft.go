@@ -59,7 +59,7 @@ type FooterProductInfo struct {
 }
 
 // DraftAddResult 结构体用于表示新增草稿的返回结果
-type DraftAddResult struct {
+type ResultDraftAdd struct {
 	MediaID string `json:"media_id"` // 上传后的获取标志，长度不固定，但不会超过128字符
 }
 
@@ -76,7 +76,7 @@ type DraftAddResult struct {
 //}
 
 // 新增草稿
-func DraftAdd(params *ReqDraftAdd, result *DraftAddResult) wx.Action {
+func DraftAdd(params *ReqDraftAdd, result *ResultDraftAdd) wx.Action {
 	return wx.NewPostAction(urls.DraftAdd,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
@@ -91,7 +91,7 @@ type ReqDraftGet struct {
 	MediaID string `json:"media_id"`
 }
 
-type DraftGetResult struct {
+type ResultDraftGet struct {
 	NewsItem []*DraftGetNewsItem `json:"news_item"`
 }
 
@@ -112,7 +112,7 @@ type DraftGetNewsItem struct {
 }
 
 // draftGet方法
-func DraftGet(params *ReqDraftGet, result *DraftGetResult) wx.Action {
+func DraftGet(params *ReqDraftGet, result *ResultDraftGet) wx.Action {
 	return wx.NewPostAction(urls.DraftGet,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
@@ -128,10 +128,10 @@ type ReqDraftDelete struct {
 	MediaID string `json:"media_id"` // 上传后的获取标志，长度不固定，但不会超过128字符
 }
 
-type DraftDeleteResult struct {
+type ResultDraftDelete struct {
 }
 
-func DraftDelete(params *ReqDraftDelete, result *DraftDeleteResult) wx.Action {
+func DraftDelete(params *ReqDraftDelete, result *ResultDraftDelete) wx.Action {
 	return wx.NewPostAction(urls.DraftDelete,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
