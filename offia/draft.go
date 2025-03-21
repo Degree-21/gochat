@@ -7,7 +7,7 @@ import (
 )
 
 type ReqDraftAdd struct {
-	Articles *DraftAddArticles `json:"articles"`
+	Articles []*DraftAddArticles `json:"articles"`
 }
 
 type DraftAddArticles struct {
