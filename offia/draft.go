@@ -7,6 +7,10 @@ import (
 )
 
 type ReqDraftAdd struct {
+	Articles *DraftAddArticles `json:"articles"`
+}
+
+type DraftAddArticles struct {
 	ArticleType        string       `json:"article_type"`          // 文章类型，分别有图文消息（news）、图片消息（newspic），不填默认为图文消息（news）
 	Title              string       `json:"title"`                 // 标题
 	Author             string       `json:"author"`                // 作者
