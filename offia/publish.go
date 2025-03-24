@@ -12,7 +12,7 @@ type ReqPublishSubmit struct {
 }
 
 type ResultPublishSubmit struct {
-	PublishId string `json:"publish_id"`
+	PublishId interface{} `json:"publish_id"`
 }
 
 // 发布
@@ -28,7 +28,7 @@ func PublishSubmit(params *ReqPublishSubmit, result *ResultPublishSubmit) wx.Act
 }
 
 type ReqPublishGet struct {
-	PublishId string `json:"publish_id"`
+	PublishId interface{} `json:"publish_id"`
 }
 
 type ResultPublishGet struct {

@@ -11,21 +11,21 @@ type ReqDraftAdd struct {
 }
 
 type DraftAddArticles struct {
-	ArticleType        string       `json:"article_type"`          // 文章类型，分别有图文消息（news）、图片消息（newspic），不填默认为图文消息（news）
-	Title              string       `json:"title"`                 // 标题
-	Author             string       `json:"author"`                // 作者
-	Digest             string       `json:"digest"`                // 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空
-	Content            string       `json:"content"`               // 图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS
-	ContentSourceURL   string       `json:"content_source_url"`    // 图文消息的原文地址，即点击“阅读原文”后的URL
-	ThumbMediaID       string       `json:"thumb_media_id"`        // 图文消息的封面图片素材id（必须是永久MediaID）
-	NeedOpenComment    int          `json:"need_open_comment"`     // Uint32 是否打开评论，0不打开(默认)，1打开
-	OnlyFansCanComment int          `json:"only_fans_can_comment"` // Uint32 是否粉丝才可评论，0所有人可评论(默认)，1粉丝才可评论
-	PicCrop2351        string       `json:"pic_crop_235_1"`        // 封面裁剪为2.35:1规格的坐标字段
-	PicCrop11          string       `json:"pic_crop_1_1"`          // 封面裁剪为1:1规格的坐标字段
-	ImageInfo          *ImageInfo   `json:"image_info"`            // 图片消息里的图片相关信息
-	CoverInfo          *CoverInfo   `json:"cover_info"`            // 封面裁剪信息
-	ProductInfo        *ProductInfo `json:"product_info"`          // 商品相关信息
-	Url                string       `json:"url"`
+	ArticleType        string       `json:"article_type,omitempty"`          // 文章类型，分别有图文消息（news）、图片消息（newspic），不填默认为图文消息（news）
+	Title              string       `json:"title"`                           // 标题
+	Author             string       `json:"author,omitempty"`                // 作者
+	Digest             string       `json:"digest,omitempty"`                // 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空
+	Content            string       `json:"content"`                         // 图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS
+	ContentSourceURL   string       `json:"content_source_url,omitempty"`    // 图文消息的原文地址，即点击“阅读原文”后的URL
+	ThumbMediaID       string       `json:"thumb_media_id,omitempty"`        // 图文消息的封面图片素材id（必须是永久MediaID）
+	NeedOpenComment    int          `json:"need_open_comment,omitempty"`     // Uint32 是否打开评论，0不打开(默认)，1打开
+	OnlyFansCanComment int          `json:"only_fans_can_comment,omitempty"` // Uint32 是否粉丝才可评论，0所有人可评论(默认)，1粉丝才可评论
+	PicCrop2351        string       `json:"pic_crop_235_1,omitempty"`        // 封面裁剪为2.35:1规格的坐标字段
+	PicCrop11          string       `json:"pic_crop_1_1,omitempty"`          // 封面裁剪为1:1规格的坐标字段
+	ImageInfo          *ImageInfo   `json:"image_info"`                      // 图片消息里的图片相关信息
+	CoverInfo          *CoverInfo   `json:"cover_info,omitempty"`            // 封面裁剪信息
+	ProductInfo        *ProductInfo `json:"product_info,omitempty"`          // 商品相关信息
+	Url                string       `json:"url,omitempty"`
 }
 
 // ImageInfo 结构体用于表示图片消息里的图片相关信息
