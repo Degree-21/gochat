@@ -32,7 +32,7 @@ type ReqPublishGet struct {
 }
 
 type ResultPublishGet struct {
-	PublishID     string         `json:"publish_id"`     // 发布任务id
+	PublishID     interface{}    `json:"publish_id"`     // 发布任务id
 	PublishStatus int            `json:"publish_status"` // 发布状态，0:成功, 1:发布中，2:原创失败, 3: 常规失败, 4:平台审核不通过, 5:成功后用户删除所有文章, 6: 成功后系统封禁所有文章
 	ArticleID     string         `json:"article_id"`     // 当发布状态为0时（即成功）时，返回图文的 article_id，可用于“客服消息”场景
 	ArticleDetail *ArticleDetail `json:"article_detail"` // 当发布状态为0时（即成功）时，返回文章详细信息
