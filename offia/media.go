@@ -185,14 +185,18 @@ type GetArticle struct {
 	NewsItem []*NewsItem `json:"news_item"`
 }
 type NewsItem struct {
-	Title            string `json:"title"`
-	ThumbMediaID     string `json:"thumb_media_id"`
-	ShowCoverPic     int    `json:"show_cover_pic"`
-	Author           string `json:"author"`
-	Digest           string `json:"digest"`
-	Content          string `json:"content"`
-	URL              string `json:"url"`
-	ContentSourceURL string `json:"content_source_url"`
+	Title              string `json:"title"`                 // 标题
+	Author             string `json:"author"`                // 作者
+	Digest             string `json:"digest"`                // 图文消息的摘要，仅有单图文消息才有摘要，多图文此处为空
+	Content            string `json:"content"`               // 图文消息的具体内容，支持HTML标签，必须少于2万字符，小于1M，且此处会去除JS
+	ContentSourceURL   string `json:"content_source_url"`    // 图文消息的原文地址，即点击“阅读原文”后的URL
+	ThumbMediaID       string `json:"thumb_media_id"`        // 图文消息的封面图片素材id（一定是永久MediaID）
+	ThumbURL           string `json:"thumb_url"`             // 图文消息的封面图片URL
+	ShowCoverPic       int    `json:"show_cover_pic"`        // 是否显示封面，0为false，即不显示，1为true，即显示(默认)
+	NeedOpenComment    int    `json:"need_open_comment"`     // Uint32 是否打开评论，0不打开(默认)，1打开
+	OnlyFansCanComment int    `json:"only_fans_can_comment"` // Uint32 是否粉丝才可评论，0所有人可评论(默认)，1粉丝才可评论
+	URL                string `json:"url"`                   // 图文消息的URL
+	IsDeleted          bool   `json:"is_deleted"`            // 该图文是否被删除
 }
 
 // GetNews 获取图文素材信息

@@ -163,6 +163,38 @@ const (
 	UpdateVipCardInfo = "https://api.weixin.qq.com/card/update"
 )
 
+// publish 发布能力
+//https://developers.weixin.qq.com/doc/offiaccount/Publish/Publish.html
+const (
+	// 发布
+	FreePublishSubmit = "https://api.weixin.qq.com/cgi-bin/freepublish/submit"
+	// 轮训获取结果
+	FreePublishGet = "https://api.weixin.qq.com/cgi-bin/freepublish/get"
+	// 删除
+	FreePublishDelete = "https://api.weixin.qq.com/cgi-bin/freepublish/delete"
+	//通过 article_id 获取已发布文章
+	FreePublishGetArticle = "https://api.weixin.qq.com/cgi-bin/freepublish/getarticle"
+	//获取成功发布列表
+	FreePublishBatchGet = "https://api.weixin.qq.com/cgi-bin/freepublish/batchget"
+)
+
+//draft https://developers.weixin.qq.com/doc/offiaccount/Draft_Box/Add_draft.html
+// 草稿箱能力
+const (
+	// 添加草稿
+	DraftAdd = "https://api.weixin.qq.com/cgi-bin/draft/add"
+	// 获取草稿
+	DraftGet = "https://api.weixin.qq.com/cgi-bin/draft/get"
+	// 删除草稿
+	DraftDelete = "https://api.weixin.qq.com/cgi-bin/draft/delete"
+	// 更新草稿
+	DraftUpdate = "https://api.weixin.qq.com/cgi-bin/draft/update"
+	//count
+	DraftCount = "https://api.weixin.qq.com/cgi-bin/draft/count"
+	// 获取草稿列表
+	DraftBatchGet = "https://api.weixin.qq.com/cgi-bin/draft/batchget"
+)
+
 const (
 	EventPass    = "card_pass_check"     //通过审核
 	EventNotPass = "card_not_pass_check" //未通过审核
