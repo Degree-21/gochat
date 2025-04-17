@@ -226,3 +226,10 @@ const (
 	GetUpstreamMsgDistWeek  = "https://api.weixin.qq.com/datacube/getupstreammsgdistweek"
 	GetUpstreamMsgDistMonth = "https://api.weixin.qq.com/datacube/getupstreammsgdistmonth"
 )
+
+// 广告数据
+const (
+	PublisherAdPosGeneral = "https://api.weixin.qq.com/datacube/getpublisheradposgeneral"
+	PublisherCpsGeneral   = "https://api.weixin.qq.com/datacube/getpublishercpsgeneral"
+	PublisherSettlement   = "https://api.weixin.qq.com/datacube/getpublishersettlement"
+)
