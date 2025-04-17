@@ -199,3 +199,30 @@ const (
 	EventPass    = "card_pass_check"     //通过审核
 	EventNotPass = "card_not_pass_check" //未通过审核
 )
+
+// 数据分析
+//https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
+const (
+	//getusersummary
+	GetUserSummary = "https://api.weixin.qq.com/datacube/getusersummary"
+	//获取累计用户数据（getusercumulate）
+	GetUserCumulate = "https://api.weixin.qq.com/datacube/getusercumulate"
+	//获取图文群发每日数据（getarticlesummary）
+	GetArticleSummary = "https://api.weixin.qq.com/datacube/getarticlesummary"
+	//获取图文群发总数据（getarticletotal）
+	GetArticleTotal = "https://api.weixin.qq.com/datacube/getarticletotal"
+	//获取图文统计数据（getuserread）
+	GetUserRead = "https://api.weixin.qq.com/datacube/getuserread"
+	//获取图文统计分时数据（getuserreadhour）
+	GetUserReadHour = "https://api.weixin.qq.com/datacube/getuserreadhour"
+	//获取图文分享转发数据（getusershare）
+	GetUserShare = "https://api.weixin.qq.com/datacube/getusershare"
+	//获取图文分享转发分时数据（getusersharehour）
+	GetUpstreamMsg          = "https://api.weixin.qq.com/datacube/getupstreammsg"
+	GetUpstreamMsgHour      = "https://api.weixin.qq.com/datacube/getupstreammsghour"
+	GetUpstreamMsgWeek      = "https://api.weixin.qq.com/datacube/getupstreammsgweek"
+	GetUpstreamMsgMonth     = "https://api.weixin.qq.com/datacube/getupstreammsgmonth"
+	GetUpstreamMsgDist      = "https://api.weixin.qq.com/datacube/getupstreammsgdist"
+	GetUpstreamMsgDistWeek  = "https://api.weixin.qq.com/datacube/getupstreammsgdistweek"
+	GetUpstreamMsgDistMonth = "https://api.weixin.qq.com/datacube/getupstreammsgdistmonth"
+)
