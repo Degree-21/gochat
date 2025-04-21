@@ -43,10 +43,10 @@ type SafeBindComponent struct {
 // 使用授权码获取授权信息
 // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/ThirdParty/token/authorization_info.html#%E8%AF%B7%E6%B1%82%E5%9C%B0%E5%9D%80
 type ComponentApiQueryAuth struct {
-	ComponentAccessToken  string                   `json:"component_access_token"`
-	ComponentAppid        string                   `json:"component_appid"`
-	AuthorizationCode     string                   `json:"authorization_code"`
-	AuthorizationInfo     *AuthorizationInfo       `json:"authorization_info"`
+	ComponentAccessToken string             `json:"component_access_token"`
+	ComponentAppid       string             `json:"component_appid"`
+	AuthorizationCode    string             `json:"authorization_code"`
+	AuthorizationInfo    *AuthorizationInfo `json:"authorization_info"`
 }
 
 type FuncInfo struct {
@@ -57,11 +57,11 @@ type FuncInfo struct {
 
 // TODO 授权之后的用户 信息 取消 func_info 暂时没时间补充
 type AuthorizationInfo struct {
-	AuthorizerAppid        string `json:"authorizer_appid"`
-	AuthorizerAccessToken  string `json:"authorizer_access_token"`
-	ExpiresIn              int64  `json:"expires_in"`
-	AuthorizerRefreshToken string `json:"authorizer_refresh_token"`
-	FuncInfo []*FuncInfo `json:"func_info"`
+	AuthorizerAppid        string      `json:"authorizer_appid"`
+	AuthorizerAccessToken  string      `json:"authorizer_access_token"`
+	ExpiresIn              int64       `json:"expires_in"`
+	AuthorizerRefreshToken string      `json:"authorizer_refresh_token"`
+	FuncInfo               []*FuncInfo `json:"func_info"`
 }
 
 type AuthorizationFuncInfo struct {
@@ -211,4 +211,42 @@ func GetComponentApiAuthorizertoken(data *ComponentApiAuthorizerToken) wx.Action
 			return nil
 		}),
 	)
+}
+
+type GetAuthorizerListReq struct {
+	ComponentAccessToken string `json:"component_access_token"`
+	ComponentAppid       string `json:"component_appid"`
+	Offset               int    `json:"offset"` //	number	是	偏移位置/起始位置
+	Count                int    `json:"count"`  // number	是	拉取数量，最大为 500
+	ResponseInfo         *GetAuthorizerListResp
+}
+
+type GetAuthorizerListResp struct {
+	TotalCount int              `json:"total_count"`
+	List       []*GetAuthorizer `json:"list"`
+}
+
+type GetAuthorizer struct {
+	//authorizer_appid	string	已授权账号的 appid
+	//refresh_token	string	刷新令牌authorizer_refresh_token
+	//auth_time	number	授权的时间
+	AuthorizerAppid        string `json:"authorizer_appid"`
+	AuthorizerRefreshToken string `json:"authorizer_refresh_token"`
+	AuthTime               int64  `json:"auth_time"`
+}
+
+//api_get_authorizer_list
+func GetApiGetAuthorizerList(data *GetAuthorizerListReq) wx.Action {
+	return wx.NewPostAction(urls.ComponentApiGetAuthorizerListUrl,
+		wx.WithQuery("component_access_token", data.ComponentAccessToken),
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(data)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			data.ResponseInfo = &GetAuthorizerListResp{}
+			err := json.Unmarshal(resp, &data)
+			return err
+		}),
+	)
+
 }

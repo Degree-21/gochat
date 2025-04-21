@@ -6,7 +6,7 @@
 */
 package urls
 
-const  (
+const (
 	BaseUrl = "https://mp.weixin.qq.com"
 )
 
@@ -23,17 +23,26 @@ const (
 	ComponentApiGetAuthorizerTokenUrl = "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token"
 )
 
-const   (
+//授权账号管理
+//https://developers.weixin.qq.com/doc/oplatform/openApi/OpenApiDoc/authorization-management/getAuthorizerList.html
+const (
+
+	//api_get_authorizer_list
+	//	https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_list?access_token=ACCESS_TOKEN
+
+	ComponentApiGetAuthorizerListUrl = "https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_list"
+)
+
+const (
 	//关联小程序
 	WxopenWxamplinkUrl = "https://api.weixin.qq.com/cgi-bin/wxopen/wxamplink"
 	//获取公众号关联的小程序
 	WxopenWxamplinkGetUrl = "https://api.weixin.qq.com/cgi-bin/wxopen/wxamplinkget"
 )
 
-const  (
+const (
 	// 图文消息内的图片获取URL
 	OaMediaUpload = "https://api.weixin.qq.com/cgi-bin/media/upload"
 	// 图文永久素材
 	OaAddMaterial = "https://api.weixin.qq.com/cgi-bin/media/add_material"
-
 )
