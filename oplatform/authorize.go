@@ -244,7 +244,7 @@ func GetApiGetAuthorizerList(data *GetAuthorizerListReq) wx.Action {
 		}),
 		wx.WithDecode(func(resp []byte) error {
 			data.ResponseInfo = &GetAuthorizerListResp{}
-			err := json.Unmarshal(resp, &data)
+			err := json.Unmarshal(resp, &data.ResponseInfo)
 			return err
 		}),
 	)
