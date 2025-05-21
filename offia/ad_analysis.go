@@ -68,6 +68,7 @@ type ResultPublisherAdPosGeneral struct {
 		ClickRate     float64 `json:"click_rate"`
 		Income        int     `json:"income"`
 		Ecpm          float64 `json:"ecpm"`
+		SlotStr       string  `json:"slot_str"`
 	} `json:"list"`
 	Summary struct {
 		ReqSuccCount  int     `json:"req_succ_count"`
