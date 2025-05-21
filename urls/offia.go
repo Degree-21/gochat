@@ -230,7 +230,7 @@ const (
 // 广告数据
 const (
 	// 获取公众号分广告位数据
-	PublisherAdPosGeneral = "https://api.weixin.qq.com/publisher/stat?action=publisher_adpos_general"
+	PublisherAdPosGeneral = "https://api.weixin.qq.com/publisher/stat"
 
 	// 获取公众号返佣商品数据
 	PublisherCpsGeneral = "https://api.weixin.qq.com/publisher/stat?action=publisher_cps_general"

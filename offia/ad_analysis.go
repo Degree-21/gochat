@@ -83,10 +83,13 @@ type ResultPublisherAdPosGeneral struct {
 
 // GetPublisherAdPosGeneral 获取公众号分广告位数据
 func GetPublisherAdPosGeneral(params *ParamsPublisherAdPosGeneral, result *ResultPublisherAdPosGeneral) wx.Action {
-	return wx.NewPostAction(urls.PublisherAdPosGeneral,
-		wx.WithBody(func() ([]byte, error) {
-			return json.Marshal(params)
-		}),
+	return wx.NewGetAction(urls.PublisherAdPosGeneral,
+		wx.WithQuery("page", strconv.Itoa(params.Page)),
+		wx.WithQuery("action", "publisher_adpos_general"),
+		wx.WithQuery("page_size", strconv.Itoa(params.PageSize)),
+		wx.WithQuery("start_date", params.StartDate),
+		wx.WithQuery("end_date", params.EndDate),
+		//wx.WithQuery("ad_slot", params.AdSlot),
 		wx.WithDecode(func(resp []byte) error {
 			return json.Unmarshal(resp, result)
 		}),
