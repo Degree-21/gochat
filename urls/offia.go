@@ -229,7 +229,11 @@ const (
 
 // 广告数据
 const (
-	PublisherAdPosGeneral = "https://api.weixin.qq.com/datacube/getpublisheradposgeneral"
-	PublisherCpsGeneral   = "https://api.weixin.qq.com/datacube/getpublishercpsgeneral"
-	PublisherSettlement   = "https://api.weixin.qq.com/datacube/getpublishersettlement"
+	// 获取公众号分广告位数据
+	PublisherAdPosGeneral = "https://api.weixin.qq.com/publisher/stat?action=publisher_adpos_general"
+
+	// 获取公众号返佣商品数据
+	PublisherCpsGeneral = "https://api.weixin.qq.com/publisher/stat?action=publisher_cps_general"
+	// 获取公众号结算收入数据及结算主体信息
+	PublisherSettlement = "https://api.weixin.qq.com/publisher/stat?action=publisher_settlement"
 )
