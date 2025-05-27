@@ -67,6 +67,11 @@ func (oa *Offia) SetClient(options ...wx.ClientOption) {
 	oa.client.Set(options...)
 }
 
+// 重置client 不破坏原有的基础上
+func (oa *Offia) ResetClient(client wx.Client) {
+	oa.client = client
+}
+
 // AppID returns appid
 func (oa *Offia) AppID() string {
 	return oa.appid

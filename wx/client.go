@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/shenghui0779/yiigo"
@@ -159,6 +160,57 @@ func DefaultClient(certs ...tls.Certificate) Client {
 		},
 	}
 
+	return &wxclient{
+		client: yiigo.NewHTTPClient(client),
+		logger: DefaultLogger(),
+	}
+}
+
+func NewProxyHTTPClient(proxyURL string, certs ...tls.Certificate) Client {
+	// 1. 初始化 TLS 配置
+	tlscfg := &tls.Config{
+		InsecureSkipVerify: true, // 跳过证书验证（生产环境应谨慎使用）
+	}
+
+	if len(certs) > 0 {
+		tlscfg.Certificates = certs
+	}
+
+	// 2. 解析代理URL（如果提供）
+
+	var proxyFunc func(*http.Request) (*url.URL, error)
+	proxyFunc = http.ProxyFromEnvironment // 默认使用环境变量代理
+
+	if proxyURL != "" {
+		parsedProxyURL, err := url.Parse(proxyURL)
+		if err != nil {
+			return nil
+		}
+		proxyFunc = http.ProxyURL(parsedProxyURL)
+	}
+
+	// 3. 创建自定义 Transport
+	transport := &http.Transport{
+		Proxy: proxyFunc,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 60 * time.Second,
+		}).DialContext,
+		TLSClientConfig:       tlscfg,
+		MaxIdleConns:          0,    // 0 表示无限制
+		MaxIdleConnsPerHost:   1000, // 默认值
+		MaxConnsPerHost:       1000, // 默认值
+		IdleConnTimeout:       60 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
+	// 4. 创建 HTTP Client
+	client := &http.Client{
+		Transport: transport,
+	}
+
+	// 5. 返回微信客户端
 	return &wxclient{
 		client: yiigo.NewHTTPClient(client),
 		logger: DefaultLogger(),
