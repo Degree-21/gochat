@@ -49,6 +49,24 @@ func CreateQRCode(params *ParamsQRCodeCreate, result *ResultQRCodeCreate) wx.Act
 	)
 }
 
+type ParamsQRCodeShow struct {
+	Ticket string `json:"ticket"`
+}
+
+type ResultQRCodeShow struct {
+	Body []byte `json:"body"`
+}
+
+func QRCodeShow(params *ParamsQRCodeShow, result *ResultQRCodeShow) wx.Action {
+	return wx.NewGetAction(urls.OffiaQRCodeShow,
+		wx.WithQuery("ticket", string(params.Ticket)),
+		wx.WithDecode(func(resp []byte) error {
+			result.Body = resp
+			return nil
+		}),
+	)
+}
+
 type ParamsShortURL struct {
 	Action  string `json:"action"`
 	LongURL string `json:"long_url"`
