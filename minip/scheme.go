@@ -48,6 +48,20 @@ type URLLinkResponse struct {
 	URLLink string `json:"url_link"` // 生成的小程序 URL Link
 }
 
+// GenShortLinkRequest 定义生成小程序 Short Link 的请求结构体
+type GenShortLinkRequest struct {
+	PageURL     string `json:"page_url"`              // 是 通过 Short Link 进入的小程序页面路径，必须是已经发布的小程序存在的页面，可携带 query，最大1024个字符
+	PageTitle   string `json:"page_title,omitempty"`  // 否 页面标题，不能包含违法信息，超过20字符会用... 截断代替
+	IsPermanent bool   `json:"is_permanent,omitempty"` // 否 默认值false。生成的 Short Link 类型，短期有效：false，永久有效：true
+}
+
+// GenShortLinkResponse 定义生成小程序 Short Link 的返回结构体
+type GenShortLinkResponse struct {
+	ErrCode int    `json:"errcode"` // 错误码
+	ErrMsg  string `json:"errmsg"`  // 错误信息
+	Link    string `json:"link"`    // 生成的小程序 Short Link
+}
+
 type ResultGenerateScheme struct {
 	Openlink string `json:"openlink"`
 }
@@ -65,6 +79,17 @@ func GenerateScheme(params *ParamsGenerateScheme, result *ResultGenerateScheme) 
 
 func GenerateURLLink(params *URLLinkRequest, result *URLLinkResponse) wx.Action {
 	return wx.NewPostAction(urls.MinipGenerateUrllink,
+		wx.WithBody(func() ([]byte, error) {
+			return json.Marshal(params)
+		}),
+		wx.WithDecode(func(resp []byte) error {
+			return json.Unmarshal(resp, result)
+		}),
+	)
+}
+
+func GenerateShortLink(params *GenShortLinkRequest, result *GenShortLinkResponse) wx.Action {
+	return wx.NewPostAction(urls.MinipGenWXAShortLink,
 		wx.WithBody(func() ([]byte, error) {
 			return json.Marshal(params)
 		}),

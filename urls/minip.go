@@ -84,4 +84,6 @@ const (
 	//generate_urllink
 	MinipGenerateUrllink = "https://api.weixin.qq.com/wxa/generate_urllink"
 	//https://developers.weixin.qq.com/miniprogram/dev/OpenApiDoc/qrcode-link/url-link/generateUrlLink.html
+	//generate short link
+	MinipGenWXAShortLink = "https://api.weixin.qq.com/wxa/genwxashortlink"
 )
